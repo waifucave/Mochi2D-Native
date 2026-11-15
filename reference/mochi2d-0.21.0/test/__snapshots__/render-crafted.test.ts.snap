@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`crafted render scenarios (headless Chromium) > q2c-full: renders, locked by hash 1`] = `"be9c26cc0cd81245186e9a973d30e7c9cb03379cc3ad4a56351ee6083aba381f"`;
+
+exports[`crafted render scenarios (headless Chromium) > q2c-leg: renders, locked by hash 1`] = `"7b527b8e9e90114a8935f33ab34c10786bd621df0566959d5788af1cd7ea3692"`;
+
+exports[`crafted render scenarios (headless Chromium) > q2c-leg-pose: renders, locked by hash 1`] = `"53178f19f231b6c61030f564b3393f3e4e87a565b3fe8d9bae550c5ff2947188"`;
+
+exports[`crafted render scenarios (headless Chromium) > q2d-full: renders, locked by hash 1`] = `"72d86f338a85bfaea4519b7051a326ba55f37e80c53031a6cf45a89bc90266c3"`;
+
+exports[`crafted render scenarios (headless Chromium) > q2d-leg: renders, locked by hash 1`] = `"ffb5a4c8d325e7261561e311537b18b0a1c267ee931cb53e27f82cb2493d9f0b"`;
+
+exports[`crafted render scenarios (headless Chromium) > q2d-leg-pose: renders, locked by hash 1`] = `"b5ead33592cf15bc684cb514fc5f4fc172edac20496c089ab9258accf7de5ee1"`;
+
+exports[`crafted render scenarios (headless Chromium) > qm-eye-control: renders, locked by hash 1`] = `"abd903811354cb0a7cd1e8e24488abf4d09b8300a13266016d4e91881a94ac96"`;
+
+exports[`crafted render scenarios (headless Chromium) > qm-eye-inactive: renders, locked by hash 1`] = `"978cdeb93b34ec00d6e4899116a7b4765770c3496156b79822fd7c1ef5a08194"`;
+
+exports[`crafted render scenarios (headless Chromium) > qm-full-inactive: renders, locked by hash 1`] = `"bbca5b2b2f06ce6307896d49a813f5269fe13e3985a5e53c9c672adf3b8068e8"`;
+
+exports[`crafted render scenarios (headless Chromium) > qm-mouth-control: renders, locked by hash 1`] = `"3de756c0d9d0d501f1d78dc243368871d0e61c08dd1c244b93efa3f2dd781fe5"`;
+
+exports[`crafted render scenarios (headless Chromium) > qm-mouth-inactive: renders, locked by hash 1`] = `"4d783683c22d81e8cbcc3806d4caff4b42338fc2e3451ee1dc7d20f49cdc76eb"`;

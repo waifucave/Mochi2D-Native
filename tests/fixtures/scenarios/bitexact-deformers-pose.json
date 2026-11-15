@@ -1,0 +1,8 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-deformers-pose",
+  "model": "bitexact-deformers/bitexact-deformers.model3.json",
+  "partOpacities": {
+    "Root": 0.6428999900817871
+  }
+}

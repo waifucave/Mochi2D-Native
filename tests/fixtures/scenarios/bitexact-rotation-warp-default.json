@@ -1,0 +1,5 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-rotation-warp-default",
+  "model": "bitexact-rotation-warp/bitexact-rotation-warp.model3.json"
+}

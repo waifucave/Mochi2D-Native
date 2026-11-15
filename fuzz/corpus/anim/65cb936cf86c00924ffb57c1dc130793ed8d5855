@@ -1,0 +1,1 @@
+{"Meta":{"PhysicsSettingCount":1,"TotalInputCount":2,"TotalOutputCount":2,"VertexCount":3,"Fps":30},"PhysicsSetti=ngs":[{"Id":"S","Input":[{"Source":{"Id":"ParamX"},"Weight":100,"Type":"Angle","Reflect":true},{"Source":{"Id":"Free"},"Weight":50,"Type":"Y"}],"Outpu":[{"Id":"S","Input":[{"Source":{"Id":"ParamX"},"Weight":100,"Type":"Angle","Reflect":true},{"SX"alI},"Ver

@@ -1,0 +1,23 @@
+{
+  "Type": "Live2D Expression",
+  "FadeOutTime": 0.2,
+  "Parameters": [
+    {
+      "Id": "FreeCurve",
+      "Value": 0.042
+    },
+    {
+      "Id": "Param2",
+      "Value": -0.279
+    },
+    {
+      "Id": "Param1",
+      "Value": -1.771,
+      "Blend": "Add"
+    },
+    {
+      "Id": "ParamBlend",
+      "Value": 1.102
+    }
+  ]
+}

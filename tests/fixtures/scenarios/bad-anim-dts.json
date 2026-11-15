@@ -1,0 +1,9 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "bad-anim-dts",
+  "model": "synth000-v1/a0.model3.json",
+  "dts": [
+    0.1,
+    -1
+  ]
+}

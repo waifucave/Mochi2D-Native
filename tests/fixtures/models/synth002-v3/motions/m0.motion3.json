@@ -1,0 +1,116 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 1.7,
+    "Fps": 30,
+    "FadeInTime": -1,
+    "FadeOutTime": -2,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 4,
+    "TotalSegmentCount": 12,
+    "TotalPointCount": 26,
+    "UserDataCount": 2,
+    "TotalUserDataSize": 6
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "LipSync",
+      "Segments": [
+        0.018,
+        0.312,
+        1,
+        0.189,
+        0.206,
+        0.043,
+        0.873,
+        0.352,
+        0.276,
+        0,
+        0.762,
+        0.014,
+        0,
+        1.025,
+        0.622,
+        1,
+        1.128,
+        0.548,
+        1.508,
+        0.556,
+        1.7,
+        0.736
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        6.194,
+        1,
+        0.437,
+        12.875,
+        1.535,
+        10.945,
+        1.7,
+        -2.31
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part0",
+      "Segments": [
+        0,
+        0.052,
+        2,
+        0,
+        0.083,
+        0,
+        0.099,
+        0.988,
+        2,
+        0.481,
+        0.901,
+        1,
+        0.504,
+        0.086,
+        0.518,
+        0.613,
+        0.519,
+        0.898,
+        2,
+        1.7,
+        0.876
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part2",
+      "Segments": [
+        0,
+        0.742,
+        2,
+        0.702,
+        0.105,
+        1,
+        1.173,
+        0.25,
+        0.389,
+        0.701,
+        1.7,
+        0.565
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 2.2,
+      "Value": "ev0"
+    },
+    {
+      "Time": 2.2,
+      "Value": "ev1"
+    }
+  ]
+}

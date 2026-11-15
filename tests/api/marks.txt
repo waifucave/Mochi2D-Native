@@ -1,0 +1,46 @@
+# Stability marks of the C API (include/mochi2d.h), by name: the first
+# pattern (fnmatch) that matches a function, type or constant gives its mark.
+# tests/api/api_list.py writes docs/api-stability.md from the header and
+# these rules; the api-list test fails when the two disagree.
+#
+# experimental: usable, but may still change in a minor version (noted in
+# CHANGELOG.md). stable: from 1.0 on, changed
+# incompatibly only in a new major version.
+
+# The GPU layer: the frame plan, the programs, and the four backends, the
+# newest parts. Metal and Direct3D 11 have run only on the Apple Paravirtual device
+# and WARP; their host rules may still change.
+# The evaluation switches (Mochi2D 0.21.0's `evaluation`, experimental there too).
+m2d_instance_options*     experimental
+m2d_instance_create_with_options experimental
+m2d_render_plan*          experimental
+m2d_render_op*            experimental
+M2D_OP_*                  experimental
+m2d_render_blend          experimental
+M2D_BLEND_*               experimental
+m2d_render_shader_*       experimental
+m2d_shader_*              experimental
+M2D_SHADER_*              experimental
+m2d_gl_*                  experimental
+m2d_vk_*                  experimental
+m2d_mtl_*                 experimental
+M2D_MTL_*                 experimental
+m2d_d3d11_*               experimental
+M2D_D3D11_*               experimental
+
+# Live motion sync: Mochi2D's own analysis (rated by ear), its live input,
+# voice calibration and profiles, and the animator's motion sync. Reading
+# .motionsync3.json files (m2d_motion_sync_parse and the file's getters) is
+# stable, as in Mochi2D.
+m2d_motion_sync_input*    experimental
+m2d_motion_sync_sound*    experimental
+m2d_motion_sync_options*  experimental
+m2d_motion_sync_tick*     experimental
+m2d_animator_*motion_sync* experimental
+m2d_package_motion_sync_sound experimental
+m2d_voice_*               experimental
+M2D_EFFECT_MOTION_SYNC    experimental
+
+# Everything else: models, instances and evaluation, the framework's files,
+# the animator, live lip sync, packages, the reference renderer.
+*                         stable

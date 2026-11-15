@@ -1,0 +1,171 @@
+# Builds and tests on macOS (ARM64, Apple Clang: also the scalar warp path)
+# and Windows (MSVC), with the Metal backend on the macOS runner's device and
+# the Direct3D 11 backend on WARP, Windows's software rasterizer. Both
+# backends are judged as the GL backend on Mesa is: a Linux job makes the
+# render scenarios and Mochi2D's reference renders of them once (the render
+# cross-check's, tests/crosscheck/render.ts: headless Chromium, SwiftShader);
+# each platform job renders the same scenarios through its backend, and
+# Mochi2D renders them again on the same driver (Chromium's ANGLE over Metal,
+# or over Direct3D 11 on WARP); a Linux job runs Mochi2D's judge: the
+# backend against Mochi2D on its driver (required), against the SwiftShader
+# renders, and the drivers against each other (reported). Started by hand, and on version tags: these runners
+# cost more on a private repository, so not on every push.
+name: Platforms
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  references:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The reference's dependencies, Playwright and its Chromium
+        run: |
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          npm install -g playwright@1.63.0 && playwright install --with-deps chromium
+      - name: The render scenarios (12 models, seed 7) and Mochi2D's renders of them
+        run: |
+          REF=reference/mochi2d-0.21.0
+          (cd "$REF" && npm run --silent build >/dev/null)
+          node tests/crosscheck/bundle.mjs "$REF" tests/crosscheck/render.ts "$RUNNER_TEMP/render.mjs"
+          node "$RUNNER_TEMP/render.mjs" render-data --models 12 --seed 7 --ref "$REF"
+          ls render-data/scenarios | wc -l
+      - uses: actions/upload-artifact@v4
+        with:
+          name: render-data
+          path: render-data
+          retention-days: 7
+
+  build:
+    needs: references
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            backend: mtl
+            angle: metal
+          - os: windows-2022
+            backend: d3d11
+            angle: d3d11-warp
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DMOCHI2D_CROSSCHECK=OFF
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: The GL backend, the render plan and the platform's backend are in the libraries
+        shell: bash
+        run: |
+          cmake --build build --config Release --target mochi2d_render_gl mochi2d_render_${{ matrix.backend }} mochi2d_static
+      - name: Unit tests and fuzz replays
+        run: ctest --test-dir build -C Release --output-on-failure -E "fixtures|libm32|mtl-|d3d11-"
+      - name: Fixtures (the reference's results, byte for byte, without Node)
+        run: ctest --test-dir build -C Release --output-on-failure -R "^fixtures$"
+      - name: libm32 (the vendored musl functions against the digests of musl's own build)
+        run: ctest --test-dir build -C Release --output-on-failure -R "^libm32-fixture$"
+      - name: Renders on four threads against one, and against the committed bytes
+        run: ctest --test-dir build -C Release --output-on-failure -R "^render-fixtures$"
+      - name: The device
+        shell: bash
+        run: |
+          TOOL=""
+          for f in build/tests/mochi2d-${{ matrix.backend }}-render build/tests/Release/mochi2d-${{ matrix.backend }}-render.exe; do
+            if [ -f "$f" ]; then TOOL="$f"; fi
+          done
+          [ -n "$TOOL" ] || { echo "the backend's test tool was not built"; exit 1; }
+          echo "TOOL=$TOOL" >> "$GITHUB_ENV"
+          "$TOOL" info
+      - name: The backend on the render fixtures and through the C API
+        run: ctest --test-dir build -C Release --output-on-failure -R "^${{ matrix.backend }}-"
+      - uses: actions/download-artifact@v4
+        with:
+          name: render-data
+          path: render-data
+      - name: The render cross-check's scenarios through the backend
+        shell: bash
+        run: |
+          "$TOOL" render render-data/scenarios --out renders/backend --models render-data/models 2>&1 | grep -E "^(device|FAIL)|scenarios" || true
+          ls renders/backend/*.png | wc -l
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Mochi2D's renders on the same driver (Chromium's ANGLE over ${{ matrix.angle }})
+        shell: bash
+        run: |
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          npm install -g playwright@1.63.0 && playwright install chromium
+          REF=reference/mochi2d-0.21.0
+          (cd "$REF" && npm run --silent build >/dev/null)
+          node tests/crosscheck/bundle.mjs "$REF" tests/crosscheck/render.ts "$RUNNER_TEMP/render-same.mjs" ${{ matrix.angle }}
+          # The global install, by path (the reference's lookup misses it on Windows).
+          export MOCHI2D_PLAYWRIGHT="$(npm root -g)/playwright"
+          node "$RUNNER_TEMP/render-same.mjs" same-data --models 12 --seed 7 --ref "$REF" --reference-out reference-same
+          mv same-data/reference-same renders/reference-same
+      - uses: actions/upload-artifact@v4
+        with:
+          name: renders-${{ matrix.backend }}
+          path: renders
+          retention-days: 7
+
+  judge:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The reference's judge
+        run: |
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          (cd reference/mochi2d-0.21.0 && npm run --silent build >/dev/null)
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Each backend's renders against Mochi2D's
+        run: |
+          REF=reference/mochi2d-0.21.0
+          A="$GITHUB_WORKSPACE/artifacts"
+          driver() { node -e 'const fs=require("fs");const d=process.argv[1];const f=fs.readdirSync(d).find(n=>n.endsWith(".render.json"));console.log(f?JSON.parse(fs.readFileSync(d+"/"+f,"utf8")).renderer:"no renders")' "$1"; }
+          judge() { (cd "$REF" && node dist/tools/resultdiff.js --judge "$1" "$2" --out "$3" >/dev/null); }
+          summary() {
+            node -e '
+            const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+            const adv = j.scenarios.filter((s) => s.advisories.length).length;
+            let worst = { v: 0, id: "" };
+            for (const s of j.scenarios)
+              for (const q of s.largest ?? []) if (q.quantity === "RMS" && q.value > worst.v) worst = { v: q.value, id: s.id };
+            console.log(`${j.passed}/${j.passed + j.failed} pass the judge; ${adv} with advisories; largest RMS ${worst.v.toFixed(3)} (${worst.id})`);
+            if (process.argv[2]) for (const s of j.scenarios.filter((s) => !s.pass).slice(0, 20)) console.log(`FAILS: ${s.id}: ${s.firstFailure}`);
+            ' "$1" "${2:-}"
+          }
+          status=0
+          for b in mtl d3d11; do
+            R="$A/renders-$b/backend"
+            S="$A/renders-$b/reference-same"
+            echo "== $b: $(driver "$R"); Mochi2D on $(driver "$S")"
+            judge "$S" "$R" "$GITHUB_WORKSPACE/judge-$b.json" || status=1
+            printf "%s against Mochi2D on the same driver: " "$b"; summary "$GITHUB_WORKSPACE/judge-$b.json" all
+            judge "$A/render-data/reference" "$R" "$GITHUB_WORKSPACE/judge-$b-swiftshader.json" || true
+            printf "%s against Mochi2D on SwiftShader (reported): " "$b"; summary "$GITHUB_WORKSPACE/judge-$b-swiftshader.json"
+            judge "$A/render-data/reference" "$S" "$GITHUB_WORKSPACE/judge-$b-drivers.json" || true
+            printf "Mochi2D on that driver against Mochi2D on SwiftShader (reported): "; summary "$GITHUB_WORKSPACE/judge-$b-drivers.json"
+          done
+          exit $status
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: judge
+          path: judge-*.json
+          retention-days: 7

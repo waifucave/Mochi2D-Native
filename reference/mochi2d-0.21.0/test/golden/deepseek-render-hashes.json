@@ -1,0 +1,41 @@
+{
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "hashes": {
+    "dsr-blendshapes": {
+      "straight": "97667fad1b38e2580d0cf93b2c9646adeabe0368a3e3c95bd4e2177c7a82c95b",
+      "premultiplied": "97667fad1b38e2580d0cf93b2c9646adeabe0368a3e3c95bd4e2177c7a82c95b"
+    },
+    "dsr-default": {
+      "straight": "d4fab5014c8677d288af8f4b6161ad05d5cba74c0b437d82d73b793ef85a9b1b",
+      "premultiplied": "d4fab5014c8677d288af8f4b6161ad05d5cba74c0b437d82d73b793ef85a9b1b"
+    },
+    "dsr-default-transparent": {
+      "straight": "a89dfaacdf0982b4de5dfb5434f31cd91a1cfeb0c526df80164f7bb946434977",
+      "premultiplied": "7a6ed78507f2cb894050ea31625cb8b4204bfebf6ee68bf900217afd525c37e5"
+    },
+    "dsr-face": {
+      "straight": "3a79456f17c3314d0f63f9cf9ddd34fae453f6dcc533705904189ad874115ecc",
+      "premultiplied": "3a79456f17c3314d0f63f9cf9ddd34fae453f6dcc533705904189ad874115ecc"
+    },
+    "dsr-face-turned": {
+      "straight": "5f76131c61e7ca426a5a0d77bedab18a1af99ccbf5b60325b65a903bd37153be",
+      "premultiplied": "5f76131c61e7ca426a5a0d77bedab18a1af99ccbf5b60325b65a903bd37153be"
+    },
+    "dsr-part-opacity": {
+      "straight": "466ed09ffa1b4492a770acdcfdceefb5451fe3574555704601745241aef488c4",
+      "premultiplied": "466ed09ffa1b4492a770acdcfdceefb5451fe3574555704601745241aef488c4"
+    },
+    "dsr-pose-a": {
+      "straight": "ca3a97f89a972cc3397980f175f7a828e84b756552220915317756c06914e33c",
+      "premultiplied": "ca3a97f89a972cc3397980f175f7a828e84b756552220915317756c06914e33c"
+    },
+    "dsr-pose-b": {
+      "straight": "7cb0796564f0834f612e080cdb9da3a46323bd983de577b017f125a7295851c6",
+      "premultiplied": "7cb0796564f0834f612e080cdb9da3a46323bd983de577b017f125a7295851c6"
+    },
+    "dsr-tail-close": {
+      "straight": "c75a313df3c16345e0d2cae0290ce6dc89f60c9d707771ff3ca8debc8b7f9047",
+      "premultiplied": "b26462015a989f1755d5286ed2fab8fa1d788ed02fd2d3f67ac4050b7c5b6366"
+    }
+  }
+}

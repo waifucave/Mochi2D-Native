@@ -1,0 +1,83 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 3,
+    "Fps": 30,
+    "FadeInTime": -1,
+    "FadeOutTime": 0.5,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 3,
+    "TotalSegmentCount": 9,
+    "TotalPointCount": 18,
+    "UserDataCount": 0,
+    "TotalUserDataSize": 0
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "EyeBlink",
+      "Segments": [
+        0,
+        0.226,
+        1,
+        1.906,
+        0.005,
+        0.165,
+        0.334,
+        3,
+        0.036
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "ParamBlend",
+      "FadeOutTime": 0,
+      "Segments": [
+        0,
+        -0.521,
+        2,
+        0.517,
+        0.244,
+        1,
+        0.657,
+        1.286,
+        0.558,
+        -0.229,
+        0.807,
+        -0.449,
+        0,
+        1.474,
+        0.584,
+        2,
+        3,
+        0.999
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeCurve",
+      "FadeInTime": 0,
+      "Segments": [
+        0,
+        -0.663,
+        1,
+        0.022,
+        2.028,
+        0.037,
+        -1.878,
+        0.094,
+        1.657,
+        3,
+        0.331,
+        -1.361,
+        2,
+        1.471,
+        -0.558,
+        0,
+        3,
+        0.026
+      ]
+    }
+  ]
+}

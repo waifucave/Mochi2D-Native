@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mochi2D embed example</title>
+    <style>
+      body {
+        margin: 0;
+        font:
+          15px/1.4 system-ui,
+          sans-serif;
+        background: linear-gradient(#cfe3ff, #fff4e0);
+        min-height: 100vh;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: min(70vh, 640px);
+      }
+      #log {
+        min-height: 1.4em;
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>A model on a page</h1>
+      <p>Move the pointer over the model (or drag with a finger), tap it, press the buttons.</p>
+      <canvas id="model"></canvas>
+      <p>
+        <button id="motion">Play a motion</button>
+        <button id="expression">Next expression</button>
+        <label>Speak: <input id="audio" type="file" accept="audio/*" /></label>
+        <button id="mic">Microphone</button>
+      </p>
+      <p id="log"></p>
+    </main>
+    <script type="module">
+      // Built by `npm run build:lib`. In your own project: import { MochiView } from "mochi2d".
+      import { MochiView } from "../../dist/lib/mochi2d.js";
+
+      // The page may have been taken over (tests empty it): then there is nothing to log into.
+      const log = (text) => {
+        const el = document.getElementById("log");
+        if (el) el.textContent = text;
+      };
+      // ?model=<URL of a *.model3.json or a .zip>; by default DeepSeek-chan from
+      // assets/models/DeepSeek/ (served under /models/ by npm run example:embed).
+      const url =
+        new URLSearchParams(location.search).get("model") ??
+        "../../models/DeepSeek/大肥鱼.model3.json";
+
+      const view = new MochiView(document.getElementById("model"), { look: "follow" });
+      const model = await view.load(url).catch((e) => {
+        log(
+          `Could not load ${url}: ${e.message}. Put DeepSeek-chan in assets/models/DeepSeek/ ` +
+            "(see the README), or open this page with ?model=<URL of a model>.",
+        );
+        throw e;
+      });
+      log(`${model.name}: ${model.parameters.length} parameters. ${model.textureNotice ?? ""}`);
+
+      // Taps report the settings' hit areas (or the topmost drawable).
+      view.on("tap", (e) =>
+        log(e.areas.length ? `Hit: ${e.areas.join(", ")}` : `Tapped ${e.drawable ?? "nothing"}`),
+      );
+      view.on("hit", (e) => {
+        const group = model.motionGroups.find((g) => g.name.toLowerCase().startsWith("tap"));
+        if (group) void model.startMotion(group.name);
+      });
+      view.on("motionevent", (e) => log(`Motion event: ${e.value}`));
+      view.on("motionend", (e) => log(`Motion ${e.motion} ended (${e.reason})`));
+
+      // A motion: a settings group if there is one, else a motion file of DeepSeek-chan.
+      document.getElementById("motion").onclick = async () => {
+        const group = model.motionGroups.find((g) => g.name !== "Idle") ?? model.motionGroups[0];
+        const ok = group
+          ? await model.startMotion(group.name)
+          : await model.startMotionFile("Animation/脱捕.motion3.json");
+        log(ok ? `Playing ${model.motions.join(", ")}` : "A motion of higher priority is playing");
+      };
+
+      // Expressions by name from the settings, else DeepSeek-chan's files by path.
+      const names = model.expressions.length
+        ? model.expressions
+        : ["Exp3/脸红.exp3.json", "Exp3/爱心眼.exp3.json", "Exp3/流泪.exp3.json"];
+      let next = 0;
+      document.getElementById("expression").onclick = async () => {
+        const name = names[next++ % names.length];
+        await model.setExpression(name);
+        log(`Expression ${name}`);
+      };
+
+      // Lip sync from an audio file (playback needs the user's gesture, which this is).
+      document.getElementById("audio").onchange = async (ev) => {
+        const file = ev.target.files[0];
+        if (!file) return;
+        log(`Speaking ${file.name}…`);
+        await model.speak(file);
+        log("Done speaking");
+      };
+
+      // Lip sync from the microphone (an HTTPS page or localhost). The audio is
+      // processed in memory only: never recorded, stored or sent anywhere.
+      const mic = document.getElementById("mic");
+      mic.onclick = async () => {
+        if (model.liveLipSync) return model.stopLiveLipSync();
+        try {
+          const live = await model.startLiveLipSync();
+          mic.textContent = "Stop microphone";
+          log(`Microphone: ${live.state}`);
+          live.onstatechange = (state) => {
+            if (state === "stopped") mic.textContent = "Microphone";
+            log(`Microphone: ${state}${live.error ? ` (${live.error.message})` : ""}`);
+          };
+        } catch (e) {
+          log(e.message); // e.g. not a secure page, or the permission was denied
+        }
+      };
+
+      window.mochi2dExample = { view, model };
+    </script>
+  </body>
+</html>

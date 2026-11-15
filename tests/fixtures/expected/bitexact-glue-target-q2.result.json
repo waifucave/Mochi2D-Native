@@ -1,0 +1,48 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "bitexact-glue-target-q2",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "canvas": {
+    "width": 2,
+    "height": 2,
+    "originX": 0,
+    "originY": 0,
+    "pixelsPerUnit": 1
+  },
+  "parameters": [
+    {
+      "id": "Q",
+      "value": 1
+    }
+  ],
+  "parts": [
+    {
+      "id": "Root",
+      "opacity": 1
+    }
+  ],
+  "drawables": [
+    {
+      "id": "GA",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 0,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [0, 0, 1.5, 0, 0, -1]
+    },
+    {
+      "id": "GB",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 1,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [1.5, 0, 3, 0, 2, -1]
+    }
+  ],
+  "warnings": []
+}

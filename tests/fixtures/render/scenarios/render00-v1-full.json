@@ -1,0 +1,15 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "render00-v1-full",
+  "model": "render00-v1/render00-v1.model3.json",
+  "render": {
+    "width": 256,
+    "height": 256,
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-key-snap",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamAngleX": 0.0009,
+    "ParamAngleY": 29.9995,
+    "ParamAngleZ": 15.0005
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-multi-constraint-p50",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "Param50": 0.8,
+    "Movement1": 0.25,
+    "Movement3": 0.6,
+    "Movement2": 0.5,
+    "Param37": 0.3
+  }
+}

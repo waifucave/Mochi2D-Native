@@ -1,0 +1,139 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "synth005-v6.moc3",
+    "Textures": [],
+    "Physics": "nope.physics3.json",
+    "Expressions": [
+      {
+        "Name": "x0",
+        "File": "exp/e0.exp3.json"
+      },
+      {
+        "Name": "x1",
+        "File": "exp/e1.exp3.json"
+      },
+      {
+        "Name": "x2",
+        "File": "exp/e2.exp3.json"
+      },
+      {
+        "Name": "x3",
+        "File": "exp/e3.exp3.json"
+      },
+      {
+        "Name": "x4",
+        "File": "exp/e4.exp3.json"
+      },
+      {
+        "Name": "x5",
+        "File": "exp/bad.exp3.json"
+      },
+      {
+        "Name": "x6",
+        "File": "exp/missing.exp3.json"
+      }
+    ],
+    "Motions": {
+      "1": [
+        {
+          "File": "motions/m0.motion3.json",
+          "Sound": "w-float.wav"
+        },
+        {
+          "File": "motions/bad-nonnumeric.motion3.json",
+          "FadeInTime": 0,
+          "Sound": "w-bits0-empty.wav"
+        },
+        {
+          "File": "motions/bad-truncated.motion3.json",
+          "Sound": "missing.wav"
+        },
+        {
+          "File": "motions/bad-counts.motion3.json"
+        }
+      ],
+      "Idle": [
+        {
+          "File": "motions/m0.motion3.json"
+        },
+        {
+          "File": "motions/m1.motion3.json",
+          "FadeInTime": 0.3,
+          "Sound": "w-float.wav"
+        },
+        {
+          "File": "motions/m4.motion3.json",
+          "FadeInTime": -1,
+          "FadeOutTime": 0
+        },
+        {
+          "File": "motions/m5.motion3.json",
+          "FadeOutTime": 0.4,
+          "Sound": "w-nodata.wav"
+        },
+        {
+          "File": "motions/m6.motion3.json"
+        },
+        {
+          "File": "motions/bad-truncated.motion3.json",
+          "FadeInTime": -1,
+          "FadeOutTime": -1
+        },
+        {
+          "File": "motions/odd-proto-target.motion3.json",
+          "FadeOutTime": -1
+        }
+      ],
+      "Tap": [
+        {
+          "File": "motions/m2.motion3.json",
+          "Sound": "w-bits0.wav"
+        },
+        {
+          "File": "motions/m4.motion3.json",
+          "FadeOutTime": 0
+        },
+        {
+          "File": "motions/m7.motion3.json"
+        },
+        {
+          "File": "motions/bad-notobject.motion3.json",
+          "Sound": "s1.wav"
+        },
+        {
+          "File": "motions/bad-counts.motion3.json",
+          "Sound": "w-bits0.wav"
+        },
+        {
+          "File": "motions/missing.motion3.json"
+        }
+      ],
+      "Broken": "not a list"
+    }
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": [
+        "Param1",
+        "Param2",
+        "FreeBlink"
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "FreeLip"
+      ]
+    }
+  ],
+  "HitAreas": [
+    {
+      "Id": "Mesh0",
+      "Name": "Body"
+    }
+  ]
+}

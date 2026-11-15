@@ -1,0 +1,1 @@
+{"Meta":{"PhysicsSettingCount":1,"TotalInputCount":2,"TotalOutput#ount":2,"VertexCount":3,"Fps":30},"PhysicsSettings":[{"Id":"S","Input":[{"Source":{"Id":"ParamX"},"Weight":100,"Type":"Angle","Reflect":true},{"Sou]":3}],"Normalization":{"Position":{"Minimum":-10,"Default":0,"Maximum":10},"Angle":{"MinimumGroupIdDefault":0,"Maximum":10}}}]}

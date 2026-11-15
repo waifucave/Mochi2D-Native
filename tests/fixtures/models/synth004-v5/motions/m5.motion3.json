@@ -1,0 +1,133 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 3,
+    "Fps": 24,
+    "FadeOutTime": 0.2,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 6,
+    "TotalSegmentCount": 18,
+    "TotalPointCount": 30,
+    "UserDataCount": 0,
+    "TotalUserDataSize": 0
+  },
+  "Curves": [
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "Segments": [
+        0,
+        0.867,
+        0,
+        0.673,
+        -0.553,
+        0,
+        1.7999999999999998,
+        -0.646
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        -0.244,
+        0,
+        0.274,
+        -0.456,
+        1,
+        0.321,
+        -0.171,
+        0.675,
+        -0.611,
+        1.178,
+        -1.033,
+        2,
+        1.613,
+        -0.016,
+        3,
+        3,
+        0.137
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "ParamBlend",
+      "Segments": [
+        0,
+        1.049,
+        0,
+        0.12,
+        -0.31,
+        1,
+        0.574,
+        0.007,
+        0.662,
+        0.056,
+        1.7999999999999998,
+        0.412
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeCurve",
+      "FadeInTime": 0.2,
+      "Segments": [
+        0,
+        -1.863,
+        0,
+        0.297,
+        1.893,
+        1,
+        0.337,
+        -1.832,
+        0.332,
+        -0.295,
+        0.379,
+        -1.177,
+        2,
+        0.594,
+        2.463,
+        2,
+        1.7999999999999998,
+        1.099
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part0",
+      "Segments": [
+        0.584,
+        0.683,
+        2,
+        0.645,
+        0.1,
+        0,
+        1.121,
+        0.683,
+        0,
+        1.48,
+        0.727,
+        0,
+        2.109,
+        0.537,
+        3,
+        3,
+        0.855
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "FadeOutTime": 0.3,
+      "Segments": [
+        0,
+        0.756,
+        2,
+        3,
+        0.071
+      ]
+    }
+  ]
+}

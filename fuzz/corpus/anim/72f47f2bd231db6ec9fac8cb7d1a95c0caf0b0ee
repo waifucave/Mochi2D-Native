@@ -1,0 +1,3 @@
+{"Version":3,"Meta":{"Duration":1,"Fps":30,"FadeInTime":0,"FadeOutTime":0,
+  "Curvt":2,"TotalPointCount":4},
+  "Curves":[{"Target":"Parameter","Id":"Pa---------ramX","SegTarget":"Pkrameter","Id":"FreeY","Segue":"half"}]}

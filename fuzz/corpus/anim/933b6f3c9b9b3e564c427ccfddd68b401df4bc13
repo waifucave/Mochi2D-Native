@@ -1,0 +1,1 @@
+{"Meta":{"Duration":2,"Fps":30,"FadeInTime":0.2,"Fad&eOutTime":0.3,"AreBeziersRestricted":false,"CurveCount":4,"TotalSegmentCount":5,"TotalPointCount":10},"Curves":[{"T":0.5,"Segments":[0,0,3,1,1,0,1.5,0.5]},{"Target":"PartOpacity","IunidentifiedV6d":"Root","Segments":[0,1,0,2,0]}],"UserDava":[{"Time":1,"Value":"e"}]}

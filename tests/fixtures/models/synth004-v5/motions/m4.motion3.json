@@ -1,0 +1,65 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 2.5,
+    "Fps": 24,
+    "FadeOutTime": 0.2,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 2,
+    "TotalSegmentCount": 6,
+    "TotalPointCount": 14,
+    "UserDataCount": 0,
+    "TotalUserDataSize": 0
+  },
+  "Curves": [
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "FadeInTime": 0.2,
+      "Segments": [
+        0.678,
+        0.029,
+        1,
+        0.731,
+        -0.196,
+        0.746,
+        -0.573,
+        1.005,
+        0.011,
+        2,
+        1.404,
+        -0.539,
+        0,
+        2.5,
+        0.614
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part2",
+      "FadeInTime": -1,
+      "Segments": [
+        0,
+        0.81,
+        1,
+        0.406,
+        0.244,
+        0.664,
+        0.257,
+        0.721,
+        0.769,
+        1,
+        0.721,
+        0.163,
+        0.752,
+        0.155,
+        0.767,
+        0.703,
+        3,
+        2.5,
+        0.197
+      ]
+    }
+  ]
+}

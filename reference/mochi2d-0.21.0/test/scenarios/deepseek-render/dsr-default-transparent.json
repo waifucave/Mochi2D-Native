@@ -1,0 +1,9 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-default-transparent",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "render": {
+    "width": 384,
+    "height": 768
+  }
+}

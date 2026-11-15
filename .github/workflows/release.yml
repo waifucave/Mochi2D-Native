@@ -1,0 +1,78 @@
+# Release packages: on version tags, the C API's libraries for
+# Linux (x86-64, arm64), macOS (universal: arm64 and x86-64) and Windows
+# (x64), each with mochi2d.h, a CMake package config, LICENSE and
+# THIRD_PARTY_NOTICES.md (tests/package/package.sh). Each package is first
+# found and used by a consumer project that runs one model, shared and
+# static; then they are attached to the tag's release. By hand
+# (workflow_dispatch) it builds and tests the packages without publishing.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            name: linux-x64
+          - os: ubuntu-24.04-arm
+            name: linux-arm64
+          - os: macos-15
+            name: macos-universal
+            # Quoted: the list's semicolon would end the shell command. macOS 13.3: std::to_chars of double.
+            cmake: '"-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3'
+          - os: windows-2022
+            name: windows-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: The Vulkan headers (the Vulkan backend; the library links no loader)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -q && sudo apt-get install -y -q libvulkan-dev
+      - name: Build, install, use and archive the package
+        shell: bash
+        run: tests/package/package.sh ${{ matrix.name }} ${{ matrix.cmake }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.name }}
+          path: mochi2d-native-*
+          retention-days: 14
+
+  publish:
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    # Only this job writes: it creates the release and uploads the packages.
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+      - name: The tag names the project's version, and CHANGELOG.md has its section
+        run: |
+          V="$(sed -n 's/^project(mochi2d_native VERSION \([0-9.]*\) .*/\1/p' CMakeLists.txt)"
+          [ "v$V" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} is not the project's version v$V" >&2; exit 1; }
+          awk -v h="## $V" '$0 == h {on = 1; next} on && /^## / {exit} on' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "CHANGELOG.md has no section ## $V" >&2; exit 1; }
+          ls packages | grep -c "mochi2d-native-$V-" | grep -qx 4 || { echo "not the four packages of $V" >&2; ls packages; exit 1; }
+      - name: Attach the packages to the release
+        run: |
+          T="${GITHUB_REF_NAME}"
+          ls -la packages
+          if ! gh release view "$T" -R "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create "$T" -R "${{ github.repository }}" --title "Mochi2D Native $T" --notes-file notes.md
+          fi
+          gh release upload "$T" -R "${{ github.repository }}" packages/* --clobber

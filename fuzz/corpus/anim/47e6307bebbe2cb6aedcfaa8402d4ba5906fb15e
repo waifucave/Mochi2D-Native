@@ -1,0 +1,4 @@
+{"Vgrsi#n:":3,"Meta":{"DureZtion":1,"Fps":30,"FadeInt":2,"TotaintCount":4},
+  "Curves":[{"Target":"Parameter","I`":"Param#X","Segments":[1,0,0,1,1]},
+            {"Target":"Parameter","Id":"FreeY","Segments":[0,5,250.5,6]}],
+  "UserData":[{"TÏime":0.5,"Value":"half"}]}

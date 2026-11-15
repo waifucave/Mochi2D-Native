@@ -1,0 +1,43 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "bitexact-rotation-warp-default",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "canvas": {
+    "width": 2,
+    "height": 2,
+    "originX": 0,
+    "originY": 0,
+    "pixelsPerUnit": 1
+  },
+  "parameters": [],
+  "parts": [
+    {
+      "id": "Root",
+      "opacity": 1
+    }
+  ],
+  "drawables": [
+    {
+      "id": "Carried",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 0,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [77.40054321289062, 10.844297409057617, 32.33772277832031, 48.71039962768555, -18.136869430541992, 66.74691009521484, 31.9596004486084, -52.605525970458984, -7.696338653564453, -23.033130645751953, -58.17012023925781, -0.3094043731689453]
+    },
+    {
+      "id": "Mapped",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 1,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [29.226627349853516, -10.780658721923828, -12.045289993286133, 56.34022903442383, 92.08387756347656, -42.700679779052734, -270.2374267578125, 168.4671630859375]
+    }
+  ],
+  "warnings": []
+}

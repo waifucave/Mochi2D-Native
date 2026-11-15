@@ -1,0 +1,8 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-glue-target-q2",
+  "model": "bitexact-glue-target/bitexact-glue-target.model3.json",
+  "parameters": {
+    "Q": 1
+  }
+}

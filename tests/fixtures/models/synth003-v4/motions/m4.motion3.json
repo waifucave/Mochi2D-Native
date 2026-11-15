@@ -1,0 +1,220 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 0,
+    "Fps": 30,
+    "FadeInTime": 0,
+    "FadeOutTime": 0.2,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 9,
+    "TotalSegmentCount": 27,
+    "TotalPointCount": 50,
+    "UserDataCount": 4,
+    "TotalUserDataSize": 12
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "EyeBlink",
+      "FadeOutTime": 0.3,
+      "Segments": [
+        0,
+        0.512,
+        1,
+        0.005,
+        0.421,
+        0.005,
+        0.683,
+        0.014,
+        0.043,
+        0,
+        0.1,
+        0.093
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "Segments": [
+        0,
+        0.71,
+        0,
+        0.022,
+        0.026,
+        3,
+        0.1,
+        0.726
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "FadeOutTime": 0,
+      "Segments": [
+        0,
+        -0.408,
+        0,
+        0.018,
+        0.135,
+        1,
+        0.054,
+        0.627,
+        0.049,
+        0.68,
+        0.052,
+        -0.881,
+        2,
+        0.1,
+        -0.93
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0,
+        2.923,
+        3,
+        0,
+        1.843,
+        0,
+        0.032,
+        -4.46,
+        0,
+        0.046,
+        4.631,
+        3,
+        0.1,
+        -2.302
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "ParamBlend",
+      "Segments": [
+        0,
+        1.377,
+        0,
+        0.007,
+        0.804,
+        1,
+        0.012,
+        -0.736,
+        0.015,
+        0.727,
+        0.017,
+        -1.057,
+        1,
+        0.017,
+        -0.973,
+        0.017,
+        -0.735,
+        0.017,
+        -0.864,
+        0,
+        0.1,
+        1.264
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeCurve",
+      "Segments": [
+        0,
+        -0.705,
+        0,
+        0.016,
+        1.303,
+        2,
+        0.052,
+        -0.911,
+        3,
+        0.1,
+        -0.644
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "Segments": [
+        0,
+        -1.05,
+        1,
+        0.002,
+        1.644,
+        0,
+        -1.067,
+        0.005,
+        0.18,
+        2,
+        0.028,
+        1.996,
+        0,
+        0.05,
+        1.822,
+        1,
+        0.052,
+        0.738,
+        0.051,
+        1.152,
+        0.053,
+        0.368,
+        2,
+        0.1,
+        -1.383
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part2",
+      "FadeOutTime": 1.2,
+      "Segments": [
+        0,
+        0.791,
+        0,
+        0.019,
+        0.343,
+        3,
+        0.1,
+        0.338
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "Segments": [
+        0,
+        0.862,
+        1,
+        0.002,
+        0.475,
+        0.016,
+        0.489,
+        0.04,
+        0.568,
+        3,
+        0.1,
+        0.123
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 0,
+      "Value": "ev0"
+    },
+    {
+      "Time": 0.5,
+      "Value": "ev1"
+    },
+    {
+      "Time": 0,
+      "Value": "ev2"
+    },
+    {
+      "Time": 0.5,
+      "Value": "ev3"
+    }
+  ]
+}

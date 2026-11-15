@@ -1,0 +1,12 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-mouth-in-range",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamMouthOpenY": 0.3005
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

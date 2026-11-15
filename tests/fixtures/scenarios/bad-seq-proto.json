@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-sequence/0",
+  "id": "bad-seq-proto",
+  "model": "synth000-v1/a0.model3.json",
+  "steps": [
+    {
+      "parameters": {
+        "__proto__": 1,
+        "constructor": 2,
+        "Param0": 0.5
+      }
+    }
+  ]
+}

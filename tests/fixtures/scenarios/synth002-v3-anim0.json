@@ -1,0 +1,66 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "synth002-v3-anim0",
+  "model": "synth002-v3/a1.model3.json",
+  "dt": 0.03333333333333333,
+  "frames": 113,
+  "random": [],
+  "effects": {
+    "idle": true,
+    "blink": true,
+    "expressions": false,
+    "look": true,
+    "breath": false,
+    "pose": false
+  },
+  "options": {
+    "gravity": [
+      -0.403,
+      -1.257
+    ]
+  },
+  "commands": [
+    {
+      "frame": 40,
+      "do": "motion",
+      "group": "1",
+      "index": 3
+    },
+    {
+      "frame": 65,
+      "do": "expression",
+      "file": "exp/e4.exp3.json"
+    },
+    {
+      "frame": 66,
+      "do": "look",
+      "x": -0.08,
+      "y": -1.127
+    },
+    {
+      "frame": 90,
+      "do": "motion",
+      "file": "motions/m6.motion3.json",
+      "priority": 2,
+      "FadeOutTime": 0
+    },
+    {
+      "frame": 100,
+      "do": "motion",
+      "group": "Nope",
+      "index": 2,
+      "loop": false
+    }
+  ],
+  "record": {
+    "parts": [
+      "Part1"
+    ],
+    "free": [
+      "FreeLip",
+      "FreePart",
+      "Part1",
+      "Param0"
+    ]
+  }
+}

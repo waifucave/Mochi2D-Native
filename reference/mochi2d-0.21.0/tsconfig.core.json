@@ -1,0 +1,9 @@
+{
+  "//": "Checks that src/core, src/anim, src/runtime and src/conformance stay pure TypeScript: no DOM, no Node APIs.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/core", "src/anim", "src/runtime", "src/conformance", "src/lib/headless.ts"]
+}

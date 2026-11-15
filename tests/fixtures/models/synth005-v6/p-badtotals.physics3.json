@@ -1,0 +1,108 @@
+{
+  "Version": 3,
+  "Meta": {
+    "PhysicsSettingCount": 1,
+    "TotalInputCount": 2,
+    "TotalOutputCount": 1,
+    "VertexCount": 4,
+    "EffectiveForces": {
+      "Gravity": {
+        "X": 0,
+        "Y": -1
+      },
+      "Wind": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    "PhysicsDictionary": [
+      {
+        "Id": "PhysicsSetting0",
+        "Name": "PhysicsSetting0"
+      }
+    ]
+  },
+  "PhysicsSettings": [
+    {
+      "Id": "PhysicsSetting0",
+      "Input": [
+        {
+          "Source": {
+            "Target": "Parameter",
+            "Id": "FreePhys"
+          },
+          "Weight": 100,
+          "Type": "X",
+          "Reflect": false
+        }
+      ],
+      "Output": [
+        {
+          "Destination": {
+            "Target": "Parameter",
+            "Id": "ParamBlend"
+          },
+          "VertexIndex": 3,
+          "Scale": 18.728,
+          "Weight": 100,
+          "Type": "Angle",
+          "Reflect": true
+        }
+      ],
+      "Vertices": [
+        {
+          "Position": {
+            "X": -0.44,
+            "Y": 0
+          },
+          "Mobility": 0.923,
+          "Delay": 1.179,
+          "Acceleration": 2.698,
+          "Radius": 0
+        },
+        {
+          "Position": {
+            "X": 0,
+            "Y": 9.357
+          },
+          "Mobility": 0.702,
+          "Delay": 0.383,
+          "Acceleration": 1.093,
+          "Radius": 8.111
+        },
+        {
+          "Position": {
+            "X": 0,
+            "Y": 15.193
+          },
+          "Mobility": 0.75,
+          "Delay": 0.84,
+          "Acceleration": 2.995,
+          "Radius": 2.438
+        },
+        {
+          "Position": {
+            "X": 0,
+            "Y": 5.995
+          },
+          "Mobility": 0.965,
+          "Delay": 0.386,
+          "Acceleration": 2.23,
+          "Radius": 7.036
+        }
+      ],
+      "Normalization": {
+        "Position": {
+          "Minimum": -4.739,
+          "Default": -0.951,
+          "Maximum": 27.095
+        },
+        "Angle": {
+          "Minimum": -22.269,
+          "Default": 0.154,
+          "Maximum": 12.566
+        }
+      }
+    }
+  ]
+}

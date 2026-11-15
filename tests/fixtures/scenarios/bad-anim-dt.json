@@ -1,0 +1,7 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "bad-anim-dt",
+  "model": "synth000-v1/a0.model3.json",
+  "dt": "x",
+  "frames": 4
+}

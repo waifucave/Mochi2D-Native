@@ -1,0 +1,58 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "bitexact-glue-pose",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "canvas": {
+    "width": 2,
+    "height": 2,
+    "originX": 0,
+    "originY": 0,
+    "pixelsPerUnit": 1
+  },
+  "parameters": [
+    {
+      "id": "P",
+      "value": 0.6180338859558105
+    }
+  ],
+  "parts": [
+    {
+      "id": "Root",
+      "opacity": 1
+    }
+  ],
+  "drawables": [
+    {
+      "id": "A",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 0,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [0.10000000149011612, -0.20000000298023224, 1.0018919706344604, -0.13726350665092468, 0.9825285077095032, -0.8189326524734497, 0.11999999731779099, -0.75]
+    },
+    {
+      "id": "B",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 1,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [1.2685987949371338, -0.20483481884002686, 2.454360246658325, -0.21140989661216736, 2, -0.8999999761581421, 1.1445790529251099, -0.8420827388763428]
+    },
+    {
+      "id": "C",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 500,
+      "renderOrder": 2,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [2.9394302368164062, -0.0901423916220665, 3.9000000953674316, -0.20000000298023224, 3.799999952316284, -1, 2.23336124420166, -0.5921911001205444]
+    }
+  ],
+  "warnings": []
+}

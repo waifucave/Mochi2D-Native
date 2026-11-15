@@ -1,0 +1,1 @@
+{"AMeta":{"Duration":2,"Fps":30,"FadeInTime":0.2,"FadeOutTime":0.3,"AreBezierricted":false,"CurveCount":4,"TotalSegm-ntCount":5,"TotalPointCount":10},"Curves":[{"Target":"Model","Id":"EyeBlink","Segments":[0,1,1,0.3,0.2,0.6,0,1,1]},{"Target":"Model","Id":"Opacity","Segments":[0,1,2,1,0.5]},{"Target":"Parameter","e":"e"}]}

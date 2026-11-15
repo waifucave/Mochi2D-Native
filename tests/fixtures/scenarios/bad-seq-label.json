@@ -1,0 +1,10 @@
+{
+  "format": "mochi2d-sequence/0",
+  "id": "bad-seq-label",
+  "model": "synth000-v1/a0.model3.json",
+  "steps": [
+    {
+      "label": 1
+    }
+  ]
+}

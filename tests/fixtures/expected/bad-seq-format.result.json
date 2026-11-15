@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "bad-seq-format",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": {
+    "kind": "InvalidScenario",
+    "message": "unknown format \"mochi2d-sequence/1\""
+  },
+  "canvas": {},
+  "parameters": [],
+  "parts": [],
+  "drawables": [],
+  "warnings": []
+}

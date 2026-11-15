@@ -1,0 +1,88 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 1.7,
+    "Fps": 60,
+    "FadeInTime": -1,
+    "FadeOutTime": 0.2,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 3,
+    "TotalSegmentCount": 6,
+    "TotalPointCount": 13,
+    "UserDataCount": 4,
+    "TotalUserDataSize": 12
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "FadeInTime": 0.7,
+      "Segments": [
+        0,
+        0.87,
+        3,
+        0.301,
+        0.365,
+        1,
+        0.301,
+        0.24,
+        0.301,
+        0.522,
+        0.301,
+        0.582,
+        0,
+        0.647,
+        0.422,
+        2,
+        1.7,
+        0.275
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "Segments": [
+        0,
+        0.165,
+        1,
+        0.211,
+        1.35,
+        0.464,
+        -0.881,
+        1.7,
+        0.662
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "ParamBlend",
+      "FadeInTime": 0.2,
+      "Segments": [
+        0.078,
+        0.339,
+        2,
+        1.7,
+        -1.382
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 0.947,
+      "Value": "ev0"
+    },
+    {
+      "Time": 1.7,
+      "Value": "ev1"
+    },
+    {
+      "Time": 1.66,
+      "Value": "ev2"
+    },
+    {
+      "Time": 1.7,
+      "Value": "ev3"
+    }
+  ]
+}

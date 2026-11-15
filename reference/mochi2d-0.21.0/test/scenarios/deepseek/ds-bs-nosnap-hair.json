@@ -1,0 +1,8 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-bs-nosnap-hair",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "LateHairX2": -0.9991
+  }
+}

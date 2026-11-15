@@ -1,0 +1,107 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 3,
+    "Fps": 0,
+    "FadeInTime": -1,
+    "FadeOutTime": 0,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 5,
+    "TotalSegmentCount": 10,
+    "TotalPointCount": 19,
+    "UserDataCount": 2,
+    "TotalUserDataSize": 6
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "LipSync",
+      "Segments": [
+        0.219,
+        0.199,
+        0,
+        3,
+        0.131
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "FadeInTime": 0.2,
+      "Segments": [
+        0,
+        3.689,
+        0,
+        0.12,
+        -9.713,
+        3,
+        0.218,
+        8.291,
+        2,
+        0.269,
+        13.39,
+        0,
+        0.778,
+        9.413,
+        3,
+        1.7999999999999998,
+        8.316
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        1.031,
+        1,
+        0.662,
+        -0.363,
+        0.787,
+        -0.027,
+        1.212,
+        -0.499,
+        1,
+        2.847,
+        -0.132,
+        2.416,
+        0.83,
+        3,
+        -0.912
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0,
+        0.237,
+        0,
+        1.7999999999999998,
+        0.343
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeLip",
+      "Segments": [
+        0,
+        -1.392,
+        3,
+        3,
+        1.704
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 3,
+      "Value": "ev0"
+    },
+    {
+      "Time": 3,
+      "Value": "ev1"
+    }
+  ]
+}

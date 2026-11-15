@@ -1,0 +1,11 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-multi-constraint-shock",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ShockL": -0.7,
+    "ParamEyeROpen": 1.47,
+    "ParamEyeLOpen": 1.43,
+    "ParamBrowLY": 0.95
+  }
+}

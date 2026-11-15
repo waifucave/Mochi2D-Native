@@ -1,0 +1,9 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-constraint-b0",
+  "model": "bitexact-constraint/bitexact-constraint.model3.json",
+  "parameters": {
+    "B": 0.30000001192092896,
+    "C": 0.41999998688697815
+  }
+}

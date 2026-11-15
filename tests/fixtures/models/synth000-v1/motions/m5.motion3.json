@@ -1,0 +1,148 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 2.5,
+    "Fps": 10,
+    "FadeInTime": -1,
+    "FadeOutTime": 0,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 5,
+    "TotalSegmentCount": 14,
+    "TotalPointCount": 33,
+    "UserDataCount": 4,
+    "TotalUserDataSize": 12
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "EyeBlink",
+      "Segments": [
+        0,
+        0.634,
+        0,
+        0.12,
+        0.288,
+        1,
+        0.207,
+        0.543,
+        0.485,
+        0.422,
+        0.533,
+        0.779,
+        1,
+        0.579,
+        0.264,
+        0.684,
+        0.938,
+        0.684,
+        0.712,
+        2,
+        1.245,
+        0.302,
+        1,
+        1.128,
+        0.151,
+        2.136,
+        0.205,
+        2.5,
+        0.777
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        7.454,
+        1,
+        0.238,
+        9.981,
+        0.195,
+        -4.539,
+        0.395,
+        1.618,
+        1,
+        0.635,
+        3.79,
+        0.692,
+        -4.696,
+        1.029,
+        0.918,
+        3,
+        1.712,
+        2.704,
+        0,
+        2.5,
+        10.999
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeBlink",
+      "FadeInTime": -1,
+      "Segments": [
+        0,
+        0.813,
+        2,
+        2.5,
+        1.102
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeLip",
+      "Segments": [
+        0,
+        -0.602,
+        3,
+        0.735,
+        0.879,
+        1,
+        1.001,
+        0.985,
+        0.98,
+        -0.991,
+        1.5,
+        -0.971
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part0",
+      "FadeOutTime": 1.2,
+      "Segments": [
+        0,
+        0.429,
+        0,
+        0.136,
+        0.219,
+        1,
+        1.138,
+        0.234,
+        0.959,
+        0.103,
+        1.5,
+        0.671
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 0,
+      "Value": "ev0"
+    },
+    {
+      "Time": 0.482,
+      "Value": "ev1"
+    },
+    {
+      "Time": 0,
+      "Value": "ev2"
+    },
+    {
+      "Time": 3,
+      "Value": "ev3"
+    }
+  ]
+}

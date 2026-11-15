@@ -1,0 +1,1 @@
+{"ParameterS":[{"Id":"ParamX","Ge":"X"}],"ParameterGroups":[{"Id":"G","Name":"Group"}],"Parts":[{"Id":"Root","Name":"R"}],"Combins":[["ParamX","ParamX"]]}

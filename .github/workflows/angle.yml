@@ -1,0 +1,92 @@
+# ANGLE for the GL backend's tests: builds ANGLE's
+# Vulkan backend from source (tests/gl/build_angle.sh) and attaches its
+# libraries (libEGL.so, libGLESv2.so and the Vulkan loader it builds,
+# libvulkan.so.1) to a release of this repository named for the Chromium branch
+# (angle-chromium-8010), with ANGLE's license and the exact revision beside
+# them. CI downloads that asset (ci.yml). Started by hand, when the branch
+# moves (the first build takes one to two hours and most of the runner's
+# disk); with `rebuild` off it only runs the tests on the published asset.
+name: ANGLE
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "ANGLE's Chromium branch (Playwright's Chromium's)"
+        default: "chromium/8010"
+      rebuild:
+        description: "Build ANGLE and replace the release's asset"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  angle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: The release's name
+        id: name
+        run: echo "tag=angle-$(echo '${{ inputs.branch }}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+      - name: Free disk space (the ANGLE checkout needs about 16 GB)
+        if: inputs.rebuild
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+      - name: Build ANGLE (Vulkan backend only)
+        if: inputs.rebuild
+        run: |
+          tests/gl/build_angle.sh "$RUNNER_TEMP/angle-build" "${{ inputs.branch }}"
+          A="$RUNNER_TEMP/angle-build/angle"
+          mkdir -p angle-asset
+          # ANGLE loads the Vulkan loader it builds beside it (the system's refuses ANGLE's instance).
+          cp "$A"/out/vk/libEGL.so "$A"/out/vk/libGLESv2.so "$A"/out/vk/libvulkan.so.1 angle-asset/
+          cp "$A/LICENSE" angle-asset/LICENSE-ANGLE
+          cp "$A/third_party/vulkan-loader/src/LICENSE.txt" angle-asset/LICENSE-vulkan-loader
+          # The licenses of the third-party code ANGLE's libraries link (abseil, SPIRV-Tools, zlib, libc++, …).
+          tests/gl/angle_licenses.sh "$A" out/vk > angle-asset/LICENSE-third-party
+          {
+            echo "ANGLE ${{ inputs.branch }}, revision $(git -C "$A" rev-parse HEAD)"
+            echo "Built by tests/gl/build_angle.sh (Vulkan backend only) on ubuntu-24.04, x86-64"
+            echo "Test tooling for Mochi2D Native's GL backend: never part of the library."
+          } > angle-asset/REVISION
+          tar -czf "${{ steps.name.outputs.tag }}-linux-x64.tar.gz" -C angle-asset .
+          rm -rf "$RUNNER_TEMP/angle-build"
+      - name: Publish the asset
+        if: inputs.rebuild
+        run: |
+          T="${{ steps.name.outputs.tag }}"
+          if ! gh release view "$T" >/dev/null 2>&1; then
+            gh release create "$T" --title "ANGLE for the GL backend's tests ($T)" --prerelease \
+              --notes "ANGLE (BSD-3-Clause), Vulkan backend only, with the Vulkan loader it builds (Apache-2.0), built by tests/gl/build_angle.sh. Test tooling, never part of the library. See REVISION, LICENSE-ANGLE, LICENSE-vulkan-loader and LICENSE-third-party (the code ANGLE links) inside."
+          fi
+          gh release upload "$T" "$T-linux-x64.tar.gz" --clobber
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install the reference's dependencies, Playwright and its Chromium (SwiftShader's Vulkan driver)
+        run: |
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          npm install -g playwright@1.63.0 && playwright install --with-deps chromium
+      - name: Install the build's and the tests' packages
+        run: >
+          sudo apt-get update -q && sudo apt-get install -y -q libegl-dev libegl-mesa0 libgles-dev
+          libvulkan-dev mesa-vulkan-drivers glslang-tools spirv-tools
+      - name: The published asset
+        run: |
+          T="${{ steps.name.outputs.tag }}"
+          mkdir -p angle-libs
+          gh release download "$T" -p "$T-linux-x64.tar.gz" -O - | tar -xz -C angle-libs
+          cat angle-libs/REVISION
+      - name: Configure and build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DMOCHI2D_ANGLE_DIR="$PWD/angle-libs"
+          cmake --build build --parallel
+      - name: The GL backend on ANGLE over SwiftShader
+        run: |
+          ICD="$(grep MOCHI2D_SWIFTSHADER_ICD: build/CMakeCache.txt | cut -d= -f2)"
+          VK_ICD_FILENAMES="$ICD" build/tests/mochi2d-gl-render info --api es --egl "$PWD/angle-libs/libEGL.so"
+          ctest --test-dir build --output-on-failure -R "angle"

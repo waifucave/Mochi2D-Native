@@ -1,0 +1,18 @@
+{
+  "format": "mochi2d-anim-result/0",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": {
+    "kind": "RandomExhausted",
+    "message": "the random list (0 numbers) ran out in frame 0"
+  },
+  "warnings": [],
+  "scenario": "bad-anim-effect-unknown",
+  "ids": {
+    "parameters": ["Param0", "Param1", "Param2"],
+    "parts": ["Part0"],
+    "free": []
+  },
+  "frames": [],
+  "starts": [],
+  "randomUsed": 0
+}

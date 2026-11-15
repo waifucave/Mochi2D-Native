@@ -1,0 +1,8 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-repeat-max",
+  "model": "bitexact-repeat/bitexact-repeat.model3.json",
+  "parameters": {
+    "S": 180
+  }
+}

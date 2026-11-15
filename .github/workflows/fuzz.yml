@@ -1,0 +1,56 @@
+# Fuzzing: the .moc3 reader, the JSON parsers and the framework
+# (its file readers and the animator) with libFuzzer,
+# AddressSanitizer and UndefinedBehaviorSanitizer. Briefly on every push;
+# longer when started by hand.
+name: Fuzz
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: Seconds per target
+        default: "1800"
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [moc, json, anim]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install libFuzzer
+        run: sudo apt-get update -q && sudo apt-get install -y -q clang-18 libclang-rt-18-dev
+      - name: Seeds
+        run: |
+          cmake -S . -B build-seeds -DMOCHI2D_CROSSCHECK=OFF
+          cmake --build build-seeds --parallel --target mochi2d_tests
+          build-seeds/tests/mochi2d_tests --write-seeds seeds
+      - name: Build
+        run: |
+          CC=clang-18 CXX=clang++-18 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DMOCHI2D_FUZZ=ON \
+            -DMOCHI2D_BUILD_TESTS=OFF -DMOCHI2D_BUILD_CLI=OFF -DMOCHI2D_SHARED=OFF
+          cmake --build build --parallel
+      - name: Fuzz
+        run: |
+          SECONDS_PER_TARGET="${{ github.event.inputs.seconds || '60' }}"
+          mkdir -p corpus
+          cp seeds/${{ matrix.target }}/* corpus/
+          cp fuzz/corpus/${{ matrix.target }}/* corpus/
+          build/fuzz/fuzz_${{ matrix.target }} corpus -max_total_time="$SECONDS_PER_TARGET" \
+            -max_len=65536 -timeout=10 -rss_limit_mb=2048 -print_final_stats=1
+      - name: Keep failing inputs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-${{ matrix.target }}-failures
+          path: |
+            crash-*
+            timeout-*
+            oom-*
+            leak-*

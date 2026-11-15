@@ -1,0 +1,35 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "render03-v4-tint",
+  "model": "render03-v4/render03-v4.model3.json",
+  "x-tints": {
+    "Mesh0": [
+      1.8,
+      0.6,
+      1.3,
+      1
+    ],
+    "Mesh1": [
+      0.5,
+      2,
+      1,
+      0.8
+    ],
+    "Mesh2": [
+      1,
+      1,
+      1.9,
+      1
+    ]
+  },
+  "render": {
+    "width": 160,
+    "height": 160,
+    "background": [
+      0.5,
+      0.5,
+      0.5,
+      1
+    ]
+  }
+}

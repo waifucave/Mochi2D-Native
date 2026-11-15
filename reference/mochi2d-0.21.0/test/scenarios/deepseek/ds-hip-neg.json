@@ -1,0 +1,12 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-hip-neg",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "HipAngleX": -30
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

@@ -1,0 +1,1 @@
+{"FileReferences":{"Moc":"m.moc3","Motions":{"Idle":[{"Fime":"a","Sound":"s.wav","FadeInTime":0}]},"Expressions":[{"Name":"n","File":"e"}]},"Curves":[{"Name":"EyeBlink","Ids":["P-ramX"]},{"Name":"LipSync","Ids":["ParamX"]}],"Layout":{"wimth":2}}

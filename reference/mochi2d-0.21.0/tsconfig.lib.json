@@ -1,0 +1,13 @@
+{
+  "//": "Type declarations of the library entry points (npm run build:lib).",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist/lib/types",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src/lib/index.ts", "src/lib/headless.ts", "src/lib/node.ts", "src/lib/pixi.ts"]
+}

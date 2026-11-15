@@ -1,0 +1,15 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-face",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "render": {
+    "width": 512,
+    "height": 512,
+    "background": [1, 1, 1, 1],
+    "view": {
+      "x": -0.01,
+      "y": 0.6,
+      "pixelsPerUnit": 2500
+    }
+  }
+}

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#212127" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <title>Mochi2D Viewer</title>
+    <link rel="stylesheet" href="../src/viewer/style.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <strong class="brand">Mochi2D</strong>
+      <nav class="menubar" aria-label="Menus">
+        <div class="menu">
+          <button
+            type="button"
+            id="toggle-open"
+            class="menu-button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="open-controls"
+          >
+            File
+          </button>
+          <div id="open-controls" class="menu-popup open-controls">
+            <label class="menu-item"
+              >Open folder…<input id="pick-folder" type="file" webkitdirectory multiple hidden
+            /></label>
+            <label class="menu-item"
+              >Open zip…<input
+                id="pick-zip"
+                type="file"
+                accept=".zip,application/zip,.rar,.7z"
+                hidden
+            /></label>
+            <label
+              class="menu-item"
+              title="Add loose motion, expression and sound files to the current model"
+              >Add files…<input
+                id="pick-extra"
+                type="file"
+                accept=".json,.wav,audio/wav"
+                multiple
+                hidden
+            /></label>
+            <form id="url-form" class="url-form">
+              <input
+                id="url-input"
+                type="text"
+                inputmode="url"
+                placeholder="URL to *.model3.json or *.zip"
+                spellcheck="false"
+                autocapitalize="off"
+              />
+              <button type="submit" class="btn small">Load URL</button>
+            </form>
+            <select id="model-select" title="Models listed in models/index.json next to this page">
+              <option value="">Models…</option>
+            </select>
+            <div class="menu-section" id="recent-section">
+              <div class="menu-heading">Open recent</div>
+              <div id="recent-list" class="recent-list"></div>
+            </div>
+            <hr />
+            <button type="button" class="menu-item" id="new-expression" disabled>
+              New expression…
+            </button>
+            <button type="button" class="menu-item" id="new-pose" disabled>
+              New pose (.pose3.json)
+            </button>
+            <button type="button" class="menu-item" id="export-settings" disabled>
+              <span class="label">Export model settings (.model3.json)</span><kbd>Ctrl+S</kbd>
+            </button>
+            <p id="open-hint" class="hint"></p>
+          </div>
+        </div>
+        <div class="menu">
+          <button
+            type="button"
+            id="menu-edit"
+            class="menu-button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="menu-edit-popup"
+          >
+            Edit
+          </button>
+          <div id="menu-edit-popup" class="menu-popup">
+            <button type="button" class="menu-item" id="edit-reset">Reset parameters</button>
+            <button type="button" class="menu-item" id="edit-stop">Stop motions</button>
+            <label class="menu-item" title="Compare two .moc3 files object by object"
+              >Compare two .moc3 files…<input
+                id="pick-compare"
+                type="file"
+                accept=".moc3"
+                multiple
+                hidden
+            /></label>
+          </div>
+        </div>
+        <div class="menu">
+          <button
+            type="button"
+            id="menu-display"
+            class="menu-button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="menu-display-popup"
+          >
+            Display
+          </button>
+          <div id="menu-display-popup" class="menu-popup">
+            <label class="menu-item check" title="Outline the settings' hit areas"
+              ><input type="checkbox" id="show-hit-areas" checked /> Hit areas</label
+            >
+            <label
+              class="menu-item check"
+              title="Minify textures through their mip levels (trilinear); off: bilinear from the full-size texture"
+              ><input type="checkbox" id="show-mipmaps" checked /> Mipmapping</label
+            >
+            <label class="menu-item check"
+              ><input type="checkbox" id="bg-transparent" /> Transparent background</label
+            >
+            <label class="menu-item"
+              >Background color <input type="color" id="bg-color" value="#e9e9ee"
+            /></label>
+            <label class="menu-item check"
+              ><input type="checkbox" id="show-fps" checked /> Frame rate</label
+            >
+            <label class="menu-item check"
+              ><input type="checkbox" id="show-events" checked /> Events</label
+            >
+            <hr />
+            <label
+              class="menu-item"
+              title="Clipping masks: the atlas follows the screen resolution and is kept between frames; per-drawable masks rebuild a buffer before each masked drawable, as reference renders do (S = 4096)"
+              >Masks
+              <select id="mask-size">
+                <option value="atlas">atlas (fast)</option>
+                <option value="atlas-fine">atlas (fine)</option>
+                <option value="2048">per drawable, 2048</option>
+                <option value="4096">per drawable, 4096 (reference)</option>
+              </select></label
+            >
+            <label
+              class="menu-item"
+              title="Texture memory budget: textures larger together than this are scaled down (the viewer says so). Auto: 256 MiB on phones and tablets, 1 GiB otherwise."
+              >Textures
+              <select id="texture-budget"></select
+            ></label>
+            <button type="button" class="menu-item" id="screenshot">Screenshot</button>
+          </div>
+        </div>
+        <div class="menu">
+          <button
+            type="button"
+            id="menu-animation"
+            class="menu-button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="panel-animation"
+          >
+            Animation
+          </button>
+          <div id="panel-animation" class="menu-popup"></div>
+        </div>
+      </nav>
+      <span id="status" class="status" role="status"></span>
+      <button
+        type="button"
+        id="toggle-panels"
+        class="btn menu-toggle"
+        aria-expanded="false"
+        aria-controls="sidebar"
+        title="Panels"
+      >
+        ☰ Panels
+      </button>
+    </header>
+    <main class="layout">
+      <section class="stage" id="stage">
+        <canvas
+          id="canvas"
+          title="Drag: look (with cursor tracking on) · Ctrl+drag, shift-drag or right-drag: move · wheel or Alt+wheel: zoom · two fingers: zoom and move · tap: hit test · double tap: reset view"
+        ></canvas>
+        <canvas id="overlay" class="overlay" aria-hidden="true"></canvas>
+        <div class="view-fps mono" id="fps-display" aria-live="off"></div>
+        <ol class="view-events mono" id="event-display" aria-live="polite"></ol>
+        <div class="drop-hint" id="drop-hint">Drop a model folder or .zip here</div>
+        <div class="stage-notice" id="stage-notice" role="alert" hidden></div>
+        <div class="stage-bar">
+          <button type="button" id="play-toggle" class="btn small icon" title="Pause (Space)">
+            ❚❚
+          </button>
+          <button type="button" id="step" class="btn small icon" title="Step one frame (.)">
+            ⏭
+          </button>
+          <label title="Playback speed"
+            >Speed
+            <select id="speed">
+              <option value="0.1">0.1×</option>
+              <option value="0.25">0.25×</option>
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+              <option value="4">4×</option>
+            </select></label
+          >
+          <span id="clock-time" class="mono">0.00 s</span>
+          <button
+            type="button"
+            id="toggle-bar"
+            class="btn small icon menu-toggle"
+            aria-expanded="false"
+            title="More"
+          >
+            ⋯
+          </button>
+          <span class="secondary">
+            <span id="anim-status" class="mono anim-status"></span>
+            <span class="spacer"></span>
+            <span id="frame-stats" class="mono stats"></span>
+          </span>
+        </div>
+      </section>
+      <aside class="sidebar" id="sidebar" data-sheet="menu">
+        <div class="sheet-header">
+          <div class="sheet-tabs" role="tablist" aria-label="Areas">
+            <button type="button" role="tab" data-sheet="menu" aria-selected="true">Panel</button>
+            <button type="button" role="tab" data-sheet="resources" aria-selected="false">
+              Resources
+            </button>
+            <button type="button" role="tab" data-sheet="settings" aria-selected="false">
+              Settings
+            </button>
+          </div>
+          <button type="button" class="btn small sheet-close">Close</button>
+        </div>
+        <section class="area menu-area" id="menu-area" aria-label="Menu area">
+          <div class="area-head">
+            <select id="menu-panel" aria-label="Panel">
+              <option value="parameters">Parameters</option>
+              <option value="parts">Parts</option>
+              <option value="items">Items</option>
+              <option value="lipsync">Lip sync</option>
+            </select>
+          </div>
+          <div class="area-body">
+            <div id="panel-parameters" class="panel" data-panel="parameters">
+              <p class="empty">Parameter sliders appear here once a model is loaded.</p>
+            </div>
+            <div id="panel-parts" class="panel" data-panel="parts" hidden>
+              <p class="empty">Part opacity controls appear here.</p>
+            </div>
+            <div class="panel" data-panel="items" hidden>
+              <div
+                class="row wrap item-adders"
+                title="Add a further model as an item over the model"
+              >
+                <label class="btn small"
+                  >Add folder…<input
+                    id="pick-item-folder"
+                    type="file"
+                    webkitdirectory
+                    multiple
+                    hidden
+                /></label>
+                <label class="btn small"
+                  >Add zip…<input
+                    id="pick-item-zip"
+                    type="file"
+                    accept=".zip,application/zip,.rar,.7z"
+                    hidden
+                /></label>
+                <select id="item-select" title="Models listed in models/index.json">
+                  <option value="">Add from Models…</option>
+                </select>
+              </div>
+              <form id="item-url-form" class="row item-url">
+                <input
+                  id="item-url"
+                  type="text"
+                  inputmode="url"
+                  placeholder="URL of an item's *.model3.json or *.zip"
+                  spellcheck="false"
+                  autocapitalize="off"
+                />
+                <button type="submit" class="btn small">Add</button>
+              </form>
+              <div id="panel-items"></div>
+            </div>
+            <div id="panel-audio" class="panel" data-panel="lipsync" hidden></div>
+          </div>
+        </section>
+        <section class="area resource-area" id="resources" aria-label="Resources">
+          <div class="area-head">Resources</div>
+          <div class="area-body tree" id="resource-tree" role="tree">
+            <p class="empty">Drop a model folder or .zip here, or use File.</p>
+          </div>
+        </section>
+        <section class="area settings-area" id="settings-area" aria-label="Settings">
+          <div class="area-head" id="settings-title">Settings</div>
+          <div class="area-body" id="settings-body">
+            <p class="empty">Select an item in Resources to see its settings.</p>
+          </div>
+        </section>
+      </aside>
+    </main>
+    <script type="module" src="../src/viewer/main.ts"></script>
+  </body>
+</html>

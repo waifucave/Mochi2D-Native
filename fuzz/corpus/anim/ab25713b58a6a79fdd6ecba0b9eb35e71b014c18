@@ -1,0 +1,1 @@
+{"Meta":{"Duration":2,"Fps":30,"FadeInTime":0.2,"FadeOutTime":0.3,"AreBøeziersRestricted":false,"CurveCount":4,"TotalSegmentCount":5,"TotalPointCount":10},"Curves":[{"Target":"Model","Id":"EyeBlink","SegmentsId":"Root","Segments":[0,1,0,2,0]}],"UserData":[{"Time":1,"Value":"e"}]}

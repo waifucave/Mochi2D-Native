@@ -1,0 +1,106 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 2.5,
+    "Fps": 60,
+    "FadeInTime": 0,
+    "FadeOutTime": 0.2,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 4,
+    "TotalSegmentCount": 10,
+    "TotalPointCount": 24,
+    "UserDataCount": 1,
+    "TotalUserDataSize": 3
+  },
+  "Curves": [
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        -1.763,
+        3,
+        0.734,
+        12.261,
+        0,
+        2.5,
+        -8.451
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0,
+        -5.909,
+        2,
+        2.5,
+        7.286
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeCurve",
+      "Segments": [
+        0.807,
+        -1.298,
+        1,
+        1.018,
+        -2.226,
+        1.269,
+        1.35,
+        1.435,
+        0.688,
+        1,
+        2.806,
+        2.661,
+        2.115,
+        -2.69,
+        2.5,
+        -2.614
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeLip",
+      "Segments": [
+        0,
+        1.039,
+        1,
+        0.044,
+        -0.134,
+        0.237,
+        -1.081,
+        0.27,
+        0.324,
+        2,
+        0.535,
+        1.811,
+        1,
+        0.634,
+        0.101,
+        0.64,
+        0.407,
+        0.701,
+        0.741,
+        1,
+        0.716,
+        1.249,
+        0.77,
+        1.349,
+        0.825,
+        0.301,
+        0,
+        2.5,
+        0.379
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 3,
+      "Value": "ev0"
+    }
+  ]
+}

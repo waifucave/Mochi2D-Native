@@ -1,0 +1,21 @@
+{
+  "Type": "Live2D Expression",
+  "FadeInTime": 1,
+  "FadeOutTime": 0.6,
+  "Parameters": [
+    {
+      "Id": "Param0",
+      "Value": 0.524,
+      "Blend": "Screen"
+    },
+    {
+      "Id": "Param2",
+      "Value": -1.278
+    },
+    {
+      "Id": "Param3",
+      "Value": -0.625,
+      "Blend": "Multiply"
+    }
+  ]
+}

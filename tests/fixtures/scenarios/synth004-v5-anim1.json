@@ -1,0 +1,129 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "synth004-v5-anim1",
+  "model": "synth004-v5/a0.model3.json",
+  "dt": 0.006944444444444444,
+  "frames": 104,
+  "random": [
+    0.013507813215255737,
+    0.32886009640060365,
+    0.08802918763831258,
+    0.019621635088697076,
+    0.9382139863446355,
+    0.8716882772278041,
+    0.16572058340534568,
+    0.2901607558596879,
+    0.06821531988680363,
+    0.3414025546517223,
+    0.3233496309258044,
+    0.7804847473744303,
+    0.6101913964375854,
+    0.07022324460558593,
+    0.5822950857691467,
+    0.9637078617233783,
+    0.06460307911038399,
+    0.6763241847511381,
+    0.7496908609755337,
+    0.41643327311612666,
+    0.830001593567431,
+    0.6386008008848876,
+    0.23416089033707976,
+    0.8920563005376607,
+    0.24972042255103588,
+    0.1224147358443588,
+    0.6242493041791022,
+    0.8091066929046065,
+    0.5540750129148364,
+    0.9469400409143418
+  ],
+  "effects": {
+    "idle": false,
+    "blink": false,
+    "expressions": true,
+    "breath": true,
+    "physics": false,
+    "lipsync": true
+  },
+  "commands": [
+    {
+      "frame": 3,
+      "do": "look",
+      "x": 0.035,
+      "y": -0.684
+    },
+    {
+      "frame": 11,
+      "do": "expression",
+      "file": "exp/e3.exp3.json"
+    },
+    {
+      "frame": 19,
+      "do": "motion",
+      "file": "motions/missing.motion3.json",
+      "priority": 0,
+      "loopFade": true
+    },
+    {
+      "frame": 24,
+      "do": "look",
+      "x": -0.86,
+      "y": 0.188
+    },
+    {
+      "frame": 28,
+      "do": "motion",
+      "file": "motions/m2.motion3.json",
+      "FadeOutTime": 0.5,
+      "loop": false
+    },
+    {
+      "frame": 34,
+      "do": "motion",
+      "group": "Nope",
+      "index": 2
+    },
+    {
+      "frame": 61,
+      "do": "motion",
+      "group": "Idle",
+      "index": 1,
+      "priority": 1
+    },
+    {
+      "frame": 64,
+      "do": "partOpacity",
+      "id": "Part0",
+      "value": -0.025
+    },
+    {
+      "frame": 65,
+      "do": "expression",
+      "file": "exp/e1.exp3.json"
+    },
+    {
+      "frame": 88,
+      "do": "stopMotions"
+    },
+    {
+      "frame": 93,
+      "do": "expression",
+      "name": "x1"
+    }
+  ],
+  "record": {
+    "parameters": [
+      "Param0",
+      "Param1",
+      "ParamBlend",
+      "NoSuchParam"
+    ],
+    "free": [
+      "FreeLip",
+      "FreeCurve",
+      "FreePart",
+      "Part0",
+      "Part1"
+    ],
+    "every": 2
+  }
+}

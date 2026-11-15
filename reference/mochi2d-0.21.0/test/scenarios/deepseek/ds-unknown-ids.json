@@ -1,0 +1,16 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-unknown-ids",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "NoSuchParam": 1,
+    "ParamAngleX": -10
+  },
+  "partOpacities": {
+    "NoSuchPart": 0
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "synth000-v1.moc3",
+    "Textures": [],
+    "Pose": "pose1.pose3.json",
+    "Expressions": [
+      {
+        "Name": "x0",
+        "File": "exp/e0.exp3.json"
+      },
+      {
+        "Name": "x1",
+        "File": "exp/e1.exp3.json"
+      },
+      {
+        "Name": "x2",
+        "File": "exp/e2.exp3.json"
+      },
+      {
+        "Name": "x3",
+        "File": "exp/e3.exp3.json"
+      },
+      {
+        "Name": "x4",
+        "File": "exp/e4.exp3.json"
+      },
+      {
+        "Name": "x5",
+        "File": "exp/bad.exp3.json"
+      },
+      {
+        "Name": "x6",
+        "File": "exp/missing.exp3.json"
+      }
+    ],
+    "Motions": {
+      "Tap": [
+        {
+          "File": "motions/m4.motion3.json"
+        },
+        {
+          "File": "motions/bad-code.motion3.json"
+        },
+        {
+          "File": "motions/bad-notobject.motion3.json",
+          "FadeInTime": 0.3
+        },
+        {
+          "File": "motions/bad-counts.motion3.json"
+        }
+      ]
+    }
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": [
+        "FreeBlink"
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "FreeLip"
+      ]
+    }
+  ],
+  "HitAreas": [
+    {
+      "Id": "Mesh0",
+      "Name": "Body"
+    }
+  ]
+}

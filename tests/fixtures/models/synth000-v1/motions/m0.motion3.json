@@ -1,0 +1,179 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 3,
+    "Fps": 10,
+    "FadeOutTime": 0,
+    "Loop": false,
+    "AreBeziersRestricted": false,
+    "CurveCount": 8,
+    "TotalSegmentCount": 25,
+    "TotalPointCount": 43,
+    "UserDataCount": 0,
+    "TotalUserDataSize": 0
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "LipSync",
+      "Segments": [
+        0,
+        0.612,
+        2,
+        0.715,
+        0.392,
+        1,
+        0.984,
+        0.058,
+        0.822,
+        0.385,
+        0.987,
+        0.673,
+        3,
+        1.059,
+        0.934,
+        0,
+        3,
+        0.725
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "FadeInTime": 0,
+      "FadeOutTime": 0,
+      "Segments": [
+        0,
+        0.429,
+        0,
+        0.983,
+        0.891,
+        0,
+        3,
+        0.441
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "Segments": [
+        0,
+        13.233,
+        1,
+        0.124,
+        0.608,
+        0.08,
+        -4.02,
+        0.186,
+        12.971,
+        0,
+        0.22,
+        -12.126,
+        0,
+        0.22,
+        6.633,
+        0,
+        1.521,
+        -3.354,
+        3,
+        3,
+        9.762
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "Segments": [
+        0,
+        -0.138,
+        2,
+        0.3,
+        -3.014,
+        1,
+        0.311,
+        -13.312,
+        0.319,
+        -2.356,
+        0.411,
+        10.565,
+        0,
+        1.149,
+        -2.895,
+        0,
+        3,
+        -4.985
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0.967,
+        -0.167,
+        3,
+        1.289,
+        -8.688,
+        0,
+        1.7999999999999998,
+        11.108
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeCurve",
+      "Segments": [
+        0,
+        -2.035,
+        0,
+        1.066,
+        0.507,
+        0,
+        3,
+        2.001
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeBlink",
+      "FadeOutTime": 0.3,
+      "Segments": [
+        0.727,
+        -1.384,
+        0,
+        0.923,
+        0.524,
+        0,
+        1.276,
+        -1.321,
+        0,
+        1.623,
+        0.199,
+        1,
+        2.933,
+        -0.529,
+        1.766,
+        1.516,
+        3,
+        1.694
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "FreePart",
+      "Segments": [
+        0,
+        0.896,
+        1,
+        0.408,
+        0.485,
+        -0.104,
+        0.639,
+        0.422,
+        0.086,
+        0,
+        3,
+        0.54
+      ]
+    }
+  ]
+}

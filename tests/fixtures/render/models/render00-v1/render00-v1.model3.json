@@ -1,0 +1,12 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "render00-v1.moc3",
+    "Textures": [
+      "tex0.png",
+      "tex1.png",
+      "tex2.png",
+      "tex3.png"
+    ]
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "format": "mochi2d-anim-result/0",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "warnings": [],
+  "scenario": "synth005-v6-fastphysics1",
+  "ids": {
+    "parameters": ["Param0", "Param1", "Param2", "Param3", "ParamBlend"],
+    "parts": ["Part0", "Part1", "Part2", "Part3"],
+    "free": []
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "time": 0.03333333333333333,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 1,
+      "time": 0.06666666666666667,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 2,
+      "time": 0.1,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 3,
+      "time": 0.13333333333333333,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 4,
+      "time": 0.16666666666666666,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 5,
+      "time": 0.19999999999999998,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 6,
+      "time": 0.2333333333333333,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 7,
+      "time": 0.26666666666666666,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 8,
+      "time": 0.3,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 9,
+      "time": 0.3333333333333333,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 10,
+      "time": 0.36666666666666664,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    },
+    {
+      "frame": 11,
+      "time": 0.39999999999999997,
+      "parameters": [0, 0.17597660422325134, 0, 0.9200734496116638, 0],
+      "parts": [1, 1, 1, 1],
+      "free": [],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": null
+    }
+  ],
+  "starts": [],
+  "randomUsed": 0
+}

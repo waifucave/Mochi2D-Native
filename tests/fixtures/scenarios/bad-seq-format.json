@@ -1,0 +1,6 @@
+{
+  "format": "mochi2d-sequence/1",
+  "id": "bad-seq-format",
+  "model": "synth000-v1/a0.model3.json",
+  "steps": []
+}

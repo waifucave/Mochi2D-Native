@@ -1,0 +1,122 @@
+# Build and test on Linux on every push and pull request.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install the reference's dependencies (for the cross-checks)
+        if: matrix.compiler == 'gcc'
+        run: npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+      - name: Install Playwright and Chromium for the reference's render harness (the render cross-check)
+        if: matrix.compiler == 'gcc'
+        run: npm install -g playwright@1.63.0 && playwright install --with-deps chromium
+      - name: Install musl (the vendored float32 functions against musl's own build)
+        run: sudo apt-get install -y -q musl-tools
+      - name: Install Mesa's EGL, llvmpipe and lavapipe, the Vulkan headers and loader, glslang (the GPU backends' tests)
+        run: >
+          sudo apt-get update -q && sudo apt-get install -y -q libegl-dev libegl-mesa0 libgles-dev libgl1-mesa-dri
+          libvulkan-dev mesa-vulkan-drivers glslang-tools spirv-tools spirv-cross
+      - name: ANGLE, from the release angle.yml publishes (the GL backend on ANGLE over SwiftShader)
+        if: matrix.compiler == 'gcc'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          T=angle-chromium-8010
+          if gh release download "$T" -R "${{ github.repository }}" -p "$T-linux-x64.tar.gz" -O angle.tar.gz; then
+            mkdir -p angle-libs && tar -xzf angle.tar.gz -C angle-libs && cat angle-libs/REVISION
+          else
+            echo "no $T release yet (run angle.yml): the ANGLE tests are left out"
+          fi
+      - name: Configure
+        run: |
+          if [ "${{ matrix.compiler }}" = clang ]; then export CC=clang CXX=clang++; else export CC=gcc CXX=g++; fi
+          ANGLE=()
+          if [ -f angle-libs/libEGL.so ]; then ANGLE=(-DMOCHI2D_ANGLE_DIR="$PWD/angle-libs"); fi
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "${ANGLE[@]}"
+      - name: Build
+        run: cmake --build build --parallel
+      - name: The GL contexts and Vulkan devices the GPU backends' tests need (they would skip without them)
+        run: |
+          build/tests/mochi2d-gl-render info --api es && build/tests/mochi2d-gl-render info --api desktop
+          build/tests/mochi2d-vk-render info --icd /usr/share/vulkan/icd.d/lvp_icd.json
+          if [ "${{ matrix.compiler }}" = gcc ]; then
+            ICD="$(grep MOCHI2D_SWIFTSHADER_ICD: build/CMakeCache.txt | cut -d= -f2)"
+            build/tests/mochi2d-vk-render info --icd "$ICD"
+            if [ -f angle-libs/libEGL.so ]; then
+              VK_ICD_FILENAMES="$ICD" build/tests/mochi2d-gl-render info --api es --egl "$PWD/angle-libs/libEGL.so"
+            fi
+          fi
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  no-exceptions:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure (without exceptions, and the renderer without threads)
+        run: >
+          CXX=${{ matrix.compiler }} cmake -S . -B build -DMOCHI2D_NO_EXCEPTIONS=ON -DMOCHI2D_THREADS=OFF
+          -DMOCHI2D_CROSSCHECK=OFF
+      - name: Build the libraries with -fno-exceptions
+        run: cmake --build build --parallel --target mochi2d_core mochi2d_framework mochi2d_static mochi2d
+      - name: Build and test the rest
+        run: cmake --build build --parallel && ctest --test-dir build --output-on-failure
+
+  package:
+    # The release package of Linux x86-64, installed, then found and used by a
+    # consumer project that runs one model, shared and static (tests/package).
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: The Vulkan headers (the Vulkan backend)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libvulkan-dev
+      - name: Build, install, use and archive the package
+        run: tests/package/package.sh linux-x64
+
+  sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DMOCHI2D_CROSSCHECK=OFF
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer"
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  thread-sanitizer:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fit the address space to ThreadSanitizer (the runners' kernels randomize more of it)
+        run: sudo sysctl vm.mmap_rnd_bits=28
+      - name: Configure
+        run: >
+          CC=clang CXX=clang++ cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMOCHI2D_CROSSCHECK=OFF
+          -DCMAKE_C_FLAGS="-fsanitize=thread" -DCMAKE_CXX_FLAGS="-fsanitize=thread"
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test (the renderer's worker threads among them)
+        run: TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build --output-on-failure -R "^(unit|fixtures)$"

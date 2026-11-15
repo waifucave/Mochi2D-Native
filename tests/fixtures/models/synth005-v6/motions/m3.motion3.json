@@ -1,0 +1,172 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 3,
+    "Fps": 60,
+    "FadeInTime": 0.5,
+    "FadeOutTime": 0.5,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 8,
+    "TotalSegmentCount": 19,
+    "TotalPointCount": 41,
+    "UserDataCount": 0,
+    "TotalUserDataSize": 0
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "EyeBlink",
+      "FadeOutTime": 0,
+      "Segments": [
+        0,
+        0.69,
+        0,
+        0,
+        0.944,
+        3,
+        0.092,
+        0.25,
+        0,
+        0.867,
+        0.228,
+        1,
+        1.441,
+        0.422,
+        1.254,
+        0.821,
+        1.7999999999999998,
+        0.99
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param1",
+      "FadeInTime": 0.2,
+      "FadeOutTime": 0.3,
+      "Segments": [
+        0,
+        1.207,
+        0,
+        0.027,
+        -0.036,
+        1,
+        0.355,
+        0.085,
+        0.2,
+        1.174,
+        0.365,
+        -1.396,
+        0,
+        0.414,
+        0.966,
+        1,
+        1.356,
+        -0.884,
+        0.807,
+        -1.004,
+        3,
+        0.287
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0,
+        -19.958,
+        0,
+        0.192,
+        4.399,
+        2,
+        3,
+        41.517
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param3",
+      "Segments": [
+        0,
+        0.035,
+        3,
+        3,
+        -0.001
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "ParamBlend",
+      "FadeOutTime": 1.2,
+      "Segments": [
+        0,
+        0.938,
+        0,
+        3,
+        1.213
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "FadeInTime": -1,
+      "Segments": [
+        0,
+        0.708,
+        1,
+        2.393,
+        -1.491,
+        1.33,
+        0.239,
+        3,
+        -0.876
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "Part2",
+      "Segments": [
+        0,
+        0.057,
+        1,
+        0.213,
+        0.624,
+        0.161,
+        0.855,
+        0.508,
+        0.757,
+        3,
+        1.053,
+        0.562,
+        0,
+        1.053,
+        0.633,
+        1,
+        1.163,
+        0.897,
+        1.115,
+        0.489,
+        1.457,
+        0.668,
+        2,
+        3,
+        0.356
+      ]
+    },
+    {
+      "Target": "PartOpacity",
+      "Id": "FreePart",
+      "Segments": [
+        0,
+        0.38,
+        1,
+        0.996,
+        0.447,
+        1.967,
+        0.569,
+        3,
+        0.455
+      ]
+    }
+  ]
+}

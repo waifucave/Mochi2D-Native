@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motion sync rating</title>
+    <style>
+      :root {
+        --bg: #f6f4ef;
+        --panel: #ffffff;
+        --text: #1d1d1f;
+        --muted: #5d5d66;
+        --accent: #2f6fd6;
+        --line: #d9d6cf;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #17171a;
+          --panel: #232328;
+          --text: #ececf0;
+          --muted: #a6a6b0;
+          --accent: #7aa7ff;
+          --line: #3a3a42;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          15px/1.45 system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      h1 {
+        font-size: 1.4em;
+        margin: 0 0 4px;
+      }
+      p {
+        margin: 6px 0;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      fieldset {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 12px 0;
+        padding: 8px 12px;
+      }
+      legend {
+        font-weight: 600;
+      }
+      .panels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px;
+      }
+      .panel h2 {
+        font-size: 1.05em;
+        margin: 2px 4px 6px;
+      }
+      .panel canvas {
+        display: block;
+        width: 100%;
+        height: 300px;
+        border-radius: 6px;
+        background: #fff;
+      }
+      .rating {
+        display: grid;
+        gap: 4px;
+        margin-top: 6px;
+      }
+      .rating label {
+        margin-right: 8px;
+        white-space: nowrap;
+      }
+      button {
+        font: inherit;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      #status {
+        min-height: 1.45em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Motion sync rating</h1>
+      <p class="muted">
+        Each clip plays once with four mouths side by side, in a random order that the panels do not
+        reveal. Rate each mouth: how natural it looks, and whether it moves early, on time or late.
+        The audio is processed in memory only; ratings stay on this page until you export them.
+      </p>
+
+      <fieldset>
+        <legend>Setup</legend>
+        <p>
+          <label>Rater: <input id="rater" placeholder="your name or a code" /></label>
+          <label>Clips: <input id="clips" type="file" accept="audio/*" multiple /></label>
+        </p>
+        <p>
+          Voice profile (for condition M):
+          <span id="profile" class="muted">none: M is uncalibrated</span>
+          <button id="calibrate">Calibrate with the microphone</button>
+          <input id="profileFile" type="file" accept="application/json,.json" hidden />
+          <button id="loadProfile" type="button">Load profile…</button>
+          <button id="saveProfile" disabled>Save profile</button>
+        </p>
+      </fieldset>
+
+      <p>
+        <button id="play" class="primary" disabled>Play clip</button>
+        <button id="next" disabled>Save ratings and go to the next clip</button>
+        <span id="trial" class="muted"></span>
+      </p>
+      <p id="status" class="muted">Loading the model…</p>
+
+      <div class="panels" id="panels"></div>
+
+      <fieldset>
+        <legend>Results</legend>
+        <p><span id="count">0 ratings</span></p>
+        <p>
+          <button id="exportJson">Export JSON</button>
+          <button id="exportCsv">Export CSV</button>
+          <button id="clear">Clear results</button>
+        </p>
+      </fieldset>
+    </main>
+    <script type="module">
+      // Built by `npm run build:lib`. Served by `npm run example:rating`.
+      import { MochiView, VoiceCalibration, voiceProfileFromJson } from "../../dist/lib/mochi2d.js";
+
+      const $ = (id) => document.getElementById(id);
+      const status = (text) => ($("status").textContent = text);
+      const CONDITIONS = ["M", "M0", "V", "S"];
+
+      // ---- the model: DeepSeek-chan with a five-parameter motion-sync setting ("ds-rich")
+      const base = new URL(
+        new URLSearchParams(location.search).get("model") ?? "../../models/DeepSeek/",
+        location.href,
+      );
+      const own = await (await fetch(new URL("大肥鱼.model3.json", base))).json();
+      const P = [
+        "ParamMouthOpenY",
+        "ParamMouthForm",
+        "MouthFunnel",
+        "Mouthpucker",
+        "MouthPuckerWiden",
+      ];
+      const range = { ParamMouthForm: [-1, 1], MouthPuckerWiden: [-1, 1] };
+      const smooth = [20, 20, 30, 30, 30];
+      const damper = [0.01, 0.02, 0.02, 0.02, 0.02];
+      const shapes = {
+        Silence: [0, 0, 0, 0, 0],
+        A: [1, 0.1, 0, 0, 0.2],
+        I: [0.3, 0.7, 0, 0, 1],
+        U: [0.25, -0.3, 0.7, 1, 0],
+        E: [0.55, 0.4, 0, 0, 0.6],
+        O: [0.75, -0.2, 1, 0.4, 0],
+      };
+      const rich = {
+        Version: 1,
+        Meta: { SettingCount: 1, Dictionary: [{ Id: "MS_Rich", Name: "Mouth rich" }] },
+        Settings: [
+          {
+            Id: "MS_Rich",
+            AnalysisType: "CRI",
+            UseCase: "Mouth",
+            CubismParameters: P.map((id, k) => ({
+              Name: id,
+              Id: id,
+              Min: (range[id] ?? [0, 1])[0],
+              Max: (range[id] ?? [0, 1])[1],
+              Damper: damper[k],
+              Smooth: smooth[k],
+            })),
+            AudioParameters: Object.keys(shapes).map((e) => ({
+              Name: e,
+              Id: e,
+              Min: 0,
+              Max: 1,
+              Scale: 1,
+              Enabled: true,
+            })),
+            Mappings: Object.entries(shapes).map(([e, v]) => ({
+              Type: "Shape",
+              Id: e,
+              Targets: P.map((id, k) => ({ Id: id, Value: v[k] })),
+            })),
+            PostProcessing: { BlendRatio: 0.3, Smoothing: 40, SampleRate: 30 },
+          },
+        ],
+      };
+      const settings = structuredClone(own);
+      settings.FileReferences.MotionSync = "ds-rich.motionsync3.json";
+      const text = (o) => new TextEncoder().encode(JSON.stringify(o));
+      const crafted = {
+        "rating.model3.json": text(settings),
+        "ds-rich.motionsync3.json": text(rich),
+      };
+      const refs = own.FileReferences;
+      const files = [
+        refs.Moc,
+        refs.Physics,
+        refs.DisplayInfo,
+        refs.Pose,
+        ...(refs.Textures ?? []),
+      ].filter(Boolean);
+      const source = {
+        label: "rating",
+        list: () => [...Object.keys(crafted), ...files],
+        read: async (p) => {
+          if (crafted[p]) return crafted[p];
+          const res = await fetch(new URL(p.split("/").map(encodeURIComponent).join("/"), base));
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${p}`);
+          return new Uint8Array(await res.arrayBuffer());
+        },
+      };
+
+      // ---- four panels, one view each (textures kept small: four copies of the model)
+      const panels = [];
+      for (let i = 0; i < 4; i++) {
+        const el = document.createElement("section");
+        el.className = "panel";
+        el.innerHTML = `<h2>Mouth ${i + 1}</h2><canvas></canvas>
+          <div class="rating">
+            <div>Natural: ${[1, 2, 3, 4, 5].map((n) => `<label><input type="radio" name="nat${i}" value="${n}"> ${n}</label>`).join("")}</div>
+            <div>Sync: ${["early", "ok", "late"].map((v) => `<label><input type="radio" name="sync${i}" value="${v}"> ${v === "ok" ? "OK" : v}</label>`).join("")}</div>
+            <div>Shapes fit the vowels: ${["yes", "no"].map((v) => `<label><input type="radio" name="fit${i}" value="${v}"> ${v}</label>`).join("")} <span class="muted">(optional)</span></div>
+          </div>`;
+        $("panels").append(el);
+        const view = new MochiView(el.querySelector("canvas"), { textureBudget: 64 });
+        const model = await view.load(source, { settings: "rating.model3.json" });
+        model.setEffect("idle", false);
+        panels.push({ el, view, model, condition: null });
+      }
+      status("Choose the clips to rate (WAV, MP3, …).");
+
+      // ---- results: kept in memory (and in this browser, as a convenience)
+      let results = [];
+      try {
+        results = JSON.parse(localStorage.getItem("mochi2d-rating") ?? "[]");
+      } catch {
+        results = [];
+      }
+      const store = () => {
+        $("count").textContent = `${results.length} rating${results.length === 1 ? "" : "s"}`;
+        try {
+          localStorage.setItem("mochi2d-rating", JSON.stringify(results));
+        } catch {
+          // storage unavailable: results stay in memory
+        }
+      };
+      store();
+
+      // ---- the voice profile for condition M
+      let profile = null;
+      const showProfile = () => {
+        $("profile").textContent = profile ? `"${profile.name}"` : "none: M is uncalibrated";
+        $("saveProfile").disabled = !profile;
+      };
+      $("calibrate").onclick = async () => {
+        const cal = new VoiceCalibration($("rater").value || "voice");
+        try {
+          for (const vowel of ["A", "I", "U", "E", "O"]) {
+            status(`Say "${vowel}" steadily for about a second…`);
+            const clip = await panels[0].view.recordAudio(1.2);
+            if (!cal.add(vowel, clip.channels, clip.sampleRate))
+              throw new Error(`no voice heard for "${vowel}"`);
+          }
+          status("Now stay quiet for a second…");
+          const room = await panels[0].view.recordAudio(1);
+          cal.add("Silence", room.channels, room.sampleRate);
+          profile = cal.profile();
+          showProfile();
+          status("Calibrated.");
+        } catch (e) {
+          status(`Calibration failed: ${e.message}`);
+        }
+      };
+      $("loadProfile").onclick = () => $("profileFile").click();
+      $("profileFile").onchange = async (ev) => {
+        try {
+          profile = voiceProfileFromJson(JSON.parse(await ev.target.files[0].text()));
+          showProfile();
+        } catch (e) {
+          status(e.message);
+        }
+      };
+      $("saveProfile").onclick = () =>
+        download(
+          `${profile.name}.voice.json`,
+          JSON.stringify(profile, null, 1),
+          "application/json",
+        );
+
+      // ---- trials
+      let clips = [];
+      let index = -1;
+      let order = [];
+      let played = false;
+      $("clips").onchange = (ev) => {
+        clips = [...ev.target.files];
+        index = -1;
+        nextTrial();
+      };
+      const shuffle = (a) => {
+        const b = [...a];
+        for (let i = b.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [b[i], b[j]] = [b[j], b[i]];
+        }
+        return b;
+      };
+      function nextTrial() {
+        index++;
+        played = false;
+        for (const el of document.querySelectorAll(".rating input")) el.checked = false;
+        if (index >= clips.length) {
+          $("trial").textContent = clips.length ? "All clips rated." : "";
+          $("play").disabled = true;
+          $("next").disabled = true;
+          return;
+        }
+        order = shuffle(CONDITIONS);
+        panels.forEach((p, i) => (p.condition = order[i]));
+        $("trial").textContent = `Clip ${index + 1} of ${clips.length}`;
+        $("play").disabled = false;
+        $("next").disabled = true;
+      }
+
+      let ctx = null;
+      $("play").onclick = async () => {
+        ctx ??= new AudioContext();
+        await ctx.resume();
+        const clip = clips[index];
+        let buffer;
+        try {
+          buffer = await ctx.decodeAudioData(await clip.arrayBuffer());
+        } catch (e) {
+          status(`${clip.name} could not be decoded: ${e.message}`);
+          return;
+        }
+        const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) =>
+          buffer.getChannelData(c),
+        );
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        src.connect(ctx.destination);
+        const start = ctx.currentTime + 0.1;
+        const clock = () =>
+          Math.max(0, ctx.currentTime - start - (ctx.outputLatency || ctx.baseLatency || 0));
+        for (const p of panels) {
+          const rt = p.model.runtime;
+          rt.startLipSync(null);
+          rt.stopMotionSync();
+          if (p.condition === "M" || p.condition === "M0") {
+            rt.setVoiceProfile(p.condition === "M" ? profile : null);
+            rt.startMotionSync(
+              { sampleRate: buffer.sampleRate, channels },
+              { setting: "Mouth rich", clock },
+            );
+          } else if (p.condition === "V") {
+            // Volume only: lip sync moves ParamMouthOpenY with the loudness, the form stays.
+            const samples = channels.map((c) => Float64Array.from(c));
+            setTimeout(
+              () =>
+                rt.startLipSync({
+                  channels: channels.length,
+                  sampleRate: buffer.sampleRate,
+                  bitsPerSample: 32,
+                  frames: buffer.length,
+                  samples,
+                }),
+              100,
+            );
+          }
+        }
+        $("play").disabled = true;
+        status(`Playing ${clip.name}…`);
+        src.onended = () => {
+          played = true;
+          $("play").disabled = false;
+          $("play").textContent = "Play again";
+          $("next").disabled = false;
+          status("Rate the four mouths, then go to the next clip.");
+        };
+        src.start(start);
+      };
+
+      $("next").onclick = () => {
+        const now = new Date().toISOString();
+        const rows = panels.map((p, i) => ({
+          rater: $("rater").value,
+          clip: clips[index].name,
+          trial: index + 1,
+          panel: i + 1,
+          condition: p.condition,
+          calibrated: p.condition === "M" ? profile !== null : null,
+          naturalness: Number(document.querySelector(`input[name=nat${i}]:checked`)?.value ?? NaN),
+          sync: document.querySelector(`input[name=sync${i}]:checked`)?.value ?? null,
+          fits: document.querySelector(`input[name=fit${i}]:checked`)?.value ?? null,
+          time: now,
+        }));
+        if (rows.some((r) => !(r.naturalness >= 1) || !r.sync)) {
+          status("Rate every mouth's naturalness and sync first.");
+          return;
+        }
+        results.push(...rows);
+        store();
+        $("play").textContent = "Play clip";
+        nextTrial();
+      };
+
+      // ---- export
+      function download(name, body, type) {
+        const url = URL.createObjectURL(new Blob([body], { type }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      const COLUMNS = [
+        "rater",
+        "clip",
+        "trial",
+        "panel",
+        "condition",
+        "calibrated",
+        "naturalness",
+        "sync",
+        "fits",
+        "time",
+      ];
+      const csv = () =>
+        [
+          COLUMNS.join(","),
+          ...results.map((r) => COLUMNS.map((c) => JSON.stringify(r[c] ?? "")).join(",")),
+        ].join("\n");
+      $("exportJson").onclick = () =>
+        download("motion-sync-ratings.json", JSON.stringify(results, null, 1), "application/json");
+      $("exportCsv").onclick = () => download("motion-sync-ratings.csv", csv(), "text/csv");
+      $("clear").onclick = () => {
+        if (confirm("Clear all ratings on this page?")) {
+          results = [];
+          store();
+        }
+      };
+
+      // For tests and scripts.
+      window.motionSyncRating = {
+        panels,
+        results: () => results,
+        csv,
+        setProfile: (p) => ((profile = p), showProfile()),
+      };
+    </script>
+  </body>
+</html>

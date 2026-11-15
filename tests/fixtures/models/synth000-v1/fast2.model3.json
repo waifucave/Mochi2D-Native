@@ -1,0 +1,8 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "synth000-v1.moc3",
+    "Textures": [],
+    "Physics": "p-fast2.physics3.json"
+  }
+}

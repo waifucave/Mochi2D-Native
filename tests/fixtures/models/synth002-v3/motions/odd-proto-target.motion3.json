@@ -1,0 +1,1 @@
+{"Meta":{"Duration":1,"Fps":30,"CurveCount":3,"TotalSegmentCount":3,"TotalPointCount":6},"Curves":[{"Target":"Parameter","Id":"FreeCurve","Segments":[0,0,0,1,1]},{"Target":"toString","Id":"FreeCurve","Segments":[0,0,0,1,1]},{"Target":"Model","Id":"Opacity","Segments":[0,1,0,1,0.25]}]}

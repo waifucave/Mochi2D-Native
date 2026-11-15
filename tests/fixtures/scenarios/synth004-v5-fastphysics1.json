@@ -1,0 +1,9 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "synth004-v5-fastphysics1",
+  "model": "synth004-v5/fast1.model3.json",
+  "dt": 0.03333333333333333,
+  "frames": 12,
+  "commands": [],
+  "record": {}
+}

@@ -1,0 +1,21 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-face-turned",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamAngleX": -25,
+    "ParamAngleY": 12,
+    "ParamEyeLOpen": 0.6,
+    "ParamMouthOpenY": 0.3
+  },
+  "render": {
+    "width": 512,
+    "height": 512,
+    "background": [0.2, 0.6, 0.3, 1],
+    "view": {
+      "x": -0.01,
+      "y": 0.6,
+      "pixelsPerUnit": 2500
+    }
+  }
+}

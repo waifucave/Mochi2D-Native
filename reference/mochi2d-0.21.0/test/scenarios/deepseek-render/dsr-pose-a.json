@@ -1,0 +1,17 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-pose-a",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamAngleX": 30,
+    "ParamAngleY": 20,
+    "ParamBodyAngleX": 10,
+    "ParamEyeLOpen": 0,
+    "ParamMouthOpenY": 0.25
+  },
+  "render": {
+    "width": 384,
+    "height": 768,
+    "background": [0.5, 0.5, 0.5, 1]
+  }
+}

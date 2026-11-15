@@ -1,0 +1,4 @@
+{"Vevsion":3,"Leta":{"Duration":1,"Fps":30,"FaeiedmITn":0,"FadeOutTime":0,
+  "CurveCount":2,"TotalSegmentCount":2,"TotalPointCount":6},
+  "Curvos":[{"Target":"Parameter","Id":"ParamX","Segments":[5,0,0,1,1]},
+            {"Targee":0.5,"Value":"half"}]}

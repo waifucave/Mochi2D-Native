@@ -1,0 +1,12 @@
+{
+  "format": "mochi2d-sequence/0",
+  "id": "bad-seq-parts",
+  "model": "synth000-v1/a0.model3.json",
+  "steps": [
+    {
+      "partOpacities": {
+        "a": null
+      }
+    }
+  ]
+}

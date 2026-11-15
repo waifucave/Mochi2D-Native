@@ -1,0 +1,22 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-blendshapes",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamBodyAngleX2": 20,
+    "ChestX1": 0.7,
+    "Clothes2": 0.5,
+    "CheeksWiggleXR": 1,
+    "ParamAngleX": 15,
+    "RArm": 0.5,
+    "RForearm": -0.6,
+    "HipAngleX2": 10,
+    "GemHighlightx": 0.5,
+    "Param52": 1
+  },
+  "render": {
+    "width": 384,
+    "height": 768,
+    "background": [0.5, 0.5, 0.5, 1]
+  }
+}

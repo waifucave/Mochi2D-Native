@@ -1,0 +1,10 @@
+{
+  "Type": "Live2D Expression",
+  "Parameters": [
+    {
+      "Id": "FreeExpr",
+      "Value": 0.931,
+      "Blend": "Screen"
+    }
+  ]
+}

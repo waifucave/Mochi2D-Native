@@ -1,0 +1,110 @@
+{
+  "name": "mochi2d",
+  "version": "0.21.0",
+  "private": true,
+  "license": "MIT",
+  "description": "An open-source runtime for models made with Live2D Cubism",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/lib/mochi2d.js",
+  "module": "./dist/lib/mochi2d.js",
+  "types": "./dist/lib/types/lib/index.d.ts",
+  "bin": {
+    "mochi2d": "dist/tools/mochi2d.js",
+    "mochi2d-mcp": "dist/tools/mochi2d-mcp.js"
+  },
+  "peerDependencies": {
+    "pixi.js": "^8.12.0",
+    "playwright": ">=1.40.0"
+  },
+  "peerDependenciesMeta": {
+    "pixi.js": {
+      "optional": true
+    },
+    "playwright": {
+      "optional": true
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/lib/types/lib/index.d.ts",
+      "default": "./dist/lib/mochi2d.js"
+    },
+    "./headless": {
+      "types": "./dist/lib/types/lib/headless.d.ts",
+      "default": "./dist/lib/headless.js"
+    },
+    "./node": {
+      "types": "./dist/lib/types/lib/node.d.ts",
+      "default": "./dist/lib/node.js"
+    },
+    "./pixi": {
+      "types": "./dist/lib/types/lib/pixi.d.ts",
+      "default": "./dist/lib/pixi.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/lib",
+    "dist/web",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "CHANGELOG.md",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build:web && npm run build:tools && npm run build:lib",
+    "build:web": "vite build",
+    "build:tools": "node scripts/build-tools.mjs",
+    "build:lib": "node scripts/build-lib.mjs",
+    "build:static": "node scripts/build-static.mjs",
+    "dev": "vite",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.core.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "catalog": "npm run build:tools --silent && node dist/tools/catalog.js",
+    "conformance": "node dist/tools/conformance.js",
+    "render": "node dist/tools/render.js",
+    "imgdiff": "node dist/tools/imgdiff.js",
+    "demo:render": "node dist/tools/render.js test/scenarios/builtin-textured-triangles.json --out out/demo",
+    "viewer": "node dist/tools/serve.js",
+    "resultdiff": "node dist/tools/resultdiff.js",
+    "judge": "node dist/tools/resultdiff.js --judge",
+    "texture-probe": "node dist/tools/texture-probe.js",
+    "golden": "node dist/tools/golden.js",
+    "bench": "node dist/tools/bench.js",
+    "fuzz": "npm run build:tools --silent && node dist/tools/fuzz.js",
+    "api-list": "node scripts/api-list.mjs",
+    "size": "node scripts/package-size.mjs",
+    "mcp": "node dist/tools/mochi2d-mcp.js",
+    "mochi2d": "node dist/tools/mochi2d.js",
+    "example:embed": "node dist/tools/serve.js --dir . --path examples/embed/",
+    "example:pixi": "node dist/tools/serve.js --dir . --path examples/pixi/",
+    "example:rating": "node dist/tools/serve.js --dir . --path examples/motion-sync-rating/",
+    "example:node": "node examples/node/evaluate.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@types/node": "^22.20.5",
+    "@types/pngjs": "^6.0.5",
+    "esbuild": "^0.28.2",
+    "fflate": "^0.8.3",
+    "pixi.js": "^8.22.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0",
+    "zod": "^4.6.7"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "fsevents": false
+  }
+}

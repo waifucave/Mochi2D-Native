@@ -1,0 +1,166 @@
+{
+  "Version": 3,
+  "Meta": {
+    "Duration": 0,
+    "Fps": 24,
+    "FadeInTime": 0.1,
+    "FadeOutTime": 0.5,
+    "Loop": false,
+    "AreBeziersRestricted": true,
+    "CurveCount": 7,
+    "TotalSegmentCount": 18,
+    "TotalPointCount": 39,
+    "UserDataCount": 1,
+    "TotalUserDataSize": 3
+  },
+  "Curves": [
+    {
+      "Target": "Model",
+      "Id": "LipSync",
+      "FadeInTime": 0.2,
+      "Segments": [
+        0,
+        0.846,
+        0,
+        0.018,
+        0.129,
+        1,
+        0.031,
+        0.291,
+        0.027,
+        0.78,
+        0.039,
+        0.499,
+        3,
+        0.055,
+        0.883,
+        0,
+        0.1,
+        0.242
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "FadeOutTime": 1.2,
+      "Segments": [
+        0,
+        0.687,
+        2,
+        0.014,
+        0.341,
+        0,
+        0.015,
+        0.172,
+        1,
+        0.019,
+        0.64,
+        0.028,
+        0.122,
+        0.029,
+        0.799,
+        1,
+        0.022,
+        0.958,
+        0.024,
+        0.478,
+        0.06,
+        0.819
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param0",
+      "FadeInTime": 0.7,
+      "Segments": [
+        0,
+        -9.015,
+        3,
+        0.1,
+        9.077
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "Param2",
+      "Segments": [
+        0,
+        -4.071,
+        1,
+        0.001,
+        -5.551,
+        0.002,
+        -13.592,
+        0.005,
+        -5.917,
+        3,
+        0.009,
+        0.636,
+        2,
+        0.06,
+        -6.829
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeBlink",
+      "FadeOutTime": 0,
+      "Segments": [
+        0,
+        0.821,
+        0,
+        0.1,
+        -0.364
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Id": "FreeLip",
+      "Segments": [
+        0,
+        1.845,
+        1,
+        0,
+        -0.677,
+        0,
+        -0.047,
+        0,
+        0.155,
+        1,
+        0.01,
+        0.591,
+        0.007,
+        -0.095,
+        0.008,
+        1.703,
+        1,
+        0.089,
+        -0.323,
+        0.117,
+        1.685,
+        0.1,
+        -0.167
+      ]
+    },
+    {
+      "Target": "Model",
+      "Id": "Opacity",
+      "Segments": [
+        0,
+        0.122,
+        0,
+        0,
+        0.508,
+        0,
+        0.1,
+        0.483
+      ]
+    }
+  ],
+  "UserData": [
+    {
+      "Time": 0,
+      "Value": "ev0"
+    }
+  ]
+}

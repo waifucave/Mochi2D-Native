@@ -1,0 +1,22 @@
+{
+  "Type": "Live2D Pose",
+  "FadeInTime": 0.3,
+  "Groups": [
+    [],
+    [
+      {
+        "Id": "Param0",
+        "Link": [
+          "Param0"
+        ]
+      },
+      {
+        "Id": "FreePart",
+        "Link": [
+          "FreePart"
+        ]
+      }
+    ],
+    []
+  ]
+}

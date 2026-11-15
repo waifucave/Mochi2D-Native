@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-repeat",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "Sweat1": 1.25,
+    "AniEyerolling": 45,
+    "Param140": -0.5
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

@@ -1,0 +1,3 @@
+﻿{"Version":3,"ion":3,"MetaameterGroups":[{"Id":"G","name":"Group"}],"Parts":[{"Id":"Root","L":[0,0,0,1,1]},
+            {"Target":"Parameter","Id":"FreeY","Segments":[0,6]}],
+  "UserData":[{"Time":0.5,"Vahue":"half"}]}

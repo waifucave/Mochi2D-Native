@@ -1,0 +1,82 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "synth001-v2.moc3",
+    "Textures": [],
+    "Physics": "p1.physics3.json",
+    "Expressions": [
+      {
+        "Name": "x0",
+        "File": "exp/e0.exp3.json"
+      },
+      {
+        "Name": "x1",
+        "File": "exp/e1.exp3.json"
+      },
+      {
+        "Name": "x2",
+        "File": "exp/e2.exp3.json"
+      },
+      {
+        "Name": "x3",
+        "File": "exp/e3.exp3.json"
+      },
+      {
+        "Name": "x4",
+        "File": "exp/e4.exp3.json"
+      },
+      {
+        "Name": "x5",
+        "File": "exp/bad.exp3.json"
+      },
+      {
+        "Name": "x6",
+        "File": "exp/missing.exp3.json"
+      }
+    ],
+    "Motions": {
+      "Tap": [
+        {
+          "File": "motions/m0.motion3.json"
+        },
+        {
+          "File": "motions/m1.motion3.json",
+          "FadeInTime": -1
+        },
+        {
+          "File": "motions/m3.motion3.json",
+          "FadeOutTime": 0.4,
+          "Sound": "w-float.wav"
+        },
+        {
+          "File": "motions/m7.motion3.json"
+        },
+        {
+          "File": "motions/bad-nonnumeric.motion3.json",
+          "Sound": "s1.wav"
+        },
+        {
+          "File": "motions/bad-notobject.motion3.json",
+          "FadeInTime": -1
+        }
+      ]
+    }
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "Param0",
+        "Param1",
+        "FreeLip"
+      ]
+    }
+  ],
+  "HitAreas": [
+    {
+      "Id": "Mesh0",
+      "Name": "Body"
+    }
+  ]
+}

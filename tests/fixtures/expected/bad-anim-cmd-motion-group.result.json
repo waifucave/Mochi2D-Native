@@ -1,0 +1,18 @@
+{
+  "format": "mochi2d-anim-result/0",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": {
+    "kind": "InvalidScenario",
+    "message": "commands[0].group must be a non-empty string"
+  },
+  "warnings": [],
+  "scenario": "bad-anim-cmd-motion-group",
+  "ids": {
+    "parameters": [],
+    "parts": [],
+    "free": []
+  },
+  "frames": [],
+  "starts": [],
+  "randomUsed": 0
+}

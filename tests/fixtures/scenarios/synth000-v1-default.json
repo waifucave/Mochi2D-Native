@@ -1,0 +1,5 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "synth000-v1-default",
+  "model": "synth000-v1/synth000-v1.model3.json"
+}

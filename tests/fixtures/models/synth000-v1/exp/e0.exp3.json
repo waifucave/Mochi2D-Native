@@ -1,0 +1,11 @@
+{
+  "Type": "Live2D Expression",
+  "FadeInTime": 1,
+  "Parameters": [
+    {
+      "Id": "FreeCurve",
+      "Value": 0.419,
+      "Blend": "Add"
+    }
+  ]
+}

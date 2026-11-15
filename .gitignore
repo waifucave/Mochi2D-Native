@@ -1,0 +1,12 @@
+# Build output
+build/
+out/
+cmake-build-*/
+build-*/
+.vs/
+*.user
+# Locally supplied models. Never commit model data (see CLEANROOM.md).
+assets/models/
+# The reference's own installs and builds
+reference/*/node_modules/
+reference/*/dist/

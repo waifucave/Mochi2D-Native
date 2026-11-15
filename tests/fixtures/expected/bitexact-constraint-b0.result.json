@@ -1,0 +1,42 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "bitexact-constraint-b0",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "canvas": {
+    "width": 2,
+    "height": 2,
+    "originX": 0,
+    "originY": 0,
+    "pixelsPerUnit": 1
+  },
+  "parameters": [
+    {
+      "id": "B",
+      "value": 0.30000001192092896
+    },
+    {
+      "id": "C",
+      "value": 0.41999998688697815
+    }
+  ],
+  "parts": [
+    {
+      "id": "Root",
+      "opacity": 1
+    }
+  ],
+  "drawables": [
+    {
+      "id": "M",
+      "visible": true,
+      "opacity": 0.2204200029373169,
+      "drawOrder": 500,
+      "renderOrder": 0,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0.09031500667333603, 0, 1],
+      "vertices": [0, 0, 1, 0, 0, -1]
+    }
+  ],
+  "warnings": []
+}

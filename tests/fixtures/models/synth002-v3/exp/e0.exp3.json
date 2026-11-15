@@ -1,0 +1,15 @@
+{
+  "Type": "Live2D Expression",
+  "FadeInTime": 0.1,
+  "Parameters": [
+    {
+      "Id": "FreeExpr",
+      "Value": -1.184,
+      "Blend": "Overwrite"
+    },
+    {
+      "Id": "FreeCurve",
+      "Value": -0.137
+    }
+  ]
+}

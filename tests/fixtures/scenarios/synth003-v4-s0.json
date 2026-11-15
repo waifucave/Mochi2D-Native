@@ -1,0 +1,13 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "synth003-v4-s0",
+  "model": "synth003-v4/synth003-v4.model3.json",
+  "parameters": {
+    "Param0": -0.999500150549924,
+    "ParamBlend": 0.6031304532662034
+  },
+  "partOpacities": {
+    "Part0": 0.585687295999378,
+    "Part3": 1.5
+  }
+}

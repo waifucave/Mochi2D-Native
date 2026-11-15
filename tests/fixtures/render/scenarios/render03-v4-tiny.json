@@ -1,0 +1,18 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "render03-v4-tiny",
+  "model": "render03-v4/render03-v4.model3.json",
+  "parameters": {
+    "P0": 1
+  },
+  "render": {
+    "width": 48,
+    "height": 64,
+    "background": [
+      0.5,
+      0.5,
+      0.5,
+      1
+    ]
+  }
+}

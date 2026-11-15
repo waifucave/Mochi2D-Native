@@ -1,0 +1,9 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-repeat-v4",
+  "model": "bitexact-repeat/bitexact-repeat.model3.json",
+  "parameters": {
+    "S": 200,
+    "T": 200
+  }
+}

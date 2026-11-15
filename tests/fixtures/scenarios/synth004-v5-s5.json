@@ -1,0 +1,15 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "synth004-v5-s5",
+  "model": "synth004-v5/synth004-v5.model3.json",
+  "parameters": {
+    "Param0": 0.0236433413811028,
+    "Param1": 0.013642720729578287,
+    "ParamBlend": -0.23005792871117592,
+    "NoSuchParam": 1
+  },
+  "partOpacities": {
+    "Part0": 0.9814119888469577,
+    "Part1": 0.3681149643380195
+  }
+}

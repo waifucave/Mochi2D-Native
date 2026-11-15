@@ -1,0 +1,19 @@
+{
+  "Type": "Live2D Pose",
+  "Groups": [
+    [],
+    [],
+    [
+      {
+        "Id": "FreePart",
+        "Link": [
+          "FreePart",
+          "Param0"
+        ]
+      },
+      {
+        "Id": "Part0"
+      }
+    ]
+  ]
+}

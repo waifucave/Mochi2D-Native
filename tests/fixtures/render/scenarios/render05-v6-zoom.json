@@ -1,0 +1,20 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "render05-v6-zoom",
+  "model": "render05-v6/render05-v6.model3.json",
+  "render": {
+    "width": 192,
+    "height": 192,
+    "background": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "view": {
+      "x": -0.026601654570549735,
+      "y": 0,
+      "pixelsPerUnit": 2500
+    }
+  }
+}

@@ -1,0 +1,888 @@
+{
+  "format": "mochi2d-anim-result/0",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "warnings": ["motion file motions/bad-notobject.motion3.json is invalid (motions/bad-notobject.motion3.json: not a JSON object); its starts are dropped", "motion file motions/bad-code.motion3.json is invalid (motions/bad-code.motion3.json: curve 0: unknown segment code 4.5); its starts are dropped"],
+  "scenario": "synth002-v3-anim1",
+  "ids": {
+    "parameters": ["Param0", "Param1"],
+    "parts": ["Part0", "Part1", "Part2"],
+    "free": ["FreeBlink", "FreeLip", "FreePart", "FreePhys", "NoSuch", "Part1"]
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "time": 0.006944444444444444,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, null, null, null, null, null],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 1,
+      "time": 0.013888888888888888,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 0.43056950475176636, null, null, null, null],
+      "modelOpacity": 1,
+      "motionAdvanced": false,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.43056950475176636
+    },
+    {
+      "frame": 2,
+      "time": 0.020833333333333332,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 0.8507945257161127, null, null, null, null],
+      "modelOpacity": 0.315,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4202250209643463
+    },
+    {
+      "frame": 3,
+      "time": 0.027777777777777776,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 1.26092132784889, null, null, null, null],
+      "modelOpacity": 0.33092639446299393,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4102990774116323
+    },
+    {
+      "frame": 4,
+      "time": 0.034722222222222224,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 1.671063787791678, null, null, null, null],
+      "modelOpacity": 0.3465497666522589,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4110276350923871
+    },
+    {
+      "frame": 5,
+      "time": 0.04166666666666667,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 2.0901576628482483, null, null, null, null],
+      "modelOpacity": 0.361870096186257,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4215264044828821
+    },
+    {
+      "frame": 6,
+      "time": 0.04861111111111112,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 2.5163852038817285, null, null, null, null],
+      "modelOpacity": 0.37688736378034077,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4313521490866254
+    },
+    {
+      "frame": 7,
+      "time": 0.055555555555555566,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 2.9379744047549403, null, null, null, null],
+      "modelOpacity": 0.3916015513446761,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4308663456366575,
+      "drawables": [
+        {
+          "id": "Mesh0",
+          "visible": true,
+          "opacity": 0.3515799343585968,
+          "drawOrder": 474,
+          "renderOrder": 1,
+          "multiplyColor": [1, 1, 1, 1],
+          "screenColor": [0, 0, 0, 1],
+          "vertices": [-0.577146589756012, 0.12845385074615479, -0.5356848239898682, 0.3377685844898224, 0.7424420714378357, 0.3633175492286682, 0.6940608620643616, -0.6398845911026001]
+        },
+        {
+          "id": "Mesh1",
+          "visible": true,
+          "opacity": 0.9924327731132507,
+          "drawOrder": 413,
+          "renderOrder": 0,
+          "multiplyColor": [1, 1, 1, 1],
+          "screenColor": [0, 0, 0, 1],
+          "vertices": [-0.22950369119644165, 0.3416506052017212, -1.7579231262207031, 0.3037305772304535, 1.2236127853393555, 0.2524126172065735, 0.27677708864212036, 0.8342705965042114]
+        }
+      ]
+    },
+    {
+      "frame": 8,
+      "time": 0.06250000000000001,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 3.346260460534416, null, null, null, null],
+      "modelOpacity": 0.40601264208670684,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4212314528449514
+    },
+    {
+      "frame": 9,
+      "time": 0.06944444444444446,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 3.7373988018121964, null, null, null, null],
+      "modelOpacity": 0.4201206206185511,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4111372925373603
+    },
+    {
+      "frame": 10,
+      "time": 0.07638888888888891,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 4.1186288815881795, null, null, null, null],
+      "modelOpacity": 0.43392547306905827,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4103224112928153
+    },
+    {
+      "frame": 11,
+      "time": 0.08333333333333336,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 4.498295158511821, null, null, null, null],
+      "modelOpacity": 0.44742718720141755,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4201438473685145
+    },
+    {
+      "frame": 12,
+      "time": 0.0902777777777778,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 4.8745262169260135, null, null, null, null],
+      "modelOpacity": 0.4606257525359082,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.430689932893198
+    },
+    {
+      "frame": 13,
+      "time": 0.09722222222222225,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 5.234857882996791, null, null, null, null],
+      "modelOpacity": 0.47352116047879805,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4315925350007601
+    },
+    {
+      "frame": 14,
+      "time": 0.1041666666666667,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 5.565725817339625, null, null, null, null],
+      "modelOpacity": 0.48611340445691376,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.42177097180250417
+    },
+    {
+      "frame": 15,
+      "time": 0.11111111111111115,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 5.863412583917346, null, null, null, null],
+      "modelOpacity": 0.4984024800588555,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4109160067629035
+    },
+    {
+      "frame": 16,
+      "time": 0.1180555555555556,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 6.1358973725008354, null, null, null, null],
+      "modelOpacity": 0.5103883851826907,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4105997814472794
+    },
+    {
+      "frame": 17,
+      "time": 0.12500000000000003,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 6.388218378912734, null, null, null, null],
+      "modelOpacity": 0.522071120190891,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.41797388003845837
+    },
+    {
+      "frame": 18,
+      "time": 0.13194444444444448,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 6.621445873598155, null, null, null, null],
+      "modelOpacity": 0.5334506880724275,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4291421821911049
+    },
+    {
+      "frame": 19,
+      "time": 0.13888888888888892,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 1],
+      "free": [1, 6.824578160557207, null, null, null, null],
+      "modelOpacity": 0.5445270946128009,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4320105799771738
+    },
+    {
+      "frame": 20,
+      "time": 0.14583333333333337,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 6.984040579711638, null, null, null, null],
+      "modelOpacity": 0.5553003485722879,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4235124284030475
+    },
+    {
+      "frame": 21,
+      "time": 0.15277777777777782,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 7.0958424170299805, null, null, null, null],
+      "modelOpacity": 0.5657704618726106,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.41241270166433625
+    },
+    {
+      "frame": 22,
+      "time": 0.15972222222222227,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 7.167475502250989, null, null, null, null],
+      "modelOpacity": 0.5759374497929255,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.40953756735089786
+    },
+    {
+      "frame": 23,
+      "time": 0.1666666666666667,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 7.205814378191069, null, null, null, null],
+      "modelOpacity": 0.5858013311752405,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0.4140711708304113
+    },
+    {
+      "frame": 24,
+      "time": 0.17361111111111116,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 6.791868945587086, null, null, null, null],
+      "modelOpacity": 0.5953621286399244,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 25,
+      "time": 0.1805555555555556,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 6.365634045767217, null, null, null, null],
+      "modelOpacity": 0.6046198688119219,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 26,
+      "time": 0.18750000000000006,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 5.930811909954554, null, null, null, null],
+      "modelOpacity": 0.6135745825580817,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 27,
+      "time": 0.1944444444444445,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 5.491314379309914, null, null, null, null],
+      "modelOpacity": 0.6222263052363642,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 28,
+      "time": 0.20138888888888895,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 5.0511725519103745, null, null, null, null],
+      "modelOpacity": 0.6305750769576282,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 29,
+      "time": 0.2083333333333334,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 4.614439819910802, null, null, null, null],
+      "modelOpacity": 0.6386209428603781,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 30,
+      "time": 0.21527777777777785,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 4.185091806586475, null, null, null, null],
+      "modelOpacity": 0.6463639533997001,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 31,
+      "time": 0.2222222222222223,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 3.766927071338763, null, null, null, null],
+      "modelOpacity": 0.6538041646507174,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 32,
+      "time": 0.22916666666666674,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 3.363472609617467, null, null, null, null],
+      "modelOpacity": 0.6609416386277254,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 33,
+      "time": 0.2361111111111112,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 2.977898107633139, null, null, null, null],
+      "modelOpacity": 0.6677764436197233,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 34,
+      "time": 0.24305555555555564,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 2.6129426074241944, null, null, null, null],
+      "modelOpacity": 0.6743086545434198,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 35,
+      "time": 0.25000000000000006,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 2.2708567026820363, null, null, null, null],
+      "modelOpacity": 0.6805383533145846,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 36,
+      "time": 0.2569444444444445,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 1.9533626447608683, null, null, null, null],
+      "modelOpacity": 0.686465629239023,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 37,
+      "time": 0.2638888888888889,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 1.6616338344601311, null, null, null, null],
+      "modelOpacity": 0.6920905794241491,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 38,
+      "time": 0.2708333333333333,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 1.3962941667211308, null, null, null, null],
+      "modelOpacity": 0.6974133092125423,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 39,
+      "time": 0.27777777777777773,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 1.1574366515155334, null, null, null, null],
+      "modelOpacity": 0.7024339326387119,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 40,
+      "time": 0.28472222222222215,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.944659729266506, null, null, null, null],
+      "modelOpacity": 0.7071525729105874,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 41,
+      "time": 0.2916666666666666,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.7571188059826046, null, null, null, null],
+      "modelOpacity": 0.7115693629171079,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 42,
+      "time": 0.298611111111111,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": true,
+      "queueEmpty": false,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 43,
+      "time": 0.3055555555555554,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 44,
+      "time": 0.31249999999999983,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 45,
+      "time": 0.31944444444444425,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 46,
+      "time": 0.3263888888888887,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 47,
+      "time": 0.3333333333333331,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 48,
+      "time": 0.3402777777777775,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 49,
+      "time": 0.34722222222222193,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 50,
+      "time": 0.35416666666666635,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 51,
+      "time": 0.36111111111111077,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 52,
+      "time": 0.3680555555555552,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 53,
+      "time": 0.3749999999999996,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 54,
+      "time": 0.38194444444444403,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 55,
+      "time": 0.38888888888888845,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 56,
+      "time": 0.39583333333333287,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 57,
+      "time": 0.4027777777777773,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 58,
+      "time": 0.4097222222222217,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 59,
+      "time": 0.41666666666666613,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 60,
+      "time": 0.42361111111111055,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    },
+    {
+      "frame": 61,
+      "time": 0.43055555555555497,
+      "parameters": [0, -6.634928226470947],
+      "parts": [1, 1, 0.7129999995231628],
+      "free": [1, 0.5935898164361018, null, null, null, null],
+      "modelOpacity": 0.715684445763712,
+      "motionAdvanced": false,
+      "queueEmpty": true,
+      "events": [],
+      "lipsync": 0
+    }
+  ],
+  "starts": [
+    {
+      "frame": 0,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 1,
+      "idle": 1,
+      "started": true
+    },
+    {
+      "frame": 43,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 44,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 45,
+      "idle": 1,
+      "started": false
+    },
+    {
+      "frame": 46,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 47,
+      "idle": 1,
+      "started": false
+    },
+    {
+      "frame": 48,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 49,
+      "idle": 0,
+      "started": false
+    },
+    {
+      "frame": 50,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 51,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 52,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 53,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 54,
+      "idle": 0,
+      "started": false
+    },
+    {
+      "frame": 55,
+      "idle": 1,
+      "started": false
+    },
+    {
+      "frame": 56,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 57,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 58,
+      "idle": 4,
+      "started": false
+    },
+    {
+      "frame": 59,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 60,
+      "idle": 3,
+      "started": false
+    },
+    {
+      "frame": 61,
+      "idle": 1,
+      "started": false
+    }
+  ],
+  "randomUsed": 22
+}

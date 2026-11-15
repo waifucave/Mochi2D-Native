@@ -1,0 +1,19 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "dsr-part-opacity",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamAngleX": 5
+  },
+  "partOpacities": {
+    "Part48": 0.5,
+    "Part37": 0,
+    "Part117": 0.25,
+    "Part114": 0.8
+  },
+  "render": {
+    "width": 384,
+    "height": 768,
+    "background": [0.5, 0.5, 0.5, 1]
+  }
+}

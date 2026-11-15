@@ -1,0 +1,12 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-gem-reflection",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "GemReflection": 0.8
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

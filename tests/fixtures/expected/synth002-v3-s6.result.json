@@ -1,0 +1,60 @@
+{
+  "format": "mochi2d-result/0",
+  "scenario": "synth002-v3-s6",
+  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "error": null,
+  "canvas": {
+    "width": 3.274796724319458,
+    "height": 1.5498030185699463,
+    "originX": -0.6725208163261414,
+    "originY": 0.794445276260376,
+    "pixelsPerUnit": 100
+  },
+  "parameters": [
+    {
+      "id": "Param0",
+      "value": -10
+    },
+    {
+      "id": "Param1",
+      "value": 5.7915568351745605
+    }
+  ],
+  "parts": [
+    {
+      "id": "Part0",
+      "opacity": 1
+    },
+    {
+      "id": "Part1",
+      "opacity": 1
+    },
+    {
+      "id": "Part2",
+      "opacity": 0.3910965323448181
+    }
+  ],
+  "drawables": [
+    {
+      "id": "Mesh0",
+      "visible": true,
+      "opacity": 1,
+      "drawOrder": 594,
+      "renderOrder": 1,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [-0.695029616355896, 0.15552373230457306, -1.0996824502944946, 0.3418159484863281, 0.7790035009384155, 0.3687472939491272, 0.698716402053833, -0.5965909957885742]
+    },
+    {
+      "id": "Mesh1",
+      "visible": true,
+      "opacity": 0.09019124507904053,
+      "drawOrder": 449,
+      "renderOrder": 0,
+      "multiplyColor": [1, 1, 1, 1],
+      "screenColor": [0, 0, 0, 1],
+      "vertices": [-0.2608295679092407, 0.4151937663555145, -1.6877844333648682, 0.35776272416114807, 1.3111385107040405, 0.3092452883720398, 0.28754305839538574, 0.9708510041236877]
+    }
+  ],
+  "warnings": []
+}

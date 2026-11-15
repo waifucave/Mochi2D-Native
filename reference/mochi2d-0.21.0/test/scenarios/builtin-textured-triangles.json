@@ -1,0 +1,6 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "builtin-textured-triangles",
+  "x-builtinScene": "textured-triangles",
+  "render": { "width": 256, "height": 256 }
+}

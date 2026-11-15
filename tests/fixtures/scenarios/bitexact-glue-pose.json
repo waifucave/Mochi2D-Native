@@ -1,0 +1,8 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "bitexact-glue-pose",
+  "model": "bitexact-glue/bitexact-glue.model3.json",
+  "parameters": {
+    "P": 0.6180338859558105
+  }
+}

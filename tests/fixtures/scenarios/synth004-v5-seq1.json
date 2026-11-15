@@ -1,0 +1,35 @@
+{
+  "format": "mochi2d-sequence/0",
+  "id": "synth004-v5-seq1",
+  "model": "synth004-v5/synth004-v5.model3.json",
+  "steps": [
+    {
+      "label": "step0",
+      "parameters": {},
+      "partOpacities": {}
+    },
+    {
+      "parameters": {
+        "Param0": -1.988,
+        "Param1": 0.359
+      },
+      "partOpacities": {
+        "Part0": 1.012,
+        "Part2": 0.956
+      }
+    },
+    {
+      "parameters": {
+        "ParamBlend": -0.493,
+        "NoSuchParam": 1
+      },
+      "partOpacities": {
+        "Part2": 0.956
+      }
+    },
+    {
+      "parameters": {},
+      "partOpacities": {}
+    }
+  ]
+}

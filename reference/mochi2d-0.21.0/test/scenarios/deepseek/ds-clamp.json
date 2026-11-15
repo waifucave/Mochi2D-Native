@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "ds-clamp",
+  "model": "DeepSeek/大肥鱼.model3.json",
+  "parameters": {
+    "ParamAngleX": 45,
+    "ParamAngleY": -1000,
+    "ParamEyeLOpen": 5
+  },
+  "render": {
+    "width": 1024,
+    "height": 1024
+  }
+}

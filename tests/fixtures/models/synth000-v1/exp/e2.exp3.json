@@ -1,0 +1,16 @@
+{
+  "Type": "Live2D Expression",
+  "FadeOutTime": 0,
+  "Parameters": [
+    {
+      "Id": "Param0",
+      "Value": 1.832,
+      "Blend": "Add"
+    },
+    {
+      "Id": "FreeExpr",
+      "Value": -1.597,
+      "Blend": "Multiply"
+    }
+  ]
+}

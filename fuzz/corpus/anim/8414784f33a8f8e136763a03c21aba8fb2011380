@@ -1,0 +1,1 @@
+{"Meta":{"DuratimentCount":5,"TotalPointCount":10},"Curves":[{"Targ]et":"Model","Id":"EyeBlink","Segments":[0,1,1,0.3,0.2,0.6,0,1,1]},{"Target":"Model","Id":"Opacity","Segments":[0,1,1,1,0.5]},{"Target":"Parameter","arget":"Par]Opacity","Id":"Root","Segments":[0,1,0,2,0]}],"UserData":[{"Time":1,"Value":"e"}]}

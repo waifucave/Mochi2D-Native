@@ -1,0 +1,7 @@
+/* The shared library exports the C API only (CMakeLists.txt, ELF linkers). */
+{
+  global:
+    m2d_*;
+  local:
+    *;
+};

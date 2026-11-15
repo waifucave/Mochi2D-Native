@@ -1,0 +1,11 @@
+# The Mochi2D Native package: find_package(mochi2d CONFIG), then link
+# mochi2d::mochi2d (the shared library) or mochi2d::mochi2d_static (the
+# static libraries; M2D_STATIC is defined for you). Both give mochi2d.h.
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+if(@MOCHI2D_PACKAGE_THREADS@)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_dependency(Threads)
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/mochi2dTargets.cmake")
+check_required_components(mochi2d)

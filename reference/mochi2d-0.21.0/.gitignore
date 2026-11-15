@@ -1,0 +1,16 @@
+# dependencies & build output
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Models supplied locally by users - never committed
+assets/models/
+
+# local test output
+out/
+test-output/
+*.local
+.DS_Store

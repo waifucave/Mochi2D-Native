@@ -1,0 +1,14 @@
+{
+  "format": "mochi2d-anim-scenario/0",
+  "id": "bad-anim-cmd-enable-proto",
+  "model": "synth000-v1/a0.model3.json",
+  "dt": 0.016666666666666666,
+  "frames": 4,
+  "commands": [
+    {
+      "frame": 0,
+      "do": "enable",
+      "effect": "valueOf"
+    }
+  ]
+}

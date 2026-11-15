@@ -1,0 +1,18 @@
+{
+  "format": "mochi2d-scenario/0",
+  "id": "render03-v4-pose",
+  "model": "render03-v4/render03-v4.model3.json",
+  "parameters": {
+    "P0": 0.3500775992870331
+  },
+  "render": {
+    "width": 200,
+    "height": 320,
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

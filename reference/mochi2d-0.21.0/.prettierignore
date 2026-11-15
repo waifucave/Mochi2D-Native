@@ -1,0 +1,10 @@
+node_modules
+dist
+out
+coverage
+assets
+DeepSeek
+package-lock.json
+*.txt
+cleanroom
+*.md
