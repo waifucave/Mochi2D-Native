@@ -855,7 +855,7 @@ bool model_from_data(const MocData& data, int version, const LoadOptions& option
   Report report(false);
   check_structure(data, version, report);
   if (report.errors()) {
-    write_diagnostics = std::move(report.list);
+    write_diagnostics = report.take();
     return false;
   }
   return build_model(s, options, out, err);

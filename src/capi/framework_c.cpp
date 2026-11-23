@@ -215,6 +215,13 @@ m2d_status file_error(m2d_error* error, const String& message) {
   return M2D_FILE_ERROR;
 }
 
+/** A package read that failed: M2D_LIMIT_ERROR past a cap, M2D_FILE_ERROR otherwise. */
+m2d_status read_error(const fw::Package& package, m2d_error* error, const String& message) {
+  if (!package.last_too_large()) return file_error(error, message);
+  set_error(error, M2D_LIMIT_ERROR, "file-limit", message.c_str());
+  return M2D_LIMIT_ERROR;
+}
+
 std::string_view view(const void* bytes, size_t size) {
   return std::string_view(static_cast<const char*>(bytes), bytes ? size : 0);
 }
@@ -372,13 +379,25 @@ struct m2d_package final : fw::FileSource {
     };
     return source.list(add, &out, source.user) != 0;
   }
-  bool read(const String& path, String& bytes) override {
+  fw::ReadResult read(const String& path, String& bytes, uint64_t max_bytes, uint64_t& found) override {
+    // A size the host knows is checked before it reads; a read past the cap is not copied.
+    uint64_t known = 0;
+    if (source.size && source.size(path.c_str(), &known, source.user) && known > max_bytes) {
+      found = known;
+      return fw::ReadResult::TooLarge;
+    }
     const void* data = nullptr;
     size_t size = 0;
-    if (!source.read || !source.read(path.c_str(), &data, &size, source.user)) return false;
-    if (data || size == 0) bytes.assign(static_cast<const char*>(data), data ? size : 0);
+    if (!source.read || !source.read(path.c_str(), &data, &size, source.user)) return fw::ReadResult::Missing;
+    const bool ok = data != nullptr || size == 0;
+    const bool too_large = ok && static_cast<uint64_t>(size) > max_bytes;
+    if (ok && !too_large) bytes.assign(static_cast<const char*>(data), data ? size : 0);
     if (source.release) source.release(data, size, source.user);
-    return data != nullptr || size == 0;
+    if (too_large) {
+      found = size;
+      return fw::ReadResult::TooLarge;
+    }
+    return ok ? fw::ReadResult::Ok : fw::ReadResult::Missing;
   }
 };
 
@@ -531,6 +550,7 @@ double m2d_motion_duration(const m2d_motion* m) { return Mo(m) ? Mo(m)->duration
 double m2d_motion_fps(const m2d_motion* m) { return Mo(m) ? Mo(m)->fps : 0; }
 double m2d_motion_fade_in(const m2d_motion* m) { return Mo(m) ? Mo(m)->fade_in : 0; }
 double m2d_motion_fade_out(const m2d_motion* m) { return Mo(m) ? Mo(m)->fade_out : 0; }
+int32_t m2d_motion_loop(const m2d_motion* m) { return Mo(m) && Mo(m)->loop ? 1 : 0; }
 int32_t m2d_motion_curve_count(const m2d_motion* m) { return Mo(m) ? count_of(Mo(m)->curves) : 0; }
 int32_t m2d_motion_ignored_curve_count(const m2d_motion* m) {
   return Mo(m) ? static_cast<int32_t>(Mo(m)->ignored_curves) : 0;
@@ -1494,12 +1514,30 @@ double m2d_dbfs_to_amplitude(double db) { return fw::dbfs_to_amplitude(db); }
 
 const m2d_sound* m2d_sound_unusable(void) { return &unusable_sound; }
 
+void m2d_package_limits_default(m2d_package_limits* limits) {
+  if (!limits) return;
+  const fw::FileLimits d;
+  limits->max_file_bytes = d.max_file_bytes;
+  limits->max_total_bytes = d.max_total_bytes;
+}
+
 m2d_status m2d_package_open(const m2d_file_source* source, const char* settings_path, uint32_t flags,
                             const m2d_allocator* allocator, m2d_package** out, m2d_error* error) {
+  return m2d_package_open_with_limits(source, settings_path, flags, nullptr, allocator, out, error);
+}
+
+m2d_status m2d_package_open_with_limits(const m2d_file_source* source, const char* settings_path, uint32_t flags,
+                                        const m2d_package_limits* limits, const m2d_allocator* allocator,
+                                        m2d_package** out, m2d_error* error) {
   if (out) *out = nullptr;
   if (!source || !source->read || !out) {
     set_error(error, M2D_INVALID_ARGUMENT, "invalid-argument", "NULL argument");
     return M2D_INVALID_ARGUMENT;
+  }
+  fw::FileLimits caps;
+  if (limits) {
+    caps.max_file_bytes = limits->max_file_bytes;
+    caps.max_total_bytes = limits->max_total_bytes;
   }
   clear_error(error);
   const Heap heap = heap_of(allocator);
@@ -1521,12 +1559,17 @@ m2d_status m2d_package_open(const m2d_file_source* source, const char* settings_
   fw::PackageError kind = fw::PackageError::None;
   moc::Error moc_error;
   const String given = settings_path ? String(settings_path) : String();
-  if (!h->package.open(*h, settings_path ? &given : nullptr, options, message, kind, moc_error)) {
-    if (kind == fw::PackageError::Moc)
-      set_error(error, M2D_FORMAT_ERROR, moc_error.code.c_str(), message.c_str());
-    else
-      set_error(error, M2D_FILE_ERROR, kind == fw::PackageError::Settings ? "settings" : "file", message.c_str());
-    const m2d_status status = kind == fw::PackageError::Moc ? M2D_FORMAT_ERROR : M2D_FILE_ERROR;
+  if (!h->package.open(*h, settings_path ? &given : nullptr, options, message, kind, moc_error, caps)) {
+    m2d_status status = M2D_FILE_ERROR;
+    if (kind == fw::PackageError::Moc) {
+      status = M2D_FORMAT_ERROR;
+      set_error(error, status, moc_error.code.c_str(), message.c_str());
+    } else if (kind == fw::PackageError::Limit) {
+      status = M2D_LIMIT_ERROR;
+      set_error(error, status, "file-limit", message.c_str());
+    } else {
+      set_error(error, status, kind == fw::PackageError::Settings ? "settings" : "file", message.c_str());
+    }
     destroy(h);
     return status;
   }
@@ -1611,7 +1654,7 @@ m2d_status m2d_package_motion(m2d_package* package, const char* path, const m2d_
     return M2D_OK;
   }
   auto motion = package->package.motion(path, message);
-  if (!motion) return file_error(error, message);
+  if (!motion) return read_error(package->package, error, message);
   m2d_motion* h = create<m2d_motion>();
   h->heap = package->heap;
   h->motion = std::move(motion);
@@ -1636,7 +1679,7 @@ m2d_status m2d_package_expression(m2d_package* package, const char* path, const 
     return M2D_OK;
   }
   auto expression = package->package.expression(path, message);
-  if (!expression) return file_error(error, message);
+  if (!expression) return read_error(package->package, error, message);
   m2d_expression* h = create<m2d_expression>();
   h->heap = package->heap;
   h->expression = std::move(expression);
@@ -1685,7 +1728,7 @@ m2d_status m2d_package_sound(m2d_package* package, const char* path, const m2d_s
   *out = it->second;
   if (it->second == &unusable_sound) {
     package->package.sound(path, message);  // the cached reason
-    return file_error(error, message);
+    return read_error(package->package, error, message);
   }
   return M2D_OK;
 }
@@ -2219,7 +2262,7 @@ m2d_status m2d_package_motion_sync_sound(m2d_package* package, const char* path,
   if (!package->package.resolve(path, key, &message)) return file_error(error, message);
   bool first = false;
   auto sound = package->package.motion_sync_sound(path, message, first);
-  if (!sound) return file_error(error, message);
+  if (!sound) return read_error(package->package, error, message);
   auto it = package->sync_sounds.find(key);
   if (it == package->sync_sounds.end()) {
     m2d_motion_sync_sound* h = create<m2d_motion_sync_sound>();

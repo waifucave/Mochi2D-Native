@@ -1,6 +1,7 @@
 #include "framework/package.hpp"
 
 #include <algorithm>
+#include <charconv>
 
 namespace mochi2d::framework {
 
@@ -40,11 +41,18 @@ const char* archive_kind(std::string_view name) {
   return "";
 }
 
+/** A byte count as Mochi2D prints it (an integer; past 2^53 it would print the nearest double). */
+String bytes_str(uint64_t n) {
+  char buf[24];
+  const auto r = std::to_chars(buf, buf + sizeof buf, n);
+  return String(buf, r.ptr);
+}
+
 std::size_t depth(const String& p) { return static_cast<std::size_t>(std::count(p.begin(), p.end(), '/')) + 1; }
 
 /** Parses an optional companion file into `out`; a warning, as Mochi2D words it, on failure. */
-template <class T, class Parse>
-void companion(FileSource& source, const String& dir, const String& path, T& out, bool& has, Vector<String>& warnings,
+template <class T, class Read, class Parse>
+void companion(Read read, const String& dir, const String& path, T& out, bool& has, Vector<String>& warnings,
                Parse parse) {
   has = false;
   if (path.empty()) return;
@@ -53,8 +61,8 @@ void companion(FileSource& source, const String& dir, const String& path, T& out
     warnings.push_back(path + ": " + message);
     return;
   }
-  if (!source.read(full, bytes)) {
-    warnings.push_back(path + ": File not found: \"" + full + "\" in " + source.label());
+  if (read(full, bytes, message) != ReadResult::Ok) {
+    warnings.push_back(path + ": " + message);
     return;
   }
   FormatError error;
@@ -126,15 +134,46 @@ bool resolve_settings_path(const FileSource& source, const String* given, String
   return false;
 }
 
+ReadResult Package::fetch(const String& path, String& bytes, String& message) {
+  // Mochi2D's FileBudget: a file read before may be read again in full; a new
+  // one must also fit what is left of the total.
+  const auto counted = counted_.find(path);
+  const uint64_t left = total_ < limits_.max_total_bytes ? limits_.max_total_bytes - total_ : 0;
+  const uint64_t allowed = counted != counted_.end() ? limits_.max_file_bytes : std::min(limits_.max_file_bytes, left);
+  uint64_t size = 0;
+  bytes.clear();
+  const ReadResult r = source_->read(path, bytes, allowed, size);
+  if (r == ReadResult::Missing) {
+    message = "File not found: \"" + path + "\" in " + source_->label();
+  } else if (r == ReadResult::TooLarge) {
+    bytes.clear();
+    // FileLimitError's messages.
+    if (size > limits_.max_file_bytes)
+      message = "\"" + path + "\" holds " + bytes_str(size) + " bytes or more, more than the " +
+                bytes_str(limits_.max_file_bytes) + " allowed for one file";
+    else
+      message = "\"" + path + "\": reading it takes the files read to " +
+                bytes_str(total_ + size) + " bytes, more than the " +
+                bytes_str(limits_.max_total_bytes) + " allowed in total";
+  } else if (counted == counted_.end()) {
+    counted_.emplace(path, bytes.size());
+    total_ += bytes.size();
+  }
+  return r;
+}
+
 bool Package::read(const String& path, String& bytes, String& message) {
-  if (source_->read(path, bytes)) return true;
-  message = "File not found: \"" + path + "\" in " + source_->label();
-  return false;
+  const ReadResult r = fetch(path, bytes, message);
+  last_too_large_ = r == ReadResult::TooLarge;
+  return r == ReadResult::Ok;
 }
 
 bool Package::open(FileSource& source, const String* settings_path, const moc::LoadOptions& options, String& message,
-                   PackageError& error, moc::Error& moc_error) {
+                   PackageError& error, moc::Error& moc_error, const FileLimits& limits) {
   source_ = &source;
+  limits_ = limits;
+  counted_.clear();
+  total_ = 0;
   error = PackageError::None;
   warnings.clear();
   String path;
@@ -150,10 +189,15 @@ bool Package::open(FileSource& source, const String* settings_path, const moc::L
     error = PackageError::File;
     return false;
   }
-  if (!source.read(normalized, bytes)) {
-    message = "File not found: \"" + path + "\" in " + source.label();
-    error = PackageError::File;
-    return false;
+  switch (fetch(normalized, bytes, message)) {
+    case ReadResult::Ok: break;
+    case ReadResult::Missing:
+      message = "File not found: \"" + path + "\" in " + source.label();
+      error = PackageError::File;
+      return false;
+    case ReadResult::TooLarge:
+      error = PackageError::Limit;
+      return false;
   }
   auto s = std::allocate_shared<ModelSettings>(Allocator<ModelSettings>());
   if (!parse_model_settings(bytes, path, *s, message)) {
@@ -168,7 +212,7 @@ bool Package::open(FileSource& source, const String* settings_path, const moc::L
     return false;
   }
   if (!read(moc_path, bytes, message)) {
-    error = PackageError::File;
+    error = last_too_large_ ? PackageError::Limit : PackageError::File;
     return false;
   }
   auto m = std::allocate_shared<moc::Model>(Allocator<moc::Model>());
@@ -179,38 +223,39 @@ bool Package::open(FileSource& source, const String* settings_path, const moc::L
   }
   // Optional files, in Mochi2D's order: physics, pose, display info, user data, motion sync.
   Vector<String> optional;
+  auto read_companion = [this](const String& p, String& b, String& m) { return fetch(p, b, m); };
   {
     auto physics_file = std::allocate_shared<PhysicsFile>(Allocator<PhysicsFile>());
     bool has = false;
-    companion(source, dir_, s->physics, *physics_file, has, optional,
+    companion(read_companion, dir_, s->physics, *physics_file, has, optional,
               [](const String& b, const String& l, PhysicsFile& o, FormatError& e) { return parse_physics(b, l, o, e); });
     if (has) physics = physics_file;
   }
   {
     auto pose_file = std::allocate_shared<PoseFile>(Allocator<PoseFile>());
     bool has = false;
-    companion(source, dir_, s->pose, *pose_file, has, optional,
+    companion(read_companion, dir_, s->pose, *pose_file, has, optional,
               [](const String& b, const String& l, PoseFile& o, FormatError& e) { return parse_pose(b, l, o, e); });
     if (has) pose = pose_file;
   }
   {
     DisplayInfo info;
     bool has = false;
-    companion(source, dir_, s->display_info, info, has, optional,
+    companion(read_companion, dir_, s->display_info, info, has, optional,
               [](const String& b, const String& l, DisplayInfo& o, FormatError& e) { return parse_display_info(b, l, o, e); });
     if (has) display_info = std::move(info);
   }
   {
     UserData data;
     bool has = false;
-    companion(source, dir_, s->user_data, data, has, optional,
+    companion(read_companion, dir_, s->user_data, data, has, optional,
               [](const String& b, const String& l, UserData& o, FormatError& e) { return parse_user_data(b, l, o, e); });
     if (has) user_data = std::move(data);
   }
   {
     auto sync = std::allocate_shared<MotionSyncFile>(Allocator<MotionSyncFile>());
     bool has = false;
-    companion(source, dir_, s->motion_sync, *sync, has, optional,
+    companion(read_companion, dir_, s->motion_sync, *sync, has, optional,
               [](const String& b, const String& l, MotionSyncFile& o, FormatError& e) {
                 return parse_motion_sync(b, l, o, e);
               });
@@ -230,6 +275,7 @@ bool Package::resolve(std::string_view path, String& out, String* message) const
 }
 
 std::shared_ptr<const Motion> Package::motion(std::string_view path, String& message) {
+  last_too_large_ = false;
   String p, bytes;
   if (!resolve(path, p, &message)) return nullptr;
   if (auto it = motions_.find(p); it != motions_.end()) return it->second;
@@ -245,6 +291,7 @@ std::shared_ptr<const Motion> Package::motion(std::string_view path, String& mes
 }
 
 std::shared_ptr<const Expression> Package::expression(std::string_view path, String& message) {
+  last_too_large_ = false;
   String p, bytes;
   if (!resolve(path, p, &message)) return nullptr;
   if (auto it = expressions_.find(p); it != expressions_.end()) return it->second;
@@ -260,6 +307,7 @@ std::shared_ptr<const Expression> Package::expression(std::string_view path, Str
 }
 
 std::shared_ptr<const WavSound> Package::sound(std::string_view path, String& message, const String** bytes) {
+  last_too_large_ = false;
   String p;
   if (bytes) *bytes = nullptr;
   if (!resolve(path, p, &message)) return nullptr;
@@ -267,7 +315,10 @@ std::shared_ptr<const WavSound> Package::sound(std::string_view path, String& me
   if (it == sounds_.end()) {
     SoundEntry entry;
     // A file that cannot be read decodes as no bytes (Mochi2D's loadSound).
-    if (!read(p, entry.bytes, entry.message)) entry.bytes.clear();
+    if (!read(p, entry.bytes, entry.message)) {
+      entry.bytes.clear();
+      entry.too_large = last_too_large_;
+    }
     auto sound = std::allocate_shared<WavSound>(Allocator<WavSound>());
     String decode;
     if (decode_wav(reinterpret_cast<const uint8_t*>(entry.bytes.data()), entry.bytes.size(), *sound, decode))
@@ -278,11 +329,13 @@ std::shared_ptr<const WavSound> Package::sound(std::string_view path, String& me
   }
   if (bytes) *bytes = &it->second.bytes;
   if (!it->second.sound) message = it->second.message;
+  last_too_large_ = !it->second.sound && it->second.too_large;
   return it->second.sound;
 }
 
 std::shared_ptr<const MotionSyncSound> Package::motion_sync_sound(std::string_view path, String& message, bool& first) {
   first = false;
+  last_too_large_ = false;
   String p, bytes;
   if (!resolve(path, p, &message)) return nullptr;
   if (auto it = sync_sounds_.find(p); it != sync_sounds_.end()) {

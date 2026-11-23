@@ -107,10 +107,22 @@ int print(const Value& v, int code) {
   return code;
 }
 
+/** Set when a file was refused past the file cap: the failure is then a FileLimitError. */
+bool file_limit_hit = false;
+
+/** Reads a file; false with `err` set to `missing`, or to FileLimitError's message past the cap. */
+bool read_input(const fs::path& p, String& bytes, String& err, const String& missing) {
+  String limit;
+  if (conformance::read_file(p, bytes, &limit)) return true;
+  file_limit_hit = !limit.empty();
+  err = file_limit_hit ? limit : missing;
+  return false;
+}
+
 int fail(const String& kind, const String& message, int code = 1) {
   Value v = Value::object();
   Value e = Value::object();
-  e.set("kind", kind);
+  e.set("kind", file_limit_hit && kind != "Usage" ? String("FileLimitError") : kind);
   e.set("message", message);
   v.set("error", std::move(e));
   return print(v, code);
@@ -137,10 +149,7 @@ bool moc_bytes(const String& path, String& bytes, String& err) {
   String ext = conformance::path_text(p.extension());
   if (ext == ".json") {
     String text;
-    if (!conformance::read_file(p, text)) {
-      err = "cannot read " + path;
-      return false;
-    }
+    if (!read_input(p, text, err, "cannot read " + path)) return false;
     framework::ModelSettings s;
     String rel;
     if (!framework::parse_model_settings(text, path, s, err)) return false;
@@ -149,16 +158,10 @@ bool moc_bytes(const String& path, String& bytes, String& err) {
       return false;
     }
     const fs::path moc = p.parent_path() / fs::u8path(to_std(rel));
-    if (!conformance::read_file(moc, bytes)) {
-      err = "the .moc3 file " + s.moc + " of " + path + " is missing";
-      return false;
-    }
+    if (!read_input(moc, bytes, err, "the .moc3 file " + s.moc + " of " + path + " is missing")) return false;
     return true;
   }
-  if (!conformance::read_file(p, bytes)) {
-    err = "cannot read " + path;
-    return false;
-  }
+  if (!read_input(p, bytes, err, "cannot read " + path)) return false;
   return true;
 }
 
@@ -397,10 +400,7 @@ Value numbers(const double* x, std::size_t n) {
 
 bool read_sound(const String& path, fw::MotionSyncSound& out, String& err) {
   String bytes;
-  if (!conformance::read_file(fs::u8path(to_std(path)), bytes)) {
-    err = "cannot read " + path;
-    return false;
-  }
+  if (!read_input(fs::u8path(to_std(path)), bytes, err, "cannot read " + path)) return false;
   if (!fw::decode_motion_sync_wav(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size(), out, err)) {
     err = path + ": " + err;
     return false;
@@ -411,10 +411,7 @@ bool read_sound(const String& path, fw::MotionSyncSound& out, String& err) {
 
 bool read_profile(const String& path, fw::VoiceProfile& out, String& err) {
   String text;
-  if (!conformance::read_file(fs::u8path(to_std(path)), text)) {
-    err = "cannot read " + path;
-    return false;
-  }
+  if (!read_input(fs::u8path(to_std(path)), text, err, "cannot read " + path)) return false;
   json::Value v;
   fw::FormatError fe;
   if (!fw::parse_json(text, path, v, fe)) {
@@ -441,7 +438,9 @@ int cmd_motion_sync_trace(const Args& a) {
   auto sound = std::allocate_shared<fw::MotionSyncSound>(Allocator<fw::MotionSyncSound>());
   if (!read_sound(a.positional[0], *sound, err)) return fail("SoundError", err);
   String text;
-  if (!conformance::read_file(fs::u8path(to_std(a.positional[1])), text)) return fail("FileError", "cannot read " + a.positional[1]);
+  String read_err;
+  if (!read_input(fs::u8path(to_std(a.positional[1])), text, read_err, "cannot read " + a.positional[1]))
+    return fail("FileError", read_err);
   auto file = std::allocate_shared<fw::MotionSyncFile>(Allocator<fw::MotionSyncFile>());
   fw::FormatError fe;
   if (!fw::parse_motion_sync(text, a.get("label", "ms"), *file, fe)) return fail("FormatError", fe.message);
@@ -587,10 +586,19 @@ int cmd_voice_profile(const Args& a) {
 
 struct FolderSource {
   fs::path root;
+  /** The file's size from the folder, so that the package refuses one past its cap unread. */
+  static int32_t size(const char* path, uint64_t* out, void* user) {
+    std::error_code ec;
+    const uintmax_t n = fs::file_size(static_cast<FolderSource*>(user)->root / fs::u8path(path), ec);
+    if (ec) return 0;
+    *out = n;
+    return 1;
+  }
   static int32_t read(const char* path, const void** data, size_t* size, void* user) {
     auto* self = static_cast<FolderSource*>(user);
     String bytes;
-    if (!conformance::read_file(self->root / fs::u8path(path), bytes)) return 0;
+    // The package's own caps decide; this read takes any size the folder holds.
+    if (!conformance::read_file(self->root / fs::u8path(path), bytes, nullptr, UINT64_MAX)) return 0;
     char* copy = static_cast<char*>(std::malloc(bytes.size() ? bytes.size() : 1));
     if (!copy) return 0;
     std::memcpy(copy, bytes.data(), bytes.size());
@@ -609,6 +617,7 @@ int cmd_motion_sync_play(const Args& a) {
   source.label = "folder";
   source.read = FolderSource::read;
   source.release = FolderSource::release;
+  source.size = FolderSource::size;
   source.user = &folder;
   m2d_package* package = nullptr;
   m2d_error error;

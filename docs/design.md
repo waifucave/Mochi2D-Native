@@ -2,7 +2,7 @@
 
 Mochi2D Native is a portable C++17 runtime for models made with Live2D
 Cubism. It is a port of Mochi2D, the project's web runtime (the reference in
-`reference/mochi2d-0.21.0/`), with the same behavior and, where Mochi2D is
+`reference/mochi2d-0.24.1/`), with the same behavior and, where Mochi2D is
 bit-exact, the same bits. This document describes its architecture:
 floating point, safety and portability; status returns instead of
 exceptions, fdlibm and musl's float32 functions, an allocator per object;
@@ -631,7 +631,13 @@ saved value of a model parameter, the free value otherwise), with
 
 **Packages.** The host reads files, the library resolves them: an
 `m2d_file_source` has `read` (bytes for a normalized path, released through
-`release`), an optional `list`, and a label for messages. A package owns the
+`release`), an optional `list`, an optional `size` (a file's size without
+reading it), and a label for messages. A package reads within Mochi2D
+0.24.0's file caps (`m2d_package_limits`: 1 GiB a file, 2 GiB in all by
+default, each file counted once): a file past one is refused before `read`
+when `size` knows it, else before the bytes are copied, with
+`M2D_LIMIT_ERROR` and FileLimitError's message (a companion's becomes a
+warning, as in Mochi2D's bundle loader). A package owns the
 handles it gives out (settings, model, companions, motions, expressions,
 sounds); animators and instances made from them keep what they use alive.
 `m2d_sound_unusable()` stands for a sound that names a file which cannot be
@@ -694,8 +700,17 @@ use `find_package(mochi2d CONFIG)`. `tests/package/package.sh` builds,
 installs and archives a platform's package, then builds `tests/package` (a
 C program that loads a model, animates it and draws a frame) against it,
 shared and static, and runs it. `release.yml` does that on version tags for
-Linux x86-64 and arm64, macOS (universal) and Windows x64, and attaches the
-archives to the release.
+Linux x86-64 and arm64, macOS (universal) and Windows x64, runs the
+Platforms workflow (macOS and Windows, Metal and Direct3D 11) as part of
+the same run, and creates the release only when both have passed, with the
+version's `CHANGELOG.md` section as the release notes. Its last step is one
+script, `tests/package/publish.sh`: on a tag it takes only the package
+artifacts, requires exactly the four files, and creates the release as a
+draft with them, checks that it lists those four with their sizes, and only
+then publishes it. By hand the same script runs as a dry run up to that
+call, so every step but the release itself runs before a tag does. CI
+and Fuzz run on branches, not on tags: a tag's commit was checked when it
+was pushed.
 
 **Planned:** the library form of conformance results (`scenarioResult`).
 
@@ -772,6 +787,25 @@ under Clang (`-DMOCHI2D_FUZZ=ON`), briefly in CI on every push and longer on
 demand, from the committed corpus (`fuzz/corpus/`); with other compilers
 they replay seed files as unit tests.
 
+**Bounds on input a stranger made** (`SECURITY.md` lists them per input,
+with numbers):
+
+- **`.moc3`:** the reader checks every field's bounds and names and the
+  slot order before it allocates an array, in the order Mochi2D meets the
+  errors as it reads, so the first error is Mochi2D's. Validation reads
+  overlapping sections as Mochi2D does, but stops when together they claim
+  more than 4 file lengths (`kMaxClaimedLengths`), and a report lists at most
+  10,000 diagnostics (`kMaxDiagnostics`), then a `diagnostics-truncated`
+  warning. Both differ from Mochi2D only on files no tool writes.
+- **JSON:** a value is 16 bytes (numbers and booleans inline, strings and
+  containers boxed), and an object's repeated keys are merged once, at its
+  end, by sorting its keys: O(n log n) for any keys, with no hash to collide.
+  The result is JSON.parse's: a repeated key keeps its first place and its
+  last value.
+- **Package files:** Mochi2D's file caps (above).
+- **Textures:** the host decodes; the library checks the sizes it is handed
+  (`M2D_LIMIT_ERROR` above `M2D_MAX_TEXTURE_SIDE`).
+
 **Floating point.** The CMake targets set the flags themselves (`PRIVATE`
 for the libraries' sources and `INTERFACE` for code that includes their
 inline headers): `-ffp-contract=off -fno-fast-math` with GCC and Clang,
@@ -815,7 +849,7 @@ diagnostic. The C API returns an `m2d_status` and fills an optional
 
 ## 4. Porting map
 
-Mochi2D 0.21.0 (`reference/mochi2d-0.21.0/`) → Mochi2D Native.
+Mochi2D 0.24.1 (`reference/mochi2d-0.24.1/`) → Mochi2D Native.
 
 | Mochi2D | Native | Status |
 | --- | --- | --- |
@@ -1429,7 +1463,8 @@ the catalog's 16384 × 4 texture draws there as in Mochi2D on Mesa);
 `max_texture_size` caps it, `M2D_MAX_TEXTURE_SIZE` (8192) for the reference
 configuration. `m2d_texture_create` takes sides up to 32768; the software
 renderer refuses textures above 8192 when it is created
-(`texture-too-large`), the GL backend above its limit (`gl-texture-size`).
+(`texture-too-large`), the GL backend above its limit (`gl-texture-size`),
+both with `M2D_LIMIT_ERROR`.
 The test tools' runners (GL and Vulkan) cap at 8192 by default, the
 reference configuration's TextureTooLarge, for conformance
 runs; `--max-texture-size device` takes the driver's limit, as Mochi2D on
@@ -1528,7 +1563,7 @@ SwiftShader, against Mochi2D's own renders:
 
 ```
 tests/gl/build_angle.sh ~/angle-build            # once; 1–2 hours (or the release asset, below)
-cd reference/mochi2d-0.21.0
+cd reference/mochi2d-0.24.1
 npm run render -- out/catalog/render --out out/mochi2d-render
 VK_ICD_FILENAMES=<Playwright's chrome-linux64>/vk_swiftshader_icd.json ../../build/tests/mochi2d-gl-render render \
   out/catalog/render --out out/gl-render-angle --models assets/models --api es --egl ~/angle-build/angle/out/vk/libEGL.so
@@ -1538,7 +1573,7 @@ npm run judge -- out/mochi2d-render out/gl-render-angle --catalog out/catalog
 On Mesa, Mochi2D's render tool on Mesa is the same bundle swap,
 
 ```
-cd reference/mochi2d-0.21.0
+cd reference/mochi2d-0.24.1
 node ../../tests/crosscheck/bundle.mjs . tools/render.ts ../../build/render-mesa.mjs gl-egl
 node ../../build/render-mesa.mjs out/catalog/render --out out/mochi2d-render-mesa
 ../../build/tests/mochi2d-gl-render render out/catalog/render --out out/gl-render --models assets/models --api es \

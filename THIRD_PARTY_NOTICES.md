@@ -3,10 +3,11 @@
 Mochi2D Native's libraries (`mochi2d_core`, `mochi2d_framework`,
 `mochi2d_render`, `mochi2d`) link nothing but the C++ standard library. They
 contain two third-party components, fdlibm and musl's float32 arctangent,
-sine and cosine; the command-line tool also contains stb_image. Their license
-files ship with the libraries: `cmake --install` and the release packages put
-them in `share/mochi2d/third_party/` (`fdlibm/LICENSE`, `musl/COPYRIGHT`,
-`stb/LICENSE`), beside this file.
+sine and cosine. Their license files ship with the libraries:
+`cmake --install` and the release packages put them in
+`share/mochi2d/third_party/` (`fdlibm/LICENSE`, `musl/COPYRIGHT`), beside
+this file. The command-line tool, which is not part of the packages, also
+contains stb_image (below).
 
 ## fdlibm, as adapted by V8
 
@@ -68,7 +69,7 @@ distributed with them.
 
 | Component | License | Use |
 | --- | --- | --- |
-| Mochi2D (`reference/mochi2d-0.21.0/`), the project's own web runtime | MIT, Copyright (c) 2026 Mochi2D contributors | its conformance tool, render harness, judge and synthetic-model builder produce the cross-check's reference results |
+| Mochi2D (`reference/mochi2d-0.24.1/`), the project's own web runtime | MIT, Copyright (c) 2026 Mochi2D contributors | its conformance tool, render harness, judge and synthetic-model builder produce the cross-check's reference results |
 | Playwright and the Chromium it installs (pre-installed locally; CI installs Playwright 1.63.0 globally) | Apache-2.0, BSD-3-Clause | run Mochi2D's render harness for the render cross-check |
 | esbuild, TypeScript and the reference's other npm development dependencies (installed by `npm ci` in the reference folder, listed in its `package.json`) | MIT and other permissive licenses, see each package | build and run the reference's tools |
 | Node.js | MIT | runs the reference's tools |

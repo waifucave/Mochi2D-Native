@@ -22,15 +22,15 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Synth } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
-import { sampleModel } from "../../reference/mochi2d-0.21.0/test/support/sample-model.js";
-import { readMoc, writeMoc, writeMocUnchecked } from "../../reference/mochi2d-0.21.0/src/core/moc/io.js";
-import { validateMoc } from "../../reference/mochi2d-0.21.0/src/core/moc/validate.js";
-import { loadMoc } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
-import { ModelInstance } from "../../reference/mochi2d-0.21.0/src/core/eval/instance.js";
-import { MOC_DATA_LAYOUT, type MocData, type MocDataGroup } from "../../reference/mochi2d-0.21.0/src/core/moc/data.js";
-import { ELEMENT_SIZE, FIELDS } from "../../reference/mochi2d-0.21.0/src/core/moc/schema.js";
-import { VALIDATION_CASES } from "../../reference/mochi2d-0.21.0/tools/lib/catalog/moc-crafts.js";
+import { Synth } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
+import { sampleModel } from "../../reference/mochi2d-0.24.1/test/support/sample-model.js";
+import { readMoc, writeMoc, writeMocUnchecked } from "../../reference/mochi2d-0.24.1/src/core/moc/io.js";
+import { validateMoc } from "../../reference/mochi2d-0.24.1/src/core/moc/validate.js";
+import { loadMoc } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
+import { ModelInstance } from "../../reference/mochi2d-0.24.1/src/core/eval/instance.js";
+import { MOC_DATA_LAYOUT, type MocData, type MocDataGroup } from "../../reference/mochi2d-0.24.1/src/core/moc/data.js";
+import { ELEMENT_SIZE, FIELDS } from "../../reference/mochi2d-0.24.1/src/core/moc/schema.js";
+import { VALIDATION_CASES } from "../../reference/mochi2d-0.24.1/tools/lib/catalog/moc-crafts.js";
 import { animationVectors, invalidScenarios } from "./anim.js";
 import { idleVectors, type IdleCase } from "./idle.js";
 import { evalVectors, modeDifferences, type EvalCase } from "./eval.js";

@@ -17,11 +17,11 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Synth } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
-import { encodePng } from "../../reference/mochi2d-0.21.0/tools/lib/png.js";
-import { openRenderSession } from "../../reference/mochi2d-0.21.0/tools/lib/render-runner.js";
-import { createModelsHandler } from "../../reference/mochi2d-0.21.0/tools/lib/static-server.js";
-import { loadMoc } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
+import { Synth } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
+import { encodePng } from "../../reference/mochi2d-0.24.1/tools/lib/png.js";
+import { openRenderSession } from "../../reference/mochi2d-0.24.1/tools/lib/render-runner.js";
+import { createModelsHandler } from "../../reference/mochi2d-0.24.1/tools/lib/static-server.js";
+import { loadMoc } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
 
 const args = process.argv.slice(2);
 const out = args[0];
@@ -310,7 +310,7 @@ const refOutIndex = args.indexOf("--reference-out");
 const ref = join(out, refOutIndex >= 0 ? args[refOutIndex + 1]! : "reference");
 mkdirSync(ref, { recursive: true });
 const refIndex = args.indexOf("--ref");
-const root = refIndex >= 0 ? args[refIndex + 1]! : join(process.cwd(), "reference", "mochi2d-0.21.0");
+const root = refIndex >= 0 ? args[refIndex + 1]! : join(process.cwd(), "reference", "mochi2d-0.24.1");
 const session = await openRenderSession(root, undefined, {
   modelsHandler: createModelsHandler(join(out, "models")),
   offline: true,
@@ -318,7 +318,7 @@ const session = await openRenderSession(root, undefined, {
 try {
   for (const sc of scenarios) {
     const id = sc.id as string;
-    const status: Record<string, unknown> = { format: "mochi2d-render/0", scenario: id, producer: "mochi2d-0.21.0", error: null, png: null };
+    const status: Record<string, unknown> = { format: "mochi2d-render/0", scenario: id, producer: "mochi2d-0.24.1", error: null, png: null };
     try {
       // A scenario's x-tints go to the harness's render request as its tints (the render runner
       // passes none); otherwise the request is the one the runner builds.

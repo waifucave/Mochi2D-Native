@@ -82,7 +82,15 @@ typedef enum m2d_status {
    * ("random-range"), or a physics file cannot run ("type-error": a setting
    * without vertices, or an output vertex index that is not an integer).
    */
-  M2D_FRAME_ERROR = 6
+  M2D_FRAME_ERROR = 6,
+  /**
+   * Too large: a file, or what it declares, passes a cap (the code names it:
+   * "file-limit" for a package's files, "texture-too-large" or a GPU
+   * backend's "…-texture-size" for a texture).
+   * Nothing past the cap was read or decoded. M2D_FORMAT_ERROR and
+   * M2D_FILE_ERROR, by contrast, mean damaged or crafted data.
+   */
+  M2D_LIMIT_ERROR = 7
 } m2d_status;
 
 typedef struct m2d_error {
@@ -479,6 +487,12 @@ M2D_API double m2d_motion_fps(const m2d_motion* motion);
 /** The file's fade times (missing or negative: 1). */
 M2D_API double m2d_motion_fade_in(const m2d_motion* motion);
 M2D_API double m2d_motion_fade_out(const m2d_motion* motion);
+/**
+ * The file's `Meta.Loop`: 1 when it is true, 0 when it is false, missing or
+ * not a boolean (Mochi2D 0.22.0's Motion.loop). Playback does not read it:
+ * whether a motion loops is chosen when it starts (m2d_motion_start.loop).
+ */
+M2D_API int32_t m2d_motion_loop(const m2d_motion* motion);
 /** Curves that take effect, and curves left out by the order rule of 3c.2. */
 M2D_API int32_t m2d_motion_curve_count(const m2d_motion* motion);
 M2D_API int32_t m2d_motion_ignored_curve_count(const m2d_motion* motion);
@@ -1421,7 +1435,30 @@ typedef struct m2d_file_source {
    */
   int32_t (*list)(void (*add)(const char* path, void* context), void* context, void* user);
   void* user;
+  /**
+   * The size of the file at `path` without reading it: sets *size and
+   * returns 1, or returns 0 when it is not known (NULL: never known). With
+   * it, a file past a cap is refused before `read` is called; without it,
+   * after `read`, before the bytes are copied.
+   */
+  int32_t (*size)(const char* path, uint64_t* size, void* user);
 } m2d_file_source;
+
+/**
+ * Caps on what a package reads, Mochi2D's file limits: one file's size and
+ * all files together, each file counted once (the settings, the `.moc3`, the
+ * companions, and the motions, expressions and sounds read later).
+ * UINT64_MAX turns a cap off. The defaults are Mochi2D's: 1 GiB a file and
+ * 2 GiB in all; an application that opens models people hand it should pass
+ * caps that fit the models it expects (Mochi2D suggests 128 MiB and 512 MiB).
+ */
+typedef struct m2d_package_limits {
+  uint64_t max_file_bytes;
+  uint64_t max_total_bytes;
+} m2d_package_limits;
+
+/** Fills Mochi2D's default caps. */
+M2D_API void m2d_package_limits_default(m2d_package_limits* limits);
 
 /**
  * Opens a package: the settings file at `settings_path`, or with NULL the
@@ -1432,12 +1469,24 @@ typedef struct m2d_file_source {
  * package opens without them. Errors, with Mochi2D's messages:
  * M2D_FILE_ERROR for no settings file, a missing file, a path that escapes
  * the source's root, or a settings file that cannot be used;
- * M2D_FORMAT_ERROR for a `.moc3` that cannot be loaded. The source structure
+ * M2D_FORMAT_ERROR for a `.moc3` that cannot be loaded; M2D_LIMIT_ERROR for
+ * a settings file or `.moc3` past the default caps (m2d_package_limits). The source structure
  * is copied; its functions and `user` must stay valid while the package
  * lives, which reads motions, expressions and sounds later.
  */
 M2D_API m2d_status m2d_package_open(const m2d_file_source* source, const char* settings_path, uint32_t flags,
                                     const m2d_allocator* allocator, m2d_package** out, m2d_error* error);
+/**
+ * m2d_package_open within `limits` (NULL: the defaults, as m2d_package_open
+ * uses). The settings file or the `.moc3` past a cap is M2D_LIMIT_ERROR
+ * (code "file-limit", Mochi2D's FileLimitError message); an optional
+ * companion past a cap is a warning, as Mochi2D words it, and the package
+ * opens without it. Motions, expressions and sounds read later past a cap
+ * are M2D_LIMIT_ERROR too.
+ */
+M2D_API m2d_status m2d_package_open_with_limits(const m2d_file_source* source, const char* settings_path,
+                                                uint32_t flags, const m2d_package_limits* limits,
+                                                const m2d_allocator* allocator, m2d_package** out, m2d_error* error);
 /**
  * Destroys a package and the objects it owns (every object a package
  * function returns). Instances and animators made from them keep what they
@@ -1564,10 +1613,18 @@ typedef struct m2d_renderer m2d_renderer;
  * bytes apart; 0 for 4·width), prepared as Mochi2D prepares it:
  * premultiplied as ⌊c·a/255 + ½⌋, with a full mip chain (2×2 means rounded
  * with ties to even for power-of-two sizes). M2D_INVALID_ARGUMENT for a
- * side below 1, a stride below 4·width, or a side above
- * M2D_MAX_TEXTURE_SIDE (code "texture-too-large"). The renderers refuse
- * textures above their own limit (m2d_renderer_create above
- * M2D_MAX_TEXTURE_SIZE, Mochi2D's TextureTooLarge).
+ * side below 1 or a stride below 4·width; M2D_LIMIT_ERROR (code
+ * "texture-too-large") for a side above M2D_MAX_TEXTURE_SIDE, before
+ * anything is read. The renderers refuse textures above their own limit
+ * (m2d_renderer_create above M2D_MAX_TEXTURE_SIZE, Mochi2D's
+ * TextureTooLarge).
+ *
+ * The host decodes images; the library takes the pixels and the sizes it is
+ * handed, checks them as above, and keeps 4/3 of the pixels (the mip chain).
+ * A host that decodes images people hand it should read each image's
+ * declared size from its header and refuse one past its caps before
+ * decoding it (Mochi2D's defaults: 16384 on a side, 2^28 pixels a texture,
+ * 2^30 for a model's textures together).
  */
 M2D_API m2d_status m2d_texture_create(const void* pixels, int32_t width, int32_t height, int32_t stride,
                                       const m2d_allocator* allocator, m2d_texture** out, m2d_error* error);
@@ -1596,8 +1653,8 @@ M2D_API void m2d_renderer_options_default(m2d_renderer_options* options);
  * A renderer for a model and its textures, by texture index (the model's
  * art meshes name them): `textures[i]` may be NULL, and a mesh whose
  * texture is missing draws nothing, as in Mochi2D. `options` NULL takes the
- * defaults. M2D_INVALID_ARGUMENT with code "texture-too-large" for a
- * texture side above M2D_MAX_TEXTURE_SIZE.
+ * defaults. M2D_LIMIT_ERROR with code "texture-too-large" for a texture
+ * side above M2D_MAX_TEXTURE_SIZE.
  */
 M2D_API m2d_status m2d_renderer_create(m2d_model* model, m2d_texture* const* textures, int32_t texture_count,
                                        const m2d_renderer_options* options, m2d_renderer** out, m2d_error* error);
@@ -1890,9 +1947,10 @@ M2D_API void m2d_gl_options_default(m2d_gl_options* options);
 
 /**
  * The GL objects for a model and its textures, in the current context.
- * M2D_INTERNAL_ERROR with code "gl-function" when the loader lacks a
- * function, "gl-shader" when a shader does not compile, "gl-texture-size"
- * when a texture exceeds GL_MAX_TEXTURE_SIZE, "gl-error" otherwise.
+ * M2D_LIMIT_ERROR with code "gl-texture-size" when a texture exceeds
+ * GL_MAX_TEXTURE_SIZE (or the limit asked for); M2D_INTERNAL_ERROR with code
+ * "gl-function" when the loader lacks a function, "gl-shader" when a shader
+ * does not compile, "gl-error" otherwise.
  */
 M2D_API m2d_status m2d_gl_renderer_create(m2d_model* model, m2d_texture* const* textures, int32_t texture_count,
                                           m2d_gl_loader loader, void* user, const m2d_gl_options* options,
@@ -1971,8 +2029,9 @@ M2D_API int32_t m2d_vk_available(void);
 M2D_API void m2d_vk_options_default(m2d_vk_options* options);
 /**
  * The Vulkan objects for a model and its textures (uploaded on the context's
- * queue, waited for). M2D_INTERNAL_ERROR with code "vk-function" (a missing
- * function, or a device older than Vulkan 1.1), "vk-texture-size",
+ * queue, waited for). M2D_LIMIT_ERROR with code "vk-texture-size" for a
+ * texture above the device's limit; M2D_INTERNAL_ERROR with code
+ * "vk-function" (a missing function, or a device older than Vulkan 1.1),
  * "vk-error" (a Vulkan call failed) or "vk-not-built".
  */
 M2D_API m2d_status m2d_vk_renderer_create(m2d_model* model, m2d_texture* const* textures, int32_t texture_count,
@@ -2033,9 +2092,10 @@ M2D_API int32_t m2d_mtl_available(void);
 M2D_API void m2d_mtl_options_default(m2d_mtl_options* options);
 /**
  * The Metal objects for a model and its textures on `device`
- * (id<MTLDevice>). M2D_INTERNAL_ERROR with code "mtl-function" (no
- * device), "mtl-shader" (a program Metal does not compile),
- * "mtl-texture-size", "mtl-error" or "mtl-not-built".
+ * (id<MTLDevice>). M2D_LIMIT_ERROR with code "mtl-texture-size" for a
+ * texture above the device's limit; M2D_INTERNAL_ERROR with code
+ * "mtl-function" (no device), "mtl-shader" (a program Metal does not
+ * compile), "mtl-error" or "mtl-not-built".
  */
 M2D_API m2d_status m2d_mtl_renderer_create(m2d_model* model, m2d_texture* const* textures, int32_t texture_count,
                                            void* device, const m2d_mtl_options* options, m2d_mtl_renderer** out,
@@ -2092,9 +2152,10 @@ M2D_API void m2d_d3d11_options_default(m2d_d3d11_options* options);
 /**
  * The Direct3D objects for a model and its textures, made with `device`
  * (ID3D11Device*), the textures uploaded through `context`
- * (ID3D11DeviceContext*). M2D_INTERNAL_ERROR with code "d3d11-function"
- * (no device or context, or a feature level below 11_0),
- * "d3d11-texture-size", "d3d11-error" or "d3d11-not-built".
+ * (ID3D11DeviceContext*). M2D_LIMIT_ERROR with code "d3d11-texture-size"
+ * for a texture above the device's limit; M2D_INTERNAL_ERROR with code
+ * "d3d11-function" (no device or context, or a feature level below 11_0),
+ * "d3d11-error" or "d3d11-not-built".
  */
 M2D_API m2d_status m2d_d3d11_renderer_create(m2d_model* model, m2d_texture* const* textures, int32_t texture_count,
                                              void* device, void* context, const m2d_d3d11_options* options,

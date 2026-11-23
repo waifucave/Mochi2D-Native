@@ -46,8 +46,42 @@ struct RenderOptions {
   DrawerFactory drawer;
 };
 
-/** Decodes a PNG (any color type, as stb_image reads it) to straight RGBA8; false with a message. */
-bool decode_png(const String& bytes, int& width, int& height, Vector<uint8_t>& rgba, String& error);
+/**
+ * Caps on what a PNG may declare before it is decoded (Mochi2D 0.24.0's
+ * DEFAULT_TEXTURE_LIMITS): 16384 on a side, 2^28 pixels an image, 2^30 for
+ * a model's textures together.
+ */
+struct PngLimits {
+  uint32_t max_side = 16384;
+  uint64_t max_pixels = uint64_t{1} << 28;
+  uint64_t max_total_pixels = uint64_t{1} << 30;
+};
+
+/** What a PNG's header declares, read without decoding it. */
+struct PngHeader {
+  uint32_t width = 0, height = 0;
+  /** The fewest bytes a PNG of that size can hold (deflate inflates at most about 1,032:1). */
+  uint64_t min_bytes = 0;
+};
+
+/**
+ * Reads a PNG's IHDR and sums its IDAT data: false, with Mochi2D's
+ * TextureFormatError wording, for a file that is not a PNG, a damaged
+ * header, or a file too short for the size it declares.
+ */
+bool read_png_header(const String& bytes, PngHeader& out, String& error);
+
+/** Why decode_png refused: damaged or crafted, or past a cap. */
+enum class PngRefusal : uint8_t { None, Format, Limit };
+
+/**
+ * Decodes a PNG (any color type, as stb_image reads it) to straight RGBA8;
+ * false with a message. The header is read first: a file that is damaged,
+ * too short for its declared size, or past `limits` is refused before
+ * anything is decoded (`refusal` says which).
+ */
+bool decode_png(const String& bytes, int& width, int& height, Vector<uint8_t>& rgba, String& error,
+                const PngLimits& limits = PngLimits(), PngRefusal* refusal = nullptr);
 /** A PNG of RGBA8 pixels (rows top to bottom), stored without compression. */
 String encode_png(int width, int height, const uint8_t* rgba);
 

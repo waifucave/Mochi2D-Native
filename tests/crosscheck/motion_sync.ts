@@ -36,8 +36,8 @@ import {
   type Analysis,
   type MotionSyncInput,
   type MotionSyncTick,
-} from "../../reference/mochi2d-0.21.0/src/lib/headless.js";
-import { AnimationValues } from "../../reference/mochi2d-0.21.0/src/anim/values.js";
+} from "../../reference/mochi2d-0.24.1/src/lib/headless.js";
+import { AnimationValues } from "../../reference/mochi2d-0.24.1/src/anim/values.js";
 import {
   BASIC,
   FEMALE,
@@ -62,7 +62,7 @@ import {
   wavFile,
   whiteNoise,
   type WavEncoding,
-} from "../../reference/mochi2d-0.21.0/test/support/motion-sync.js";
+} from "../../reference/mochi2d-0.24.1/test/support/motion-sync.js";
 
 const out = process.argv[2];
 if (!out) {

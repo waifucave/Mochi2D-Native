@@ -100,7 +100,7 @@ int capi(const Args& a, GpuTool& t) {
     check(t.device_limit >= 9000 ? st == M2D_OK : code(t, "texture-size") == err.code, "the device's limit decides");
     if (taken) t.destroy(taken);
     void* refused = nullptr;
-    check(t.create(model, &big, 1, M2D_MAX_TEXTURE_SIZE, 1, &refused, &err) == M2D_INTERNAL_ERROR &&
+    check(t.create(model, &big, 1, M2D_MAX_TEXTURE_SIZE, 1, &refused, &err) == M2D_LIMIT_ERROR &&
               code(t, "texture-size") == err.code && refused == nullptr,
           "M2D_MAX_TEXTURE_SIZE caps it");
     const std::string refusal = err.message;

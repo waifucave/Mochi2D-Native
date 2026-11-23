@@ -11,7 +11,7 @@
  * atanf, sinf, cosf; then per pair y, x and atan2f. Little-endian.
  */
 import { writeFileSync } from "node:fs";
-import { atan2f, atanf, cosf, sinf } from "../../reference/mochi2d-0.21.0/src/core/math/libm32.js";
+import { atan2f, atanf, cosf, sinf } from "../../reference/mochi2d-0.24.1/src/core/math/libm32.js";
 
 const out = process.argv[2];
 if (!out) {

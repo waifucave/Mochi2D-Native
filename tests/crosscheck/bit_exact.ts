@@ -13,9 +13,9 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Synth, type RGB } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
-import { loadMoc } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
-import { ModelInstance } from "../../reference/mochi2d-0.21.0/src/core/eval/instance.js";
+import { Synth, type RGB } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
+import { loadMoc } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
+import { ModelInstance } from "../../reference/mochi2d-0.24.1/src/core/eval/instance.js";
 
 const f = Math.fround;
 const out = process.argv[2];

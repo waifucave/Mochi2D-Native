@@ -24,9 +24,9 @@ import {
   VoiceCalibration,
   synthesizeVowel,
   voiceProfileFromJson,
-} from "../../reference/mochi2d-0.21.0/src/lib/headless.js";
-import { sourceFromFolder } from "../../reference/mochi2d-0.21.0/src/lib/node.js";
-import { Synth } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
+} from "../../reference/mochi2d-0.24.1/src/lib/headless.js";
+import { sourceFromFolder } from "../../reference/mochi2d-0.24.1/src/lib/node.js";
+import { Synth } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
 import {
   FEMALE,
   MALE,
@@ -38,7 +38,7 @@ import {
   vowelClip,
   wavFile,
   whiteNoise,
-} from "../../reference/mochi2d-0.21.0/test/support/motion-sync.js";
+} from "../../reference/mochi2d-0.24.1/test/support/motion-sync.js";
 
 const args = process.argv.slice(2);
 const out = args[0];

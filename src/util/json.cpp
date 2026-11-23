@@ -10,18 +10,67 @@
 
 namespace mochi2d::json {
 
+namespace {
+const String empty_string;
+const Vector<Value> empty_items;
+const Vector<Value::Member> empty_members;
+}  // namespace
+
+Value::Value(const Value& other) : type_(other.type_) {
+  switch (other.type_) {
+    case Type::String: u_.s = box<String>(*other.u_.s); break;
+    case Type::Array: u_.a = box<Vector<Value>>(*other.u_.a); break;
+    case Type::Object: u_.o = box<Vector<Member>>(*other.u_.o); break;
+    default: u_ = other.u_; break;
+  }
+}
+
+Value& Value::operator=(const Value& other) {
+  if (this != &other) {
+    Value copy(other);
+    *this = std::move(copy);
+  }
+  return *this;
+}
+
+void Value::release() noexcept {
+  switch (type_) {
+    case Type::String: unbox(u_.s); break;
+    case Type::Array: unbox(u_.a); break;
+    case Type::Object: unbox(u_.o); break;
+    default: break;
+  }
+  type_ = Type::Null;
+  u_.d = 0;
+}
+
+const String& Value::as_string() const { return type_ == Type::String ? *u_.s : empty_string; }
+const Vector<Value>& Value::items() const { return type_ == Type::Array ? *u_.a : empty_items; }
+const Vector<Value::Member>& Value::members() const { return type_ == Type::Object ? *u_.o : empty_members; }
+
+Vector<Value>& Value::items() {
+  if (type_ != Type::Array) *this = array();
+  return *u_.a;
+}
+
+Vector<Value::Member>& Value::members() {
+  if (type_ != Type::Object) *this = object();
+  return *u_.o;
+}
+
 Value& Value::set(String key, Value v) {
-  for (auto& m : obj_)
+  Vector<Member>& obj = members();
+  for (auto& m : obj)
     if (m.first == key) {
       m.second = std::move(v);
       return m.second;
     }
-  obj_.emplace_back(std::move(key), std::move(v));
-  return obj_.back().second;
+  obj.emplace_back(std::move(key), std::move(v));
+  return obj.back().second;
 }
 
 const Value* Value::get(std::string_view key) const {
-  for (const auto& m : obj_)
+  for (const auto& m : members())
     if (m.first == key) return &m.second;
   return nullptr;
 }
@@ -47,7 +96,7 @@ bool array_index(const String& k, uint64_t& out) {
 Vector<const Value::Member*> Value::entries_js_order() const {
   Vector<std::pair<uint64_t, const Member*>> idx;
   Vector<const Member*> rest;
-  for (const auto& m : obj_) {
+  for (const auto& m : members()) {
     uint64_t i;
     if (array_index(m.first, i))
       idx.emplace_back(i, &m);
@@ -171,6 +220,39 @@ int hex_value(int32_t c) {
 bool is_digit(int32_t c) { return c >= '0' && c <= '9'; }
 
 bool is_number_part(int32_t c) { return is_digit(c) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-'; }
+
+/**
+ * Merges repeated keys as JSON.parse does: a key keeps the position of its
+ * first occurrence and takes the value of its last. Sorting the positions by
+ * key keeps an object of n members O(n log n), whatever its keys (no hash
+ * to collide).
+ */
+void merge_repeated_keys(Vector<Value::Member>& members) {
+  const std::size_t n = members.size();
+  if (n < 2) return;
+  Vector<uint32_t> order(n);
+  for (std::size_t k = 0; k < n; k++) order[k] = static_cast<uint32_t>(k);
+  stable_sort(order, [&](uint32_t a, uint32_t b) { return members[a].first < members[b].first; });
+  Vector<uint8_t> drop;
+  for (std::size_t k = 1; k < n; k++) {
+    if (members[order[k]].first != members[order[k - 1]].first) continue;
+    if (drop.empty()) drop.assign(n, 0);
+    // A run of one key, in file order: the first keeps its place and takes the last value.
+    std::size_t end = k;
+    while (end + 1 < n && members[order[end + 1]].first == members[order[k - 1]].first) end++;
+    members[order[k - 1]].second = std::move(members[order[end]].second);
+    for (std::size_t j = k; j <= end; j++) drop[order[j]] = 1;
+    k = end;
+  }
+  if (drop.empty()) return;
+  std::size_t w = 0;
+  for (std::size_t r = 0; r < n; r++)
+    if (!drop[r]) {
+      if (w != r) members[w] = std::move(members[r]);
+      w++;
+    }
+  members.erase(members.begin() + static_cast<std::ptrdiff_t>(w), members.end());
+}
 
 struct Parser {
   const U16& s;
@@ -427,18 +509,22 @@ struct Parser {
         out = Value::object();
         if (check(Tok::RBrace)) return true;
         if (!expect_next(Tok::String, "Expected property name or '}' in JSON")) return false;
+        Vector<Value::Member>& members = out.members();
         while (true) {
           String key;
           if (!string(key)) return false;
           if (!expect_next(Tok::Colon, "Expected ':' after property name in JSON")) return false;
           Value v;
           if (!value(v)) return false;
-          out.set(std::move(key), std::move(v));
+          // Appended as read; repeated keys are merged at the end, in O(n log n).
+          members.emplace_back(std::move(key), std::move(v));
           if (check(Tok::Comma)) {
             if (!expect_next(Tok::String, "Expected double-quoted property name in JSON")) return false;
             continue;
           }
-          return expect(Tok::RBrace, "Expected ',' or '}' after property value in JSON");
+          if (!expect(Tok::RBrace, "Expected ',' or '}' after property value in JSON")) return false;
+          merge_repeated_keys(members);
+          return true;
         }
       }
       case Tok::LBrack: {

@@ -15,8 +15,8 @@ import {
   type MotionSpec,
   type Segment,
   type WavSpec,
-} from "../../reference/mochi2d-0.21.0/tools/lib/catalog/anim-files.js";
-import type { MocModel } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
+} from "../../reference/mochi2d-0.24.1/tools/lib/catalog/anim-files.js";
+import type { MocModel } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
 
 type Rnd = () => number;
 

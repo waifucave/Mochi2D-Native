@@ -22,9 +22,9 @@ What is experimental, and why (the rules' comments say more):
 
 | | stable | experimental | deprecated |
 | --- | ---: | ---: | ---: |
-| functions | 264 | 86 | 0 |
-| types | 43 | 24 | 0 |
-| constants | 46 | 22 | 0 |
+| functions | 267 | 86 | 0 |
+| types | 44 | 24 | 0 |
+| constants | 47 | 22 | 0 |
 
 ## Functions
 
@@ -131,6 +131,7 @@ What is experimental, and why (the rules' comments say more):
 | `m2d_motion_fps` | stable |
 | `m2d_motion_fade_in` | stable |
 | `m2d_motion_fade_out` | stable |
+| `m2d_motion_loop` | stable |
 | `m2d_motion_curve_count` | stable |
 | `m2d_motion_ignored_curve_count` | stable |
 | `m2d_motion_event_count` | stable |
@@ -303,7 +304,9 @@ What is experimental, and why (the rules' comments say more):
 | `m2d_animator_warning` | stable |
 | `m2d_animator_clear_warnings` | stable |
 | `m2d_animator_set_idle_motion_sync` | experimental |
+| `m2d_package_limits_default` | stable |
 | `m2d_package_open` | stable |
+| `m2d_package_open_with_limits` | stable |
 | `m2d_package_destroy` | stable |
 | `m2d_package_settings_path` | stable |
 | `m2d_package_settings` | stable |
@@ -430,6 +433,7 @@ What is experimental, and why (the rules' comments say more):
 | `m2d_motion_sync_tick` | experimental |
 | `m2d_package` | stable |
 | `m2d_file_source` | stable |
+| `m2d_package_limits` | stable |
 | `m2d_texture` | stable |
 | `m2d_renderer` | stable |
 | `m2d_renderer_options` | stable |
@@ -464,6 +468,7 @@ What is experimental, and why (the rules' comments say more):
 | `M2D_INTERNAL_ERROR` | stable |
 | `M2D_FILE_ERROR` | stable |
 | `M2D_FRAME_ERROR` | stable |
+| `M2D_LIMIT_ERROR` | stable |
 | `M2D_LEVEL_OFFICIAL` | stable |
 | `M2D_LEVEL_STRICT` | stable |
 | `M2D_LOAD_STRICT_DRAW_ORDERS` | stable |

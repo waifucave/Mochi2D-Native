@@ -397,7 +397,7 @@ int capi(const Args& a, Context& c, bool desktop) {
     m2d_gl_options capped = go;
     capped.max_texture_size = M2D_MAX_TEXTURE_SIZE;
     m2d_gl_renderer* refused = nullptr;
-    check(m2d_gl_renderer_create(model, &big, 1, loader, nullptr, &capped, &refused, &err) == M2D_INTERNAL_ERROR &&
+    check(m2d_gl_renderer_create(model, &big, 1, loader, nullptr, &capped, &refused, &err) == M2D_LIMIT_ERROR &&
               std::strcmp(err.code, "gl-texture-size") == 0 && refused == nullptr,
           "M2D_MAX_TEXTURE_SIZE caps it");
     std::cout << "texture limit: the context's " << context_limit << "; 9000 wide "

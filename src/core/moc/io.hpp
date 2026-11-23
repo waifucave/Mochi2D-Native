@@ -60,6 +60,14 @@ Validation validate_moc(const uint8_t* bytes, std::size_t size, Level level = Le
 Validation validate_moc(const MocData& data, int version, Level level = Level::Strict);
 
 /** Collects diagnostics at a level (structure.ts Report). */
+/**
+ * The most diagnostics a report lists. A crafted file can raise several per
+ * element; past this many, a report counts the rest (they still make it
+ * invalid) and ends with one "diagnostics-truncated" warning, so that its
+ * size has a bound. Mochi2D lists them all.
+ */
+constexpr std::size_t kMaxDiagnostics = 10000;
+
 class Report {
  public:
   explicit Report(bool strict) : strict_(strict) {}
@@ -67,11 +75,17 @@ class Report {
              std::optional<long long> index = std::nullopt, std::optional<String> field = std::nullopt);
   void warn(const String& code, const String& kind, const String& message,
             std::optional<long long> index = std::nullopt, std::optional<String> field = std::nullopt);
-  std::size_t errors() const;
+  /** Errors reported, listed or not. */
+  std::size_t errors() const { return errors_; }
+  /** The listed diagnostics, with the truncation warning when some were not listed. */
+  Vector<Diagnostic> take();
   Vector<Diagnostic> list;
 
  private:
+  bool add(bool warning);
   bool strict_;
+  std::size_t errors_ = 0;
+  std::size_t unlisted_ = 0;
 };
 
 /** Every structural check of validate_moc on shape-checked data (checkStructure). */

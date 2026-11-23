@@ -4,13 +4,13 @@
 # and the reference's results for those scenarios; and the render fixtures,
 # synthetic textured models and render scenarios with the SHA-256 of
 # mochi2d-native's renders of them (from the build given). Needs Node ≥ 20
-# and the reference's dependencies (npm ci --prefix reference/mochi2d-0.21.0).
+# and the reference's dependencies (npm ci --prefix reference/mochi2d-0.24.1).
 #
 # usage: tests/fixtures/make.sh [build dir]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REF="$ROOT/reference/mochi2d-0.21.0"
+REF="$ROOT/reference/mochi2d-0.24.1"
 FIX="$ROOT/tests/fixtures"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -30,6 +30,13 @@ rm -rf "$FIX/models" "$FIX/scenarios" "$FIX/expected"
 cp -R "$TMP/data/models" "$FIX/models"
 cp -R "$TMP/data/scenarios" "$FIX/scenarios"
 (cd "$REF" && node dist/tools/conformance.js "$FIX/scenarios" --out "$FIX/expected" --models "$FIX/models" >/dev/null || true)
+# The reference's tool names itself by the commit of the git checkout it runs in (here this
+# repository's, so a private commit id): the fixtures name the released version instead.
+PRODUCER="mochi2d@$(node -p "require('$REF/package.json').version")"
+for f in "$FIX/expected"/*.result.json; do
+  sed -i.bak -E '1,8s/^(  "producer": )"[^"]*"/\1"'"$PRODUCER"'"/' "$f" && rm -f "$f.bak"
+done
+grep -L "\"producer\": \"$PRODUCER\"" "$FIX/expected"/*.result.json | sed 's/^/make.sh: no producer line in /' >&2
 echo "fixtures: $(ls "$FIX/scenarios" | wc -l) scenarios, $(ls "$FIX/expected" | wc -l) expected results"
 
 # The evaluation switches' model, its reduced variants and Mochi2D's outputs (tests/crosscheck/switches.ts).

@@ -25,7 +25,7 @@
  * usage: node model.mjs <out.moc3> [seed] [--render]
  */
 import { writeFileSync } from "node:fs";
-import { Synth, type WarpKeyform, type RotationKeyform, type MeshKeyform } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
+import { Synth, type WarpKeyform, type RotationKeyform, type MeshKeyform } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
 
 const renderShapes = process.argv.includes("--render");
 const args = process.argv.slice(2).filter((a) => a !== "--render");

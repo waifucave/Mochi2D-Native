@@ -25,7 +25,7 @@ section says how to set each up):
 
 - **The cross-checks** run Mochi2D itself beside Mochi2D Native and compare
   results byte for byte: Node 20 or later, and
-  `npm ci --prefix reference/mochi2d-0.21.0`. The render checks also need
+  `npm ci --prefix reference/mochi2d-0.24.1`. The render checks also need
   Playwright and its Chromium.
 - **The GPU backends' tests:** EGL (Mesa) for OpenGL, the Vulkan headers and
   SwiftShader or lavapipe for Vulkan, ANGLE (`tests/gl/build_angle.sh`) for

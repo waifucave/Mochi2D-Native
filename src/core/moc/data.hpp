@@ -119,6 +119,13 @@ struct Sections {
 };
 
 /**
+ * In lenient mode, the most that overlapping sections may claim together, in
+ * file lengths: past it, reading stops with a slot-order error, so that a
+ * file's sections cannot make it count more than this many times.
+ */
+constexpr uint64_t kMaxClaimedLengths = 4;
+
+/**
  * Reads header, tables and every section (read.ts readMocSections). Returns
  * false with an Error whose code is one of (magic, version, file-length, section-bounds,
  * negative-count, name-terminator, slot-order). In lenient mode a file

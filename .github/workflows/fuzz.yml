@@ -4,8 +4,10 @@
 # longer when started by hand.
 name: Fuzz
 
+# Branches only: a version tag's commit was fuzzed when it was pushed.
 on:
   push:
+    branches: ["**"]
   workflow_dispatch:
     inputs:
       seconds:

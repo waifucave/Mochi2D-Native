@@ -1,7 +1,7 @@
 {
   "format": "mochi2d-result/0",
   "scenario": "synth000-v1-s4",
-  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "producer": "mochi2d@0.24.1",
   "error": null,
   "canvas": {
     "width": 3.0526983737945557,

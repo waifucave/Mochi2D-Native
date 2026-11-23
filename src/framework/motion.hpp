@@ -42,6 +42,12 @@ struct Motion {
   double duration = 0;
   double fps = 0;
   bool restricted = false;
+  /**
+   * `Meta.Loop` (missing or not a boolean: false), as Mochi2D 0.22.0's
+   * Motion.loop. Playback does not read it: whether a motion loops is chosen
+   * when it starts.
+   */
+  bool loop = false;
   /** Fade times from `Meta` (missing or negative: 1). */
   double fade_in = 1, fade_out = 1;
   /** The curves that take effect (3c.2), in file order. */

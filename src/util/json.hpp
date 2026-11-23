@@ -7,6 +7,7 @@
 #include "util/alloc.hpp"
 #include <cstdint>
 #include <memory>
+#include <new>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -16,26 +17,54 @@ namespace mochi2d::json {
 
 class Value {
  public:
-  enum class Type { Null, Bool, Number, String, Array, Object };
+  enum class Type : uint8_t { Null, Bool, Number, String, Array, Object };
   using Member = std::pair<String, Value>;
 
-  Value() = default;
-  Value(std::nullptr_t) {}
-  Value(bool b) : type_(Type::Bool), bool_(b) {}
-  Value(double d) : type_(Type::Number), num_(d) {}
-  Value(float f) : type_(Type::Number), num_(static_cast<double>(f)) {}
-  Value(int i) : type_(Type::Number), num_(i) {}
-  Value(long i) : type_(Type::Number), num_(static_cast<double>(i)) {}
-  Value(long long i) : type_(Type::Number), num_(static_cast<double>(i)) {}
-  Value(unsigned i) : type_(Type::Number), num_(i) {}
-  Value(unsigned long i) : type_(Type::Number), num_(static_cast<double>(i)) {}
-  Value(unsigned long long i) : type_(Type::Number), num_(static_cast<double>(i)) {}
-  Value(const char* s) : type_(Type::String), str_(s) {}
-  Value(String s) : type_(Type::String), str_(std::move(s)) {}
-  Value(std::string_view s) : type_(Type::String), str_(s) {}
+  Value() noexcept { u_.d = 0; }
+  Value(std::nullptr_t) noexcept { u_.d = 0; }
+  Value(bool b) noexcept : type_(Type::Bool) { u_.b = b; }
+  Value(double d) noexcept : type_(Type::Number) { u_.d = d; }
+  Value(float f) noexcept : Value(static_cast<double>(f)) {}
+  Value(int i) noexcept : Value(static_cast<double>(i)) {}
+  Value(long i) noexcept : Value(static_cast<double>(i)) {}
+  Value(long long i) noexcept : Value(static_cast<double>(i)) {}
+  Value(unsigned i) noexcept : Value(static_cast<double>(i)) {}
+  Value(unsigned long i) noexcept : Value(static_cast<double>(i)) {}
+  Value(unsigned long long i) noexcept : Value(static_cast<double>(i)) {}
+  Value(const char* s) : Value(String(s)) {}
+  Value(String s) : type_(Type::String) { u_.s = box<String>(std::move(s)); }
+  Value(std::string_view s) : Value(String(s)) {}
 
-  static Value array() { Value v; v.type_ = Type::Array; return v; }
-  static Value object() { Value v; v.type_ = Type::Object; return v; }
+  static Value array() {
+    Value v;
+    v.u_.a = box<Vector<Value>>();
+    v.type_ = Type::Array;
+    return v;
+  }
+  static Value object() {
+    Value v;
+    v.u_.o = box<Vector<Member>>();
+    v.type_ = Type::Object;
+    return v;
+  }
+
+  Value(const Value& other);
+  Value(Value&& other) noexcept : type_(other.type_), u_(other.u_) {
+    other.type_ = Type::Null;
+    other.u_.d = 0;
+  }
+  Value& operator=(const Value& other);
+  Value& operator=(Value&& other) noexcept {
+    if (this != &other) {
+      release();
+      type_ = other.type_;
+      u_ = other.u_;
+      other.type_ = Type::Null;
+      other.u_.d = 0;
+    }
+    return *this;
+  }
+  ~Value() { release(); }
 
   Type type() const { return type_; }
   bool is_null() const { return type_ == Type::Null; }
@@ -45,31 +74,57 @@ class Value {
   bool is_array() const { return type_ == Type::Array; }
   bool is_object() const { return type_ == Type::Object; }
 
-  bool as_bool() const { return bool_; }
-  double as_number() const { return num_; }
-  const String& as_string() const { return str_; }
-  const Vector<Value>& items() const { return arr_; }
-  Vector<Value>& items() { return arr_; }
-  const Vector<Member>& members() const { return obj_; }
-  Vector<Member>& members() { return obj_; }
+  bool as_bool() const { return type_ == Type::Bool && u_.b; }
+  double as_number() const { return type_ == Type::Number ? u_.d : 0; }
+  /** The string; an empty one for other types. */
+  const String& as_string() const;
+  /** The array's items; none for other types. */
+  const Vector<Value>& items() const;
+  /** The array's items, for changing them; a value of another type becomes an empty array first. */
+  Vector<Value>& items();
+  /** The object's members; none for other types. */
+  const Vector<Member>& members() const;
+  /** The object's members, for changing them; a value of another type becomes an empty object first. */
+  Vector<Member>& members();
 
   /** Members in the order of JavaScript's Object.entries: array-index keys first, ascending. */
   Vector<const Member*> entries_js_order() const;
 
   /** Appends to an array. */
-  Value& push(Value v) { arr_.push_back(std::move(v)); return arr_.back(); }
+  Value& push(Value v) {
+    Vector<Value>& a = items();
+    a.push_back(std::move(v));
+    return a.back();
+  }
   /** Sets a member (keeps the first position of a repeated key). */
   Value& set(String key, Value v);
   /** The member's value, or nullptr. */
   const Value* get(std::string_view key) const;
 
  private:
+  // 16 bytes: numbers and booleans inline; strings, arrays and objects boxed
+  // (a value per element of a large array costs little).
+  template <class T, class... A>
+  static T* box(A&&... args) {
+    void* p = allocate_bytes(sizeof(T), alignof(T));
+    if (!p) out_of_memory_failure();
+    return new (p) T(std::forward<A>(args)...);
+  }
+  template <class T>
+  static void unbox(T* p) noexcept {
+    p->~T();
+    deallocate_bytes(p);
+  }
+  void release() noexcept;
+
   Type type_ = Type::Null;
-  bool bool_ = false;
-  double num_ = 0;
-  String str_;
-  Vector<Value> arr_;
-  Vector<Member> obj_;
+  union {
+    bool b;
+    double d;
+    String* s;
+    Vector<Value>* a;
+    Vector<Member>* o;
+  } u_;
 };
 
 /** Parse error with a message in the style of JSON.parse. */

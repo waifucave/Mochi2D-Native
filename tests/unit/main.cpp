@@ -25,6 +25,7 @@
 #include "core/moc/model.hpp"
 #include "core/moc/schema.hpp"
 #include "core/snapshot.hpp"
+#include "conformance/render.hpp"
 #include "conformance/scenario.hpp"
 #include "framework/lip_sync.hpp"
 #include "framework/motion.hpp"
@@ -2143,7 +2144,7 @@ TEST(renderer_c_api) {
   std::memset(px, 255, sizeof px);
   m2d_texture* tex = nullptr;
   CHECK_EQ(m2d_texture_create(px, 2, 2, 7, &a, &tex, &err), M2D_INVALID_ARGUMENT);  // stride below 4·width
-  CHECK_EQ(m2d_texture_create(px, 40000, 1, 0, &a, &tex, &err), M2D_INVALID_ARGUMENT);
+  CHECK_EQ(m2d_texture_create(px, 40000, 1, 0, &a, &tex, &err), M2D_LIMIT_ERROR);
   CHECK(std::strcmp(err.code, "texture-too-large") == 0);
   {
     // Above 8192 a texture is made (GPU backends may take it); the reference renderer refuses it.
@@ -2151,7 +2152,7 @@ TEST(renderer_c_api) {
     m2d_texture* big = nullptr;
     CHECK_EQ(m2d_texture_create(wide.data(), 9000, 1, 0, &a, &big, &err), M2D_OK);
     m2d_renderer* refused_big = nullptr;
-    CHECK_EQ(m2d_renderer_create(model, &big, 1, nullptr, &refused_big, &err), M2D_INVALID_ARGUMENT);
+    CHECK_EQ(m2d_renderer_create(model, &big, 1, nullptr, &refused_big, &err), M2D_LIMIT_ERROR);
     CHECK(std::strcmp(err.code, "texture-too-large") == 0);
     CHECK(refused_big == nullptr);
     m2d_texture_destroy(big);
@@ -2533,6 +2534,284 @@ TEST(framework_allocations) {
 }  // namespace
 
 /** Writes seed inputs for the fuzz targets (synthetic files made here; none is committed). */
+// ------------------------------------------- input a stranger made
+
+namespace peak {
+std::size_t live = 0, top = 0;
+void* allocate(std::size_t size, std::size_t alignment, void*) {
+  live += size;
+  top = std::max(top, live);
+  return ::operator new(size, std::align_val_t(alignment));
+}
+void deallocate(void* p, std::size_t size, std::size_t alignment, void*) {
+  live -= size;
+  ::operator delete(p, std::align_val_t(alignment));
+}
+/** The allocator, its peak reset. */
+m2d_allocator fresh() {
+  top = live;
+  return m2d_allocator{allocate, deallocate, nullptr};
+}
+}  // namespace peak
+
+namespace {
+
+void put32(Vector<uint8_t>& b, std::size_t o, uint32_t v) { std::memcpy(&b[o], &v, 4); }
+uint32_t get32(const Vector<uint8_t>& b, std::size_t o) {
+  uint32_t v;
+  std::memcpy(&v, &b[o], 4);
+  return v;
+}
+void put_be32(std::string& b, uint32_t v) {
+  for (int k = 3; k >= 0; k--) b.push_back(static_cast<char>((v >> (8 * k)) & 0xff));
+}
+/** A PNG of `width` × `height` RGBA8 that holds only `idat` bytes of image data. */
+std::string crafted_png(uint32_t width, uint32_t height, std::size_t idat) {
+  std::string b("\x89PNG\r\n\x1a\n", 8);
+  put_be32(b, 13);
+  b += "IHDR";
+  put_be32(b, width);
+  put_be32(b, height);
+  b += std::string("\x08\x06\x00\x00\x00", 5);  // 8 bits, RGBA
+  put_be32(b, 0);                                // CRC (not read before decoding)
+  put_be32(b, static_cast<uint32_t>(idat));
+  b += "IDAT" + std::string(idat, '\0');
+  put_be32(b, 0);
+  put_be32(b, 0);
+  b += "IEND";
+  put_be32(b, 0);
+  return b;
+}
+
+}  // namespace
+
+TEST(crafted_inputs_refused_before_their_cost) {
+  m2d_error err;
+  const Vector<uint8_t> model = written(tiny_model(5, true), 5);
+  const std::size_t count_table = get32(model, 64);
+  // A .moc3 whose counts declare 2^31 − 1 of everything: refused by the
+  // section bounds before any array is allocated.
+  {
+    Vector<uint8_t> b = model;
+    for (int i = 0; i < moc::count_table_length(5); i++) put32(b, count_table + 4u * static_cast<unsigned>(i), 0x7fffffff);
+    m2d_allocator a = peak::fresh();
+    m2d_model* m = nullptr;
+    CHECK_EQ(m2d_model_load(b.data(), b.size(), 0, &a, &m, &err), M2D_FORMAT_ERROR);
+    CHECK_EQ(std::string(err.code), "section-bounds");
+    CHECK(peak::top - peak::live < 16384);
+    a = peak::fresh();
+    int32_t valid = 1;
+    char* report = nullptr;
+    CHECK_EQ(m2d_validate_moc(b.data(), b.size(), M2D_LEVEL_STRICT, &a, &valid, &report, &err), M2D_OK);
+    CHECK_EQ(valid, 0);
+    CHECK(std::strstr(report, "section-bounds") != nullptr);
+    m2d_free_string(report);
+    CHECK(peak::top - peak::live < 16384);
+  }
+  // Every section on the same 64 KiB of zeros: in bounds, but together the
+  // sections claim several times the file. The loader stops at the slot
+  // order, validation at the claim, both before reading an array.
+  {
+    Vector<uint8_t> b = model;
+    const std::size_t at = b.size(), zeros = 65536;
+    b.resize(at + zeros, 0);
+    for (int i = 2; i < moc::slot_table_length(5); i++) put32(b, 64 + 4u * static_cast<unsigned>(i), static_cast<uint32_t>(at));
+    for (int i = 0; i < moc::count_table_length(5); i++)
+      put32(b, count_table + 4u * static_cast<unsigned>(i), static_cast<uint32_t>(zeros / 64));
+    m2d_allocator a = peak::fresh();
+    m2d_model* m = nullptr;
+    CHECK_EQ(m2d_model_load(b.data(), b.size(), 0, &a, &m, &err), M2D_FORMAT_ERROR);
+    CHECK_EQ(std::string(err.code), "slot-order");
+    CHECK(peak::top - peak::live < b.size());
+    a = peak::fresh();
+    int32_t valid = 1;
+    char* report = nullptr;
+    CHECK_EQ(m2d_validate_moc(b.data(), b.size(), M2D_LEVEL_STRICT, &a, &valid, &report, &err), M2D_OK);
+    CHECK_EQ(valid, 0);
+    CHECK(std::strstr(report, "reads no further") != nullptr);
+    m2d_free_string(report);
+    CHECK(peak::top - peak::live < b.size());
+  }
+  // A report lists at most kMaxDiagnostics, then says how many it left out.
+  {
+    moc::MocData d = tiny_model(5, false);
+    const std::size_t n = 12000;
+    for (std::size_t i = 0; i < moc::kFieldCount; i++) {
+      const auto& f = moc::all_fields()[i];
+      if (!f.group || std::strcmp(f.group, "parts") != 0 || f.since > 5) continue;
+      auto& arr = d[f.id];
+      if (!arr.names.empty()) arr.names.resize(n, arr.names[0]);
+      if (!arr.i32.empty()) arr.i32.resize(n, arr.i32[0]);
+      if (!arr.f32.empty()) arr.f32.resize(n, arr.f32[0]);
+    }
+    for (auto& parent : d.i32(F::part_parent)) parent = 999999;
+    const moc::Validation v = moc::validate_moc(d, 5, moc::Level::Strict);
+    CHECK(!v.valid);
+    CHECK_EQ(v.diagnostics.size(), moc::kMaxDiagnostics + 1);
+    CHECK_EQ(std::string(v.diagnostics.back().code), "diagnostics-truncated");
+    CHECK(v.diagnostics.back().warning);
+  }
+  // JSON: an object of 200,000 keys parses in O(n log n), a repeated key keeps
+  // its first place and takes its last value, and memory stays a small
+  // multiple of the text.
+  {
+    std::string text = "{\"Version\":3,\"Meta\":{\"Duration\":1,\"Fps\":30,\"CurveCount\":2000000000,"
+                       "\"TotalSegmentCount\":2000000000,\"TotalPointCount\":2000000000,\"UserDataCount\":2000000000,"
+                       "\"TotalUserDataSize\":2000000000},\"Curves\":[],\"UserData\":[]";
+    for (int i = 0; i < 200000; i++) text += ",\"k" + std::to_string(i) + "\":0";
+    text += "}";
+    m2d_allocator a = peak::fresh();
+    m2d_motion* m = nullptr;
+    const auto t0 = std::chrono::steady_clock::now();
+    // Its Meta declares 2·10^9 curves, segments, points and user data: nothing is
+    // allocated for them, and the file is refused for not holding them.
+    CHECK_EQ(m2d_motion_parse(text.data(), text.size(), "m", &a, &m, &err), M2D_FILE_ERROR);
+    CHECK(std::chrono::steady_clock::now() - t0 < std::chrono::seconds(5));
+    CHECK(peak::top - peak::live < 32 * text.size());
+    m2d_motion_destroy(m);
+    json::Value v;
+    json::ParseError pe;
+    std::string rep = "{";
+    for (int i = 0; i < 40; i++) rep += "\"k" + std::to_string(i % 17) + "\":" + std::to_string(i) + (i < 39 ? "," : "}");
+    CHECK(json::parse(rep, v, pe));
+    CHECK_EQ(v.members().size(), 17u);
+    CHECK_EQ(std::string(v.members()[3].first), "k3");
+    CHECK_EQ(v.members()[3].second.as_number(), 37.0);
+    std::string deep(100000, '[');
+    CHECK_EQ(m2d_motion_parse(deep.data(), deep.size(), "m", nullptr, &m, &err), M2D_FILE_ERROR);
+  }
+  // A WAV header that declares 4 GiB of samples in a 44-byte file: the data
+  // read is the data there is.
+  {
+    std::string wav = "RIFF";
+    for (uint32_t v : {0xffffffffu}) wav.append(reinterpret_cast<const char*>(&v), 4);
+    wav += "WAVEfmt ";
+    const uint32_t fmt_size = 16, rate = 44100, byte_rate = 44100 * 4, data_size = 0xfffffff0u;
+    const uint16_t pcm = 1, channels = 2, align = 4, bits = 16;
+    wav.append(reinterpret_cast<const char*>(&fmt_size), 4);
+    wav.append(reinterpret_cast<const char*>(&pcm), 2);
+    wav.append(reinterpret_cast<const char*>(&channels), 2);
+    wav.append(reinterpret_cast<const char*>(&rate), 4);
+    wav.append(reinterpret_cast<const char*>(&byte_rate), 4);
+    wav.append(reinterpret_cast<const char*>(&align), 2);
+    wav.append(reinterpret_cast<const char*>(&bits), 2);
+    wav += "data";
+    wav.append(reinterpret_cast<const char*>(&data_size), 4);
+    CHECK_EQ(wav.size(), 44u);
+    m2d_allocator a = peak::fresh();
+    m2d_sound* sound = nullptr;
+    CHECK_EQ(m2d_sound_decode(wav.data(), wav.size(), &a, &sound, &err), M2D_OK);
+    CHECK_EQ(m2d_sound_frames(sound), 0.0);
+    m2d_sound_destroy(sound);
+    CHECK(peak::top - peak::live < 4096);
+    // Motion sync's decoder: no samples either; what it allocates is its fixed analysis tables.
+    a = peak::fresh();
+    m2d_motion_sync_sound* ms = nullptr;
+    CHECK_EQ(m2d_motion_sync_sound_decode(wav.data(), wav.size(), &a, &ms, &err), M2D_OK);
+    m2d_motion_sync_sound_destroy(ms);
+    CHECK(peak::top - peak::live < 256 * 1024);
+  }
+  // A texture past M2D_MAX_TEXTURE_SIDE: "too large", from its sizes alone.
+  {
+    uint8_t px[4] = {0, 0, 0, 0};
+    m2d_allocator a = peak::fresh();
+    m2d_texture* t = nullptr;
+    CHECK_EQ(m2d_texture_create(px, 40000, 40000, 0, &a, &t, &err), M2D_LIMIT_ERROR);
+    CHECK_EQ(std::string(err.code), "texture-too-large");
+    CHECK(t == nullptr);
+    CHECK_EQ(peak::top - peak::live, 0u);
+  }
+  // A package's files past the caps: refused from a known size before the
+  // read, and from a read's size before the copy; companions become warnings.
+  {
+    MemoryFiles mem;
+    for (const auto& f : mochi2d::testing::model_folder()) mem.files[f.first] = f.second;
+    std::string settings_name;
+    for (const auto& f : mem.files)
+      if (f.first.size() > 12 && f.first.compare(f.first.size() - 12, 12, ".model3.json") == 0) settings_name = f.first;
+    CHECK(!settings_name.empty());
+    m2d_file_source source = mem.source("box");
+    static uint64_t declared = 0;
+    declared = uint64_t{3} << 30;
+    source.size = [](const char* path, uint64_t* size, void*) -> int32_t {
+      if (std::strstr(path, ".moc3") == nullptr) return 0;
+      *size = declared;
+      return 1;
+    };
+    m2d_package* pkg = nullptr;
+    const int reads = mem.reads;
+    m2d_allocator a = peak::fresh();
+    CHECK_EQ(m2d_package_open(&source, settings_name.c_str(), 0, &a, &pkg, &err), M2D_LIMIT_ERROR);
+    CHECK_EQ(std::string(err.code), "file-limit");
+    CHECK(std::strstr(err.message, "holds 3221225472 bytes or more, more than the 1073741824 allowed for one file") != nullptr);
+    CHECK_EQ(mem.reads, reads + 1);  // the settings file only
+    source.size = nullptr;
+    m2d_package_limits caps;
+    m2d_package_limits_default(&caps);
+    CHECK_EQ(caps.max_file_bytes, uint64_t{1} << 30);
+    CHECK_EQ(caps.max_total_bytes, uint64_t{1} << 31);
+    // A 16 MiB .moc3 past a 1 MiB cap: refused after the read, before the copy.
+    std::string original_moc;
+    std::size_t moc_size = 0;
+    for (auto& f : mem.files)
+      if (f.first.find(".moc3") != std::string::npos) {
+        original_moc = f.second;
+        f.second.resize(16u << 20);
+      }
+    caps.max_file_bytes = 1u << 20;
+    a = peak::fresh();
+    CHECK_EQ(m2d_package_open_with_limits(&source, settings_name.c_str(), 0, &caps, &a, &pkg, &err), M2D_LIMIT_ERROR);
+    CHECK(std::strstr(err.message, "holds 16777216 bytes or more, more than the 1048576 allowed for one file") != nullptr);
+    CHECK(peak::top - peak::live < (1u << 20));  // not copied
+    for (auto& f : mem.files)
+      if (f.first.find(".moc3") != std::string::npos) {
+        f.second = original_moc;
+        moc_size = f.second.size();
+      }
+    // The total: what the settings file and the .moc3 leave is too little for the companions.
+    caps.max_file_bytes = UINT64_MAX;
+    caps.max_total_bytes = mem.files[settings_name].size() + moc_size;
+    CHECK_EQ(m2d_package_open_with_limits(&source, settings_name.c_str(), 0, &caps, nullptr, &pkg, &err), M2D_OK);
+    bool total_warned = false;
+    for (int32_t i = 0; i < m2d_package_warning_count(pkg); i++)
+      total_warned = total_warned || std::strstr(m2d_package_warning(pkg, i), "allowed in total") != nullptr;
+    CHECK(total_warned);
+    m2d_package_destroy(pkg);
+  }
+  // The tools: a PNG is read from its header before stb_image sees it, and a
+  // file past the tools' cap is refused from its size.
+  {
+    int w = 0, h = 0;
+    Vector<uint8_t> rgba;
+    String why;
+    conformance::PngRefusal refusal = conformance::PngRefusal::None;
+    // 30,000 × 30,000 (3.6 GB decoded) in 87 bytes: too short for its size.
+    const std::string bomb = crafted_png(30000, 30000, 20);
+    CHECK(!conformance::decode_png(String(bomb.data(), bomb.size()), w, h, rgba, why, {}, &refusal));
+    CHECK(refusal == conformance::PngRefusal::Format);
+    CHECK(why.find("too few for a PNG file of that size") != String::npos);
+    // 16,385 × 1 with all its data: past the cap on a side.
+    const std::string wide = crafted_png(16385, 1, 200);
+    CHECK(!conformance::decode_png(String(wide.data(), wide.size()), w, h, rgba, why, {}, &refusal));
+    CHECK(refusal == conformance::PngRefusal::Limit);
+    CHECK(why.find("allowed on a side") != String::npos);
+    namespace fs = std::filesystem;
+    const fs::path file = fs::temp_directory_path() / "mochi2d-crafted-input.bin";
+    { std::ofstream(file, std::ios::binary) << std::string(300, 'x'); }
+    String bytes, limit;
+    CHECK(!conformance::read_file(file, bytes, &limit, 100));
+    CHECK(limit.find("holds 300 bytes or more, more than the 100 allowed for one file") != String::npos);
+    CHECK(bytes.empty());
+    // Named as the model names it, not by the path on disk.
+    CHECK(!conformance::read_file(file, bytes, &limit, 100, "textures/t.png"));
+    CHECK(limit.find("\"textures/t.png\" holds 300 bytes") == 0);
+    CHECK(limit.find(file.filename().u8string().c_str()) == String::npos);
+    CHECK(conformance::read_file(file, bytes, &limit));
+    CHECK_EQ(bytes.size(), 300u);
+    fs::remove(file);
+  }
+}
+
 int write_seeds(const std::string& dir) {
   namespace fs = std::filesystem;
   fs::create_directories(fs::u8path(dir) / "moc");

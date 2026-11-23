@@ -248,7 +248,7 @@ bool write_moc(const MocData& data, int version, Vector<uint8_t>& out, Vector<Di
   Report report(false);
   check_structure(data, version, report);
   if (report.errors()) {
-    diags = std::move(report.list);
+    diags = report.take();
     return false;
   }
   out = encode(version, data, counts);

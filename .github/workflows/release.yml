@@ -3,8 +3,14 @@
 # (x64), each with mochi2d.h, a CMake package config, LICENSE and
 # THIRD_PARTY_NOTICES.md (tests/package/package.sh). Each package is first
 # found and used by a consumer project that runs one model, shared and
-# static; then they are attached to the tag's release. By hand
-# (workflow_dispatch) it builds and tests the packages without publishing.
+# static. The Platforms workflow (macOS and Windows, Metal and Direct3D 11)
+# runs as part of this one, and the release is published only when the
+# packages and Platforms have passed: no release with a red check on its
+# commit. The last step is tests/package/publish.sh: on a tag it creates the
+# release (a draft with exactly the four packages, checked, then published);
+# by hand (workflow_dispatch) the same script runs as a dry run, with every
+# check and the notes, and prints what a tag would create. A tag differs from
+# a run by hand only in that call.
 name: Release
 
 on:
@@ -46,11 +52,36 @@ jobs:
           path: mochi2d-native-*
           retention-days: 14
 
+  platforms:
+    uses: ./.github/workflows/platforms.yml
+    permissions:
+      contents: read
+
+  # The last step, in two modes of one script (tests/package/publish.sh), so
+  # that a run by hand exercises all of it but the release itself: only the
+  # package artifacts (not Platforms' renders and judge), exactly the four
+  # files, the notes, and what would be created.
+  dry-run:
+    needs: [package, platforms]
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: packages
+          merge-multiple: true
+      - name: Everything the tag's run does, up to creating the release
+        run: tests/package/publish.sh dry-run packages
+
   publish:
-    needs: package
+    needs: [package, platforms]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-24.04
-    # Only this job writes: it creates the release and uploads the packages.
+    # Only this job writes: it creates the release with the packages.
     permissions:
       contents: write
     env:
@@ -59,20 +90,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
+          pattern: package-*
           path: packages
           merge-multiple: true
-      - name: The tag names the project's version, and CHANGELOG.md has its section
-        run: |
-          V="$(sed -n 's/^project(mochi2d_native VERSION \([0-9.]*\) .*/\1/p' CMakeLists.txt)"
-          [ "v$V" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} is not the project's version v$V" >&2; exit 1; }
-          awk -v h="## $V" '$0 == h {on = 1; next} on && /^## / {exit} on' CHANGELOG.md > notes.md
-          [ -s notes.md ] || { echo "CHANGELOG.md has no section ## $V" >&2; exit 1; }
-          ls packages | grep -c "mochi2d-native-$V-" | grep -qx 4 || { echo "not the four packages of $V" >&2; ls packages; exit 1; }
-      - name: Attach the packages to the release
-        run: |
-          T="${GITHUB_REF_NAME}"
-          ls -la packages
-          if ! gh release view "$T" -R "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release create "$T" -R "${{ github.repository }}" --title "Mochi2D Native $T" --notes-file notes.md
-          fi
-          gh release upload "$T" -R "${{ github.repository }}" packages/* --clobber
+      - name: The checks, then the release (a draft with the four files, checked, then published)
+        run: tests/package/publish.sh publish packages

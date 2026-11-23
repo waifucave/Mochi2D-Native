@@ -52,6 +52,9 @@ enum class ModelFileKind : uint8_t {
 };
 ModelFileKind classify_model_file(std::string_view path);
 
+/** What a FileSource read found. */
+enum class ReadResult : uint8_t { Ok, Missing, TooLarge };
+
 /** A read-only set of files by path (Mochi2D's FileSource). */
 class FileSource {
  public:
@@ -60,8 +63,23 @@ class FileSource {
   virtual String label() const = 0;
   /** Every file's path, when the source can list them; false when it cannot (HTTP). */
   virtual bool list(Vector<String>& out) const = 0;
-  /** Reads a whole file; false when it does not exist or cannot be read. */
-  virtual bool read(const String& path, String& bytes) = 0;
+  /**
+   * Reads a whole file of at most `max_bytes` bytes. Missing when it does not
+   * exist or cannot be read; TooLarge, with `size` its size, when it holds
+   * more: nothing is kept, and a source that knows the size first does not
+   * read it at all.
+   */
+  virtual ReadResult read(const String& path, String& bytes, uint64_t max_bytes, uint64_t& size) = 0;
+};
+
+/**
+ * Caps on what a package reads (Mochi2D 0.24.0's FileLimits): one file's
+ * size, and all files together, each counted once. The defaults are
+ * Mochi2D's: 1 GiB a file, 2 GiB in all.
+ */
+struct FileLimits {
+  uint64_t max_file_bytes = uint64_t{1} << 30;
+  uint64_t max_total_bytes = uint64_t{1} << 31;
 };
 
 /** Settings files of a listable source, shallowest first (Mochi2D's findSettingsFiles). */
@@ -82,6 +100,8 @@ enum class PackageError : uint8_t {
   Settings,
   /** The `.moc3` cannot be loaded: `moc_error` says why. */
   Moc,
+  /** The settings file or the `.moc3` is past a FileLimits cap (FileLimitError). */
+  Limit,
 };
 
 /**
@@ -98,7 +118,13 @@ class Package {
    * settings file or `.moc3` is an error. `source` must outlive the package.
    */
   bool open(FileSource& source, const String* settings_path, const moc::LoadOptions& options, String& message,
-            PackageError& error, moc::Error& moc_error);
+            PackageError& error, moc::Error& moc_error, const FileLimits& limits = FileLimits());
+
+  /** The caps the package reads within, and the bytes it has read, each file once. */
+  const FileLimits& limits() const { return limits_; }
+  uint64_t read_bytes() const { return total_; }
+  /** Whether the last failed read of motion, expression, sound or motion_sync_sound was past a cap. */
+  bool last_too_large() const { return last_too_large_; }
 
   /** The settings file's path in the source. */
   const String& settings_path() const { return settings_path_; }
@@ -151,6 +177,7 @@ class Package {
     String bytes;
     std::shared_ptr<const WavSound> sound;
     String message;
+    bool too_large = false;
   };
   HashMap<String, SoundEntry> sounds_;
   struct SyncSoundEntry {
@@ -158,6 +185,12 @@ class Package {
     String message;
   };
   HashMap<String, SyncSoundEntry> sync_sounds_;
+  FileLimits limits_;
+  HashMap<String, uint64_t> counted_;
+  uint64_t total_ = 0;
+  bool last_too_large_ = false;
+  /** Reads a file within the caps: Mochi2D's messages for a missing file and for one past a cap. */
+  ReadResult fetch(const String& path, String& bytes, String& message);
   bool read(const String& path, String& bytes, String& message);
 };
 

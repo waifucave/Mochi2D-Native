@@ -75,6 +75,8 @@ struct LoadedModel {
   std::shared_ptr<const moc::Model> model;
   /** Reads a file relative to the settings file's folder; false when missing or outside it. */
   std::function<bool(std::string_view path, String& bytes)> read;
+  /** After a failed read: FileLimitError's message when the file was past the cap, else empty. */
+  std::shared_ptr<String> read_limit = std::make_shared<String>();
 };
 
 /**
@@ -141,8 +143,18 @@ struct RunSummary {
 RunSummary run_conformance(const Vector<String>& inputs, const std::filesystem::path& out_dir, ModelCache& models,
                            std::string_view producer, const std::function<void(const String&)>& log);
 
-/** Reads a whole file; false when it cannot be read. */
-bool read_file(const std::filesystem::path& p, String& out);
+/** The most bytes the tools read from one file: Mochi2D's default file cap, 1 GiB. */
+constexpr uint64_t kMaxFileBytes = uint64_t{1} << 30;
+
+/**
+ * Reads a whole file; false when it cannot be read. A file past `max_bytes`
+ * is refused from its size before it is read (and a file that grows past it
+ * while being read, there), with FileLimitError's message in `*limit`. The
+ * message names the file as `name` (as a model names it; empty: the path as
+ * given), never by a path on disk the caller did not give.
+ */
+bool read_file(const std::filesystem::path& p, String& out, String* limit = nullptr, uint64_t max_bytes = kMaxFileBytes,
+               std::string_view name = {});
 
 /** The producer name of results: "mochi2d-native@<version>". */
 String producer_id();

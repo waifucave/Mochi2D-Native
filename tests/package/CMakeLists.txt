@@ -5,7 +5,7 @@
 #   cmake -S tests/package -B <dir> -DCMAKE_PREFIX_PATH=<install prefix>
 cmake_minimum_required(VERSION 3.16)
 project(mochi2d_consumer LANGUAGES C CXX)
-find_package(mochi2d 0.9 CONFIG REQUIRED)
+find_package(mochi2d 0.10 CONFIG REQUIRED)
 add_executable(consumer_shared consumer.c)
 target_link_libraries(consumer_shared PRIVATE mochi2d::mochi2d)
 add_executable(consumer_static consumer.c)

@@ -1,6 +1,6 @@
 {
   "format": "mochi2d-anim-result/0",
-  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "producer": "mochi2d@0.24.1",
   "error": null,
   "warnings": ["sound file w-bits0.wav cannot be loaded (0 bits per sample)", "motion file motions/bad-nofirst.motion3.json is invalid (motions/bad-nofirst.motion3.json: curve 0: no first point); its starts are dropped", "no motion Idle[2] in the settings"],
   "scenario": "synth000-v1-anim0",

@@ -6,7 +6,7 @@ no-exceptions, sanitizer and ThreadSanitizer jobs, and other platforms).
 
 - `models/`: six synthetic models, one per `.moc3` file version (1–6), built
   from seeded random choices with Mochi2D's own test builder
-  (`reference/mochi2d-0.21.0/test/support/synth.ts`). Each folder has the
+  (`reference/mochi2d-0.24.1/test/support/synth.ts`). Each folder has the
   model's settings file and, for the animation scenarios, settings variants,
   motions, expressions, physics and pose files, and short WAV sounds, written
   by `tests/crosscheck/anim.ts` (with the reference catalog's motion and WAV
@@ -26,7 +26,10 @@ no-exceptions, sanitizer and ThreadSanitizer jobs, and other platforms).
   on these models, and malformed sequence and animation scenarios, one per
   `InvalidScenario` rule of the reference's parser.
 - `expected/`: the results of the reference's conformance tool
-  (Mochi2D 0.21.0, the current reference) for every scenario.
+  (Mochi2D 0.24.1, the current reference) for every scenario. Their
+  `producer` line is the reference's released version (`mochi2d@0.24.1`, from
+  its `package.json`): its tool would name the commit of the checkout it
+  runs in, and `make.sh` replaces that.
 - `render/`: six synthetic textured models (versions 1–6, PNG textures of
   power-of-two and other sizes, masks, blend codes, offscreens) and four
   render scenarios on each, made by `tests/crosscheck/render.ts`, with
@@ -51,7 +54,7 @@ model or is derived from one.
 ## How they are made
 
 ```sh
-npm ci --prefix reference/mochi2d-0.21.0
+npm ci --prefix reference/mochi2d-0.24.1
 tests/fixtures/make.sh
 ```
 

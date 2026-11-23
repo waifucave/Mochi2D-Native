@@ -1,0 +1,37 @@
+{
+  "Version": 3,
+  "Parameters": [
+    {
+      "Id": "ParamAngleZ",
+      "GroupId": "",
+      "Name": "Angle Z"
+    },
+    {
+      "Id": "ParamEyeLOpen",
+      "GroupId": "",
+      "Name": "Eye L Open"
+    },
+    {
+      "Id": "ParamEyeROpen",
+      "GroupId": "",
+      "Name": "Eye R Open"
+    },
+    {
+      "Id": "ParamMouthOpenY",
+      "GroupId": "",
+      "Name": "Mouth Open"
+    },
+    {
+      "Id": "ParamHairFront",
+      "GroupId": "",
+      "Name": "Hair Front"
+    }
+  ],
+  "ParameterGroups": [],
+  "Parts": [
+    {
+      "Id": "Part_mochi",
+      "Name": "mochi"
+    }
+  ]
+}

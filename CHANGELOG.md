@@ -4,6 +4,110 @@ Mochi2D Native's releases. Each one follows a Mochi2D release, the
 project's web runtime and the behavioral reference: evaluation and the
 framework are bit-exact with it, and the GPU backends follow its renderer.
 
+## 0.10.0
+
+The first published release of Mochi2D Native.
+
+**What it is.** A C++17 runtime for models made with Live2D Cubism (a
+`.moc3` file with its `.model3.json` and companion files), with a C API,
+`mochi2d.h`, for applications and engine bindings. It:
+
+- reads, validates and loads `.moc3` files of versions 1–6, and evaluates
+  model instances (incrementally: only what changed is recomputed);
+- runs the framework around them: model settings and whole model folders
+  read through the host, motions with idle weights, expressions, physics,
+  pose, eye blink, breath, look, lip sync from WAV sounds or live samples,
+  motion sync, tints, user data, display info, hit tests and the frame
+  procedure;
+- draws them: a software renderer into memory you own, and GPU backends
+  that draw with your OpenGL ES 3.0 or desktop OpenGL 3.3 context, Vulkan
+  1.1 device, Metal device or Direct3D 11 device.
+
+The library opens no file, window or device of its own: you hand it bytes,
+decoded pixels and your graphics objects. It follows **Mochi2D 0.24.1**,
+the project's web runtime: evaluation and the framework give Mochi2D's
+results bit for bit on everything they have been compared on, and the
+renderers draw as Mochi2D's does.
+
+**The packages.** One per platform:
+
+| Package | Platform |
+| --- | --- |
+| `mochi2d-native-0.10.0-linux-x64.tar.gz` | Linux x86-64, built on Ubuntu 24.04 |
+| `mochi2d-native-0.10.0-linux-arm64.tar.gz` | Linux arm64, built on Ubuntu 24.04 |
+| `mochi2d-native-0.10.0-macos-universal.tar.gz` | macOS 13.3 or later, arm64 and x86-64 |
+| `mochi2d-native-0.10.0-windows-x64.zip` | Windows x64 (MSVC, the `/MD` runtime) |
+
+Each holds the header, the shared and static libraries, a CMake package
+config and the license texts. Unpack one, point `CMAKE_PREFIX_PATH` at it,
+and in your project:
+
+```cmake
+find_package(mochi2d 0.10 CONFIG REQUIRED)
+target_link_libraries(app PRIVATE mochi2d::mochi2d)  # or mochi2d::mochi2d_static
+```
+
+The README's "Install" section has a whole example.
+
+**What is experimental.** `docs/api-stability.md` marks every function,
+type and constant. Experimental, and so free to change in a minor release:
+
+- the GPU layer: the frame plan, the shader programs and the four GPU
+  backends (Metal has run only on the Apple Paravirtual device, Direct3D 11
+  only on WARP);
+- live motion sync: the analysis, live input, voice calibration and
+  profiles, and the animator's motion sync (reading `.motionsync3.json`
+  files is stable);
+- the evaluation switches (`m2d_instance_options`).
+
+Before 1.0, a minor release may also change the stable API; each change is
+in this file.
+
+**Known limits.**
+
+- The libraries are not signed or notarized: the application that ships
+  them signs them.
+- macOS 13.3 or later, for `std::to_chars` of a double.
+- Windows: the static libraries use the release DLL runtime (`/MD`).
+- A crafted model can be slow to evaluate within its size: an application
+  that opens models people hand it should cap their size
+  (`m2d_package_limits`) and time the first frames (`SECURITY.md`).
+
+**Reporting a problem.** Bugs: an issue in this repository. Vulnerabilities:
+privately, through the repository's Security tab (`SECURITY.md`).
+
+### Changes since 0.9.0
+
+- **It follows Mochi2D 0.24.1.** Evaluation results and renders are
+  unchanged, bit for bit.
+- **Input someone else made** (Mochi2D 0.23.0–0.24.1's question: what is
+  refused before memory or time is spent on it). `SECURITY.md` lists the
+  bound for each input. New:
+  - `M2D_LIMIT_ERROR`, "too large", apart from the format and file errors
+    ("damaged or crafted");
+  - a package reads within Mochi2D's file caps, 1 GiB a file and 2 GiB in
+    all by default: `m2d_package_limits`, `m2d_package_open_with_limits`,
+    and an optional `size` callback in `m2d_file_source`, which lets the
+    library refuse a file before it is read;
+  - a texture past a renderer's limit, or past `M2D_MAX_TEXTURE_SIDE`, is
+    `M2D_LIMIT_ERROR` (it was `M2D_INVALID_ARGUMENT`, or
+    `M2D_INTERNAL_ERROR` from a GPU backend);
+  - a `.moc3` is checked in full before any of its arrays is allocated, and
+    validation is bounded for files whose sections overlap; a validation
+    report lists at most 10,000 diagnostics;
+  - JSON files take about a fifth of the memory they did, and an object
+    with many keys parses in O(n log n): one of 200,000 keys took 110 s and
+    now takes 0.06 s;
+  - the command line refuses files past 1 GiB, and reads a PNG's header
+    before decoding it.
+- **`m2d_motion_loop`:** a motion file's `Meta.Loop` (Mochi2D 0.22.0's
+  `Motion.loop`).
+- **The packages** no longer hold `api-stability.md` or stb_image's
+  license (stb_image is in the command-line tool only).
+
+`m2d_file_source` gains a last member: code that fills it member by member,
+or zero-initializes it, needs no change.
+
 ## 0.9.0
 
 It follows **Mochi2D 0.21.0**. Evaluation results and renders are
@@ -66,8 +170,9 @@ renders are unchanged, bit for bit.
 
 ## 0.7.0
 
-The first release, with packages per platform (Linux x86-64 and arm64,
-macOS universal, Windows x64). It follows **Mochi2D 0.18.0**.
+The first version with packages per platform (Linux x86-64 and arm64,
+macOS universal, Windows x64); it was not published. It follows
+**Mochi2D 0.18.0**.
 
 ### What the library does
 

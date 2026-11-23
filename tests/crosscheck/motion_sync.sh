@@ -14,7 +14,7 @@ set -euo pipefail
 
 BUILD="$(cd "${1:?usage: motion_sync.sh <build dir>}" && pwd)"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REF="$ROOT/reference/mochi2d-0.21.0"
+REF="$ROOT/reference/mochi2d-0.24.1"
 OUT="$BUILD/crosscheck-motion-sync"
 CLI="$BUILD/mochi2d-native"
 NEUTRAL="$BUILD/tests/mochi2d_make_neutral"

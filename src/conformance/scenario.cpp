@@ -22,15 +22,31 @@ String producer_id() { return String("mochi2d-native@") + MOCHI2D_VERSION; }
 
 String path_text(const fs::path& p) { return to_lib(p.u8string()); }
 
-bool read_file(const fs::path& p, String& out) {
+bool read_file(const fs::path& p, String& out, String* limit, uint64_t max_bytes, std::string_view name) {
+  if (limit) limit->clear();
   std::error_code ec;
   if (!fs::is_regular_file(p, ec)) return false;
+  auto too_large = [&](uint64_t size) {
+    if (limit)
+      *limit = "\"" + (name.empty() ? path_text(p) : String(name)) + "\" holds " + to_str(static_cast<long long>(size)) + " bytes or more, more than the " +
+               to_str(static_cast<long long>(max_bytes)) + " allowed for one file";
+    out.clear();
+    return false;
+  };
+  const uintmax_t declared = fs::file_size(p, ec);
+  if (!ec && declared > max_bytes) return too_large(declared);
   std::FILE* f = std::fopen(p.u8string().c_str(), "rb");
   if (!f) return false;
   out.clear();
   char buf[65536];
   std::size_t n;
-  while ((n = std::fread(buf, 1, sizeof buf, f)) > 0) out.append(buf, n);
+  while ((n = std::fread(buf, 1, sizeof buf, f)) > 0) {
+    if (out.size() + n > max_bytes) {
+      std::fclose(f);
+      return too_large(out.size() + n);
+    }
+    out.append(buf, n);
+  }
   const bool ok = !std::ferror(f);
   std::fclose(f);
   return ok;
@@ -244,15 +260,18 @@ bool ModelCache::load(std::string_view model_path, LoadedModel& out, ErrorInfo& 
   out = LoadedModel();
   out.settings_file = settings_file;
   const fs::path dir = settings_file.parent_path();
-  out.read = [dir](std::string_view path, String& bytes) {
+  out.read = [dir, limit = out.read_limit](std::string_view path, String& bytes) {
+    limit->clear();
     fs::path full;
     if (!inside(dir, path, full)) return false;
-    return read_file(full, bytes);
+    return read_file(full, bytes, limit.get(), kMaxFileBytes, path);
   };
   {
-    String bytes, message;
-    if (!read_file(settings_file, bytes))
+    String bytes, message, limit;
+    if (!read_file(settings_file, bytes, &limit, kMaxFileBytes, to_lib(model_path))) {
+      if (!limit.empty()) return fail("FileLimitError", limit);
       return fail("ModelLoadError", "settings file " + to_lib(model_path) + ": cannot read the file");
+    }
     if (!framework::parse_model_settings(bytes, to_lib(model_path), out.settings, message))
       return fail("ModelLoadError", "settings file " + to_lib(model_path) + ": " + message);
   }
@@ -271,8 +290,11 @@ bool ModelCache::load(std::string_view model_path, LoadedModel& out, ErrorInfo& 
       out.model = e.model;
       return true;
     }
-  String bytes;
-  if (!read_file(moc_file, bytes)) return fail("ModelLoadError", out.settings.moc + ": cannot read the file");
+  String bytes, limit;
+  if (!read_file(moc_file, bytes, &limit, kMaxFileBytes, out.settings.moc)) {
+    if (!limit.empty()) return fail("FileLimitError", limit);
+    return fail("ModelLoadError", out.settings.moc + ": cannot read the file");
+  }
   auto model = std::allocate_shared<moc::Model>(Allocator<moc::Model>());
   moc::Error err;
   if (!moc::load_moc(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size(), options_, *model, err))

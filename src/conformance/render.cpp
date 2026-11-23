@@ -1,7 +1,9 @@
 #include "conformance/render.hpp"
 
 #include <algorithm>
+#include <charconv>
 #include <chrono>
+#include <initializer_list>
 #include <cstdio>
 #include <cstring>
 
@@ -40,7 +42,93 @@ namespace mochi2d::conformance {
 
 using json::Value;
 
-bool decode_png(const String& bytes, int& width, int& height, Vector<uint8_t>& rgba, String& error) {
+namespace {
+
+uint32_t be32(const String& b, std::size_t o) {
+  return static_cast<uint32_t>(static_cast<uint8_t>(b[o])) << 24 | static_cast<uint32_t>(static_cast<uint8_t>(b[o + 1])) << 16 |
+         static_cast<uint32_t>(static_cast<uint8_t>(b[o + 2])) << 8 | static_cast<uint32_t>(static_cast<uint8_t>(b[o + 3]));
+}
+
+/** Bits per pixel of a PNG color type and bit depth; 0 for a combination PNG does not have. */
+uint32_t png_bits_per_pixel(uint8_t color_type, uint8_t depth) {
+  auto in = [depth](std::initializer_list<uint8_t> list) { return std::find(list.begin(), list.end(), depth) != list.end(); };
+  switch (color_type) {
+    case 0: return in({1, 2, 4, 8, 16}) ? depth : 0u;
+    case 2: return in({8, 16}) ? 3u * depth : 0u;
+    case 3: return in({1, 2, 4, 8}) ? depth : 0u;
+    case 4: return in({8, 16}) ? 2u * depth : 0u;
+    case 6: return in({8, 16}) ? 4u * depth : 0u;
+    default: return 0;
+  }
+}
+
+String count_text(uint64_t n) {
+  char buf[24];
+  const auto r = std::to_chars(buf, buf + sizeof buf, n);
+  return String(buf, r.ptr);
+}
+
+}  // namespace
+
+bool read_png_header(const String& b, PngHeader& out, String& error) {
+  static const unsigned char signature[8] = {0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'};
+  if (b.size() < 8 || std::memcmp(b.data(), signature, 8) != 0) {
+    error = "not a PNG file, or its header is damaged";
+    return false;
+  }
+  if (b.size() < 33 || be32(b, 8) != 13 || b.compare(12, 4, "IHDR") != 0 || be32(b, 16) == 0 || be32(b, 20) == 0) {
+    error = "damaged PNG header";
+    return false;
+  }
+  const uint32_t width = be32(b, 16), height = be32(b, 20);
+  const auto depth = static_cast<uint8_t>(b[24]), color = static_cast<uint8_t>(b[25]);
+  const uint32_t bpp = png_bits_per_pixel(color, depth);
+  if (bpp == 0) {
+    error = "damaged PNG header (color type " + to_str(color) + ", bit depth " + to_str(depth) + ")";
+    return false;
+  }
+  // The IDAT data, walking the chunks (to IEND or the end of the bytes).
+  uint64_t data = 0;
+  for (uint64_t o = 8; o + 8 <= b.size();) {
+    const uint64_t len = be32(b, static_cast<std::size_t>(o));
+    const uint64_t avail = std::min<uint64_t>(len, b.size() - (o + 8));
+    if (b.compare(static_cast<std::size_t>(o + 4), 4, "IDAT") == 0) data += avail;
+    if (b.compare(static_cast<std::size_t>(o + 4), 4, "IEND") == 0 || avail < len) break;
+    o += 12 + len;
+  }
+  // The filtered image inflates from the IDAT data, at most about 1,032:1.
+  const uint64_t raw = static_cast<uint64_t>(height) * (1 + (static_cast<uint64_t>(width) * bpp + 7) / 8);
+  out.width = width;
+  out.height = height;
+  out.min_bytes = b.size() - data + (raw > 64 ? (raw - 64 + 1031) / 1032 : 0);
+  if (b.size() < out.min_bytes) {
+    error = "declares " + count_text(width) + "×" + count_text(height) + " pixels but is " + count_text(b.size()) +
+            " bytes, too few for a PNG file of that size (damaged or crafted)";
+    return false;
+  }
+  return true;
+}
+
+bool decode_png(const String& bytes, int& width, int& height, Vector<uint8_t>& rgba, String& error,
+                const PngLimits& limits, PngRefusal* refusal) {
+  if (refusal) *refusal = PngRefusal::None;
+  PngHeader header;
+  if (!read_png_header(bytes, header, error)) {
+    if (refusal) *refusal = PngRefusal::Format;
+    return false;
+  }
+  const uint64_t pixels = static_cast<uint64_t>(header.width) * header.height;
+  const uint32_t side = std::max(header.width, header.height);
+  if (side > limits.max_side || pixels > limits.max_pixels) {
+    // TextureLimitError's wording; nothing is decoded.
+    error = side > limits.max_side
+                ? "declares " + count_text(header.width) + "×" + count_text(header.height) + " pixels, more than the " +
+                      count_text(limits.max_side) + " allowed on a side"
+                : "declares " + count_text(header.width) + "×" + count_text(header.height) + " = " + count_text(pixels) +
+                      " pixels, more than the " + count_text(limits.max_pixels) + " allowed for one texture";
+    if (refusal) *refusal = PngRefusal::Limit;
+    return false;
+  }
   int w = 0, h = 0, comp = 0;
   const auto* data = reinterpret_cast<const stbi_uc*>(bytes.data());
   const int len = static_cast<int>(std::min<std::size_t>(bytes.size(), 0x7fffffff));
@@ -216,15 +304,37 @@ RunSummary run_render(const Vector<String>& inputs, const fs::path& out_dir, Mod
         error = load_error;
       } else {
         Vector<std::shared_ptr<const render::Texture>> textures;
+        uint64_t total_pixels = 0;
         for (const auto& path : loaded.settings.textures) {
           String bytes;
           if (!loaded.read || !loaded.read(path, bytes)) {
-            fail("ModelLoadError", "File not found: \"" + path + "\"");
+            if (loaded.read_limit && !loaded.read_limit->empty()) fail("FileLimitError", *loaded.read_limit);
+            else fail("ModelLoadError", "File not found: \"" + path + "\"");
             break;
           }
-          int w = 0, h = 0, comp = 0;
-          if (stbi_info_from_memory(reinterpret_cast<const stbi_uc*>(bytes.data()),
-                                    static_cast<int>(std::min<std::size_t>(bytes.size(), 0x7fffffff)), &w, &h, &comp) &&
+          // The header first: a damaged or crafted file, or one past a cap, is refused before decoding.
+          PngHeader header;
+          String why;
+          if (!read_png_header(bytes, header, why)) {
+            fail("TextureFormatError", "\"" + path + "\": " + why);
+            break;
+          }
+          const PngLimits caps;
+          const uint64_t pixels = static_cast<uint64_t>(header.width) * header.height;
+          if (std::max(header.width, header.height) <= caps.max_side && pixels <= caps.max_pixels &&
+              total_pixels + pixels > caps.max_total_pixels) {
+            fail("TextureLimitError", "\"" + path + "\" (" + to_str(static_cast<long long>(header.width)) + "×" +
+                                          to_str(static_cast<long long>(header.height)) +
+                                          ") takes the model's textures to " +
+                                          to_str(static_cast<long long>(total_pixels + pixels)) +
+                                          " pixels, more than the " +
+                                          to_str(static_cast<long long>(caps.max_total_pixels)) + " allowed in total");
+            break;
+          }
+          total_pixels += pixels;
+          int w = static_cast<int>(std::min<uint32_t>(header.width, 0x7fffffff));
+          int h = static_cast<int>(std::min<uint32_t>(header.height, 0x7fffffff));
+          if (std::max(header.width, header.height) <= caps.max_side &&
               (w > options.max_texture_size || h > options.max_texture_size)) {
             fail("TextureTooLarge", path + " is " + std::to_string(w).c_str() + "×" + std::to_string(h).c_str() +
                                         ", larger than the maximum texture size " +
@@ -232,9 +342,10 @@ RunSummary run_render(const Vector<String>& inputs, const fs::path& out_dir, Mod
             break;
           }
           Vector<uint8_t> rgba;
-          String why;
-          if (!decode_png(bytes, w, h, rgba, why)) {
-            fail("ModelLoadError", path + ": " + why);
+          PngRefusal refusal = PngRefusal::None;
+          if (!decode_png(bytes, w, h, rgba, why, caps, &refusal)) {
+            if (refusal == PngRefusal::Limit) fail("TextureLimitError", "\"" + path + "\" " + why);
+            else fail("ModelLoadError", path + ": " + why);
             break;
           }
           auto tex = std::allocate_shared<render::Texture>(Allocator<render::Texture>());

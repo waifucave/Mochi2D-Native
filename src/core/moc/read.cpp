@@ -157,6 +157,10 @@ bool read_sections(const uint8_t* bytes, std::size_t byte_length, bool lenient, 
   sections.push_back({kCountTableSlot, "count table", count_offset, count_offset + static_cast<uint64_t>(count_entries) * 4});
   sections.push_back({kCanvasSlot, "canvas block", canvas_offset, canvas_offset + kCanvasBlockSize});
   const FieldSpec* fields = all_fields();
+  // First every field's bounds and names, in field order (the errors Mochi2D
+  // meets as it reads), and the slot order, before any array is allocated:
+  // sections that overlap could otherwise make one file count many times.
+  uint64_t claimed = count_offset + static_cast<uint64_t>(count_entries) * 4 + kCanvasBlockSize;
   for (std::size_t fi = 0; fi < kFieldCount; fi++) {
     const FieldSpec& f = fields[fi];
     if (f.since > version) continue;
@@ -170,6 +174,29 @@ bool read_sections(const uint8_t* bytes, std::size_t byte_length, bool lenient, 
                ") extends past end of file (" + to_str(byte_length) + " bytes)",
            "section-bounds");
     if (size > 0) sections.push_back({f.slot, String("section ") + f.key, offset, offset + size});
+    claimed += size;
+    if (f.type == ElementType::Name)
+      for (uint64_t i = 0; i < count; i++)
+        if (!std::memchr(r.at(offset + i * 64), 0, 64))
+          return fail(err, String(f.key) + "[" + to_str(i) + "]: name has no NUL terminator within 64 bytes",
+               "name-terminator");
+  }
+  const String order = slot_order_problem(sections, kHeaderSize + static_cast<uint64_t>(slot_count) * 4);
+  if (!order.empty()) {
+    if (!lenient) return fail(err, order, "slot-order");
+    out.issues.push_back({"slot-order", order});
+    // Overlapping sections are read as they are (as Mochi2D reads them), up to a bound.
+    if (claimed > kMaxClaimedLengths * static_cast<uint64_t>(byte_length))
+      return fail(err, order + "; together the sections claim " + to_str(claimed) + " bytes of a file of " +
+                       to_str(byte_length) + ", more than " + to_str(static_cast<long long>(kMaxClaimedLengths)) +
+                       " times its length, and Mochi2D Native reads no further",
+                  "slot-order");
+  }
+  for (std::size_t fi = 0; fi < kFieldCount; fi++) {
+    const FieldSpec& f = fields[fi];
+    if (f.since > version) continue;
+    const uint64_t count = static_cast<uint64_t>(out.count(f.count));
+    const uint64_t offset = slots[static_cast<std::size_t>(f.slot)];
     FieldArray& a = out.data[f.id];
     a.present = true;
     switch (f.type) {
@@ -178,11 +205,7 @@ bool read_sections(const uint8_t* bytes, std::size_t byte_length, bool lenient, 
         a.names.resize(count);
         for (uint64_t i = 0; i < count; i++) {
           const uint8_t* raw = r.at(offset + i * 64);
-          const void* nul = std::memchr(raw, 0, 64);
-          if (!nul)
-            return fail(err, String(f.key) + "[" + to_str(i) + "]: name has no NUL terminator within 64 bytes",
-                 "name-terminator");
-          const auto len = static_cast<std::size_t>(static_cast<const uint8_t*>(nul) - raw);
+          const auto len = static_cast<std::size_t>(static_cast<const uint8_t*>(std::memchr(raw, 0, 64)) - raw);
           a.names[i] = text::sanitize_utf8(std::string_view(reinterpret_cast<const char*>(raw), len));
         }
         break;
@@ -202,11 +225,6 @@ bool read_sections(const uint8_t* bytes, std::size_t byte_length, bool lenient, 
         a.u8.assign(r.at(offset), r.at(offset) + count);
         break;
     }
-  }
-  const String order = slot_order_problem(sections, kHeaderSize + static_cast<uint64_t>(slot_count) * 4);
-  if (!order.empty()) {
-    if (!lenient) return fail(err, order, "slot-order");
-    out.issues.push_back({"slot-order", order});
   }
   return true;
 }

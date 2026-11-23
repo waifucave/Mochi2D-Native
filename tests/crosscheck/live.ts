@@ -12,7 +12,7 @@ import {
   LIVE_LIP_SYNC_NEUTRAL,
   LiveLipSync,
   type LiveLipSyncSettings,
-} from "../../reference/mochi2d-0.21.0/src/anim/live-lip-sync.js";
+} from "../../reference/mochi2d-0.24.1/src/anim/live-lip-sync.js";
 
 function lcg(seed: number) {
   let s = seed >>> 0 || 1;

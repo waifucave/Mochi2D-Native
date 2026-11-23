@@ -6,8 +6,8 @@
  * usage: node reference.mjs <model.moc3> [frames]
  */
 import { readFileSync } from "node:fs";
-import { loadMoc } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
-import { ModelInstance } from "../../reference/mochi2d-0.21.0/src/core/eval/instance.js";
+import { loadMoc } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
+import { ModelInstance } from "../../reference/mochi2d-0.24.1/src/core/eval/instance.js";
 
 const path = process.argv[2]!;
 const frames = Math.max(1, Number(process.argv[3] ?? 300));

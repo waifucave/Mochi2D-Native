@@ -15,12 +15,12 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { Synth, type RGB } from "../../reference/mochi2d-0.21.0/test/support/synth.js";
-import { loadMoc, type MocModel } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
+import { Synth, type RGB } from "../../reference/mochi2d-0.24.1/test/support/synth.js";
+import { loadMoc, type MocModel } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
 import {
   ModelInstance,
   type EvaluationOptions,
-} from "../../reference/mochi2d-0.21.0/src/core/eval/instance.js";
+} from "../../reference/mochi2d-0.24.1/src/core/eval/instance.js";
 
 const out = process.argv[2];
 if (!out) {
@@ -144,7 +144,7 @@ for (const [name, evaluation, without] of cases) {
 for (const [name, bytes] of Object.entries(files)) writeFileSync(join(out, name), bytes);
 writeFileSync(
   join(out, "expected.json"),
-  JSON.stringify({ producer: "Mochi2D 0.21.0 (tests/crosscheck/switches.ts)", poses: POSES, cases: expected }, null, 1) +
+  JSON.stringify({ producer: "Mochi2D 0.24.1 (tests/crosscheck/switches.ts)", poses: POSES, cases: expected }, null, 1) +
     "\n",
 );
 console.log(`switches: ${Object.keys(files).length} models, ${cases.length} cases × ${POSES.length} poses`);

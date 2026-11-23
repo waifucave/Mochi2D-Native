@@ -13,9 +13,16 @@
 
 namespace mochi2d::moc {
 
+bool Report::add(bool warning) {
+  if (!warning) errors_++;
+  if (list.size() < kMaxDiagnostics) return true;
+  unlisted_++;
+  return false;
+}
+
 void Report::error(Level level, const String& code, const String& kind, const String& message,
                    std::optional<long long> index, std::optional<String> field) {
-  if (level == Level::Official || strict_) {
+  if ((level == Level::Official || strict_) && add(false)) {
     Diagnostic d;
     d.code = code;
     d.kind = kind;
@@ -28,7 +35,7 @@ void Report::error(Level level, const String& code, const String& kind, const St
 
 void Report::warn(const String& code, const String& kind, const String& message,
                   std::optional<long long> index, std::optional<String> field) {
-  if (strict_) {
+  if (strict_ && add(true)) {
     Diagnostic d;
     d.code = code;
     d.warning = true;
@@ -40,11 +47,18 @@ void Report::warn(const String& code, const String& kind, const String& message,
   }
 }
 
-std::size_t Report::errors() const {
-  std::size_t n = 0;
-  for (const auto& d : list)
-    if (!d.warning) n++;
-  return n;
+Vector<Diagnostic> Report::take() {
+  if (unlisted_) {
+    Diagnostic d;
+    d.code = "diagnostics-truncated";
+    d.warning = true;
+    d.kind = "file";
+    d.message = to_str(static_cast<long long>(unlisted_)) + " more diagnostics are not listed: a report lists at most " +
+                to_str(static_cast<long long>(kMaxDiagnostics));
+    list.push_back(std::move(d));
+    unlisted_ = 0;
+  }
+  return std::move(list);
 }
 
 namespace {

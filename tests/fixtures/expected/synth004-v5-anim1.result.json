@@ -1,6 +1,6 @@
 {
   "format": "mochi2d-anim-result/0",
-  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "producer": "mochi2d@0.24.1",
   "error": null,
   "warnings": ["unknown parameter NoSuchParam in record.parameters", "motion file motions/missing.motion3.json is missing; its starts are dropped", "no motion Nope[2] in the settings", "no motion Idle[1] in the settings"],
   "scenario": "synth004-v5-anim1",

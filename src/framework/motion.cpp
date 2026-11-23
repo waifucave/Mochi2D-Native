@@ -105,6 +105,7 @@ bool motion_from_json(const json::Value& json, std::string_view label, Motion& o
   out.duration = num(member(meta, "Duration"), 0);
   out.fps = num(member(meta, "Fps"), 0);
   out.restricted = boolean(member(meta, "AreBeziersRestricted"));
+  out.loop = boolean(member(meta, "Loop"));
   out.fade_in = fade(member(meta, "FadeInTime"));
   out.fade_out = fade(member(meta, "FadeOutTime"));
   return true;

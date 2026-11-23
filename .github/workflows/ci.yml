@@ -1,8 +1,11 @@
 # Build and test on Linux on every push and pull request.
 name: CI
 
+# Branches and pull requests: a version tag's commit was checked when it was
+# pushed, and the Release workflow runs its own builds and Platforms.
 on:
   push:
+    branches: ["**"]
   pull_request:
 
 permissions:
@@ -22,7 +25,7 @@ jobs:
           node-version: 22
       - name: Install the reference's dependencies (for the cross-checks)
         if: matrix.compiler == 'gcc'
-        run: npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+        run: npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
       - name: Install Playwright and Chromium for the reference's render harness (the render cross-check)
         if: matrix.compiler == 'gcc'
         run: npm install -g playwright@1.63.0 && playwright install --with-deps chromium

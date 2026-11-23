@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(mochi2d_native VERSION 0.9.0 LANGUAGES C CXX)
+project(mochi2d_native VERSION 0.10.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -338,11 +338,11 @@ if(MOCHI2D_INSTALL)
                                    COMPATIBILITY SameMinorVersion)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mochi2dConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/mochi2dConfigVersion.cmake
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mochi2d)
-  install(FILES LICENSE THIRD_PARTY_NOTICES.md docs/api-stability.md DESTINATION ${CMAKE_INSTALL_DATADIR}/mochi2d)
-  # The license texts of the code compiled into the libraries (THIRD_PARTY_NOTICES.md lists them).
+  install(FILES LICENSE THIRD_PARTY_NOTICES.md DESTINATION ${CMAKE_INSTALL_DATADIR}/mochi2d)
+  # The license texts of the code compiled into the libraries (THIRD_PARTY_NOTICES.md lists them);
+  # stb_image is in the command-line tool only, which is not installed.
   install(FILES third_party/fdlibm/LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/mochi2d/third_party/fdlibm)
   install(FILES third_party/musl/COPYRIGHT DESTINATION ${CMAKE_INSTALL_DATADIR}/mochi2d/third_party/musl)
-  install(FILES third_party/stb/LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/mochi2d/third_party/stb)
 endif()
 
 if(MOCHI2D_BUILD_CLI)

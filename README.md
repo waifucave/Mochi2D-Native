@@ -17,7 +17,7 @@ queue with idle weights, expressions (with fade times per call), physics
 (with strength, wind, wind per setting and the step rate at runtime, and its state saved and restored bit for bit), pose,
 eye blink, breath, look, lip sync from WAV sounds or live samples, motion
 sync, tints, user data, display info, hit tests, and the frame procedure
-that ties them together. All of it is bit-exact with Mochi2D 0.21.0 on
+that ties them together. All of it is bit-exact with Mochi2D 0.24.1 on
 everything it has been compared on.
 
 **Motion sync** moves the mouth with a sound through a setting of the
@@ -56,38 +56,60 @@ Mochi2D's own renders on the same driver. See
 
 ## Install
 
-Each release of this repository carries a package per platform, made by
-`.github/workflows/release.yml` from the version tag:
+Releases are on the repository's [Releases page](../../releases): each
+version tag (`v0.10.0` and later) gets a package per platform, made by
+`.github/workflows/release.yml`, with its changelog section as notes.
 
 | Package | Platform |
 | --- | --- |
-| `mochi2d-native-<version>-linux-x64.tar.gz` | Linux x86-64 (glibc 2.39, Ubuntu 24.04) |
-| `mochi2d-native-<version>-linux-arm64.tar.gz` | Linux arm64 |
+| `mochi2d-native-<version>-linux-x64.tar.gz` | Linux x86-64, built on Ubuntu 24.04; needs glibc 2.38 and GCC 12's libstdc++ or later |
+| `mochi2d-native-<version>-linux-arm64.tar.gz` | Linux arm64, built on Ubuntu 24.04 |
 | `mochi2d-native-<version>-macos-universal.tar.gz` | macOS 13.3 or later, arm64 and x86-64 |
 | `mochi2d-native-<version>-windows-x64.zip` | Windows x64 (MSVC, the `/MD` runtime) |
 
 Each holds:
 
 - `include/mochi2d.h`;
-- the shared library (`lib/`, or `bin/` for the DLL) and the static ones;
+- the shared library (`lib/`, or `bin/` for the DLL with its import
+  library in `lib/`) and the static libraries in `lib/`;
 - a CMake package config in `lib/cmake/mochi2d`;
-- `LICENSE`, `THIRD_PARTY_NOTICES.md` and `api-stability.md` in
-  `share/mochi2d`.
+- `LICENSE`, `THIRD_PARTY_NOTICES.md` and the bundled code's license texts
+  in `share/mochi2d`.
 
-Unpack it anywhere and point CMake at it:
+Unpack it anywhere and point CMake at it. A whole project:
 
 ```cmake
-find_package(mochi2d 0.9 CONFIG REQUIRED)
-target_link_libraries(app PRIVATE mochi2d::mochi2d)          # the shared library
-# or mochi2d::mochi2d_static (C++ inside: link with the C++ driver)
+cmake_minimum_required(VERSION 3.16)
+project(app LANGUAGES C CXX)  # C++ too: the static libraries are C++ inside
+find_package(mochi2d 0.10 CONFIG REQUIRED)
+add_executable(app main.c)
+target_link_libraries(app PRIVATE mochi2d::mochi2d)  # or mochi2d::mochi2d_static
+```
+
+```c
+#include <mochi2d.h>
+#include <stdio.h>
+
+int main(void) {
+  const uint32_t v = m2d_version();
+  printf("Mochi2D Native %u.%u.%u\n", (unsigned)(v >> 16 & 255), (unsigned)(v >> 8 & 255), (unsigned)(v & 255));
+  return 0;
+}
 ```
 
 ```
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/mochi2d-native-0.9.0-linux-x64
+cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/mochi2d-native-0.10.0-linux-x64
+cmake --build build
 ```
 
-`tests/package/` is such a project. What changed in each release is in
-[CHANGELOG.md](CHANGELOG.md). To build from source instead, see below.
+The version in `find_package` is the package's minor version: a 0.x
+package is found only by its own minor version, since a 0.x minor release
+may change the API. On Linux, CMake records the package's `lib/` in the
+executable's run path, so it runs from the build folder; on macOS and
+Windows, and whenever you ship an application, put the shared library where
+the system's loader finds it (on Windows, `bin/mochi2d.dll` next to the
+executable). `tests/package/` is such a project. What changed in each release is in [CHANGELOG.md](CHANGELOG.md).
+To build from source instead, see below.
 
 ## Build
 
@@ -103,7 +125,7 @@ The cross-check test runs Mochi2D itself on synthetic models (static,
 sequence and animation scenarios, validation, mapping, idle weights,
 evaluation sequences, live lip sync, JSON messages, math) and compares
 results byte for byte. It needs Node ≥ 20 and the reference's dependencies
-(`npm ci --prefix reference/mochi2d-0.21.0`); without them it is skipped.
+(`npm ci --prefix reference/mochi2d-0.24.1`); without them it is skipped.
 The motion-sync checks do the same for motion sync: synthetic sounds through
 Mochi2D's driver and analysis and through `mochi2d-native motion-sync-trace`
 (every analysis and every value written), and the crafted settings' motions

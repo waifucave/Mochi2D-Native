@@ -1,6 +1,6 @@
 {
   "format": "mochi2d-anim-result/0",
-  "producer": "mochi2d@66494fe8c6611e46bf01b5c4f68f4ccfe398289a+dirty",
+  "producer": "mochi2d@0.24.1",
   "error": null,
   "warnings": ["motion file motions/bad-notobject.motion3.json is invalid (motions/bad-notobject.motion3.json: not a JSON object); its starts are dropped", "motion file motions/bad-code.motion3.json is invalid (motions/bad-code.motion3.json: curve 0: unknown segment code 4.5); its starts are dropped"],
   "scenario": "synth002-v3-anim1",

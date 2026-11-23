@@ -3,9 +3,12 @@
 // tests/support/model_folder.hpp with one file replaced by the input (its
 // first byte picks the file), opened with m2d_package_open, then an
 // animator with its physics, pose and motion sync, an expression by name,
-// a group motion with its sound, and a few frames evaluated. Every path
-// must refuse bad files with an error, never crash, read out of bounds or
-// hang.
+// a group motion with its sound, and a few frames evaluated. With bit 0x40
+// of the first byte the package opens within caps (and its source tells
+// sizes), so that some files pass the total: the limit paths run too. Every
+// path must refuse bad files with an error, never crash, read out of bounds
+// or hang.
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -33,6 +36,15 @@ int32_t read(const char* path, const void** data, size_t* size, void* user) {
   return 0;
 }
 
+int32_t file_size(const char* path, uint64_t* out, void* user) {
+  for (const auto& [name, bytes] : static_cast<const Folder*>(user)->files)
+    if (name == path) {
+      *out = bytes.size();
+      return 1;
+    }
+  return 0;
+}
+
 int32_t list(void (*add)(const char*, void*), void* context, void* user) {
   for (const auto& [name, bytes] : static_cast<const Folder*>(user)->files) add(name.c_str(), context);
   return 1;
@@ -52,8 +64,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   source.user = &folder;
   m2d_error err;
   m2d_package* package = nullptr;
+  m2d_package_limits limits;
+  m2d_package_limits_default(&limits);
+  if (data[0] & 0x40) {
+    // Caps that leave the folder some 64-byte steps short of all of it.
+    uint64_t all = 0;
+    for (const auto& f : folder.files) all += f.second.size();
+    limits.max_total_bytes = all - std::min<uint64_t>(all, 64u * (data[0] & 0x3f));
+    source.size = file_size;
+  }
   // Half the inputs name the settings file, the others let the package find it.
-  if (m2d_package_open(&source, (data[0] & 0x80) ? nullptr : "m.model3.json", 0, nullptr, &package, &err) != M2D_OK)
+  if (m2d_package_open_with_limits(&source, (data[0] & 0x80) ? nullptr : "m.model3.json", 0, &limits, nullptr,
+                                   &package, &err) != M2D_OK)
     return 0;
   m2d_model* model = m2d_package_model(package);
   m2d_animator* animator = nullptr;

@@ -25,7 +25,7 @@ Validation finish(const MocData& data, int version, Level level, Report& report,
   Validation v;
   v.valid = report.errors() == 0;
   v.version = version;
-  v.diagnostics = std::move(report.list);
+  v.diagnostics = report.take();
   return v;
 }
 
@@ -40,7 +40,7 @@ Validation validate_moc(const uint8_t* bytes, std::size_t size, Level level) {
     Validation v;
     v.valid = false;
     v.version = size > 4 && bytes[4] >= 1 && bytes[4] <= 6 ? bytes[4] : 0;
-    v.diagnostics = std::move(report.list);
+    v.diagnostics = report.take();
     return v;
   }
   for (const auto& d : r.diagnostics) {

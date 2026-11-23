@@ -9,7 +9,7 @@
 #     (model.ts --render).
 #
 # Needs Node ≥ 20 and the reference's dependencies (npm ci --prefix
-# reference/mochi2d-0.21.0). Nothing it writes is committed: everything goes
+# reference/mochi2d-0.24.1). Nothing it writes is committed: everything goes
 # to <build dir>/bench.
 #
 # usage: tests/bench/run.sh <build dir> [frames] [render frames]
@@ -19,7 +19,7 @@ BUILD="$(cd "${1:?usage: run.sh <build dir> [frames]}" && pwd)"
 FRAMES="${2:-300}"
 RENDER_FRAMES="${3:-10}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REF="$ROOT/reference/mochi2d-0.21.0"
+REF="$ROOT/reference/mochi2d-0.24.1"
 OUT="$BUILD/bench"
 [ -d "$REF/node_modules" ] || { echo "bench: run npm ci --prefix $REF first" >&2; exit 77; }
 for b in mochi2d_bench mochi2d_render_bench; do

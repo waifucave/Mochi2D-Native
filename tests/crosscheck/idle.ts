@@ -10,10 +10,10 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { MotionQueue, type MotionStart } from "../../reference/mochi2d-0.21.0/src/anim/motion-queue.js";
-import { AnimationValues } from "../../reference/mochi2d-0.21.0/src/anim/values.js";
-import { parseMotion, type Motion } from "../../reference/mochi2d-0.21.0/src/anim/motion.js";
-import type { MocModel } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
+import { MotionQueue, type MotionStart } from "../../reference/mochi2d-0.24.1/src/anim/motion-queue.js";
+import { AnimationValues } from "../../reference/mochi2d-0.24.1/src/anim/values.js";
+import { parseMotion, type Motion } from "../../reference/mochi2d-0.24.1/src/anim/motion.js";
+import type { MocModel } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
 
 function lcg(seed: number) {
   let s = seed >>> 0 || 1;

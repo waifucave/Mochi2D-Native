@@ -8,8 +8,8 @@
  * (incremental: false); mochi2d_check_eval replays the steps with Mochi2D
  * Native's instance in the same mode, and compares.
  */
-import type { MocModel } from "../../reference/mochi2d-0.21.0/src/core/moc/model.js";
-import { ModelInstance } from "../../reference/mochi2d-0.21.0/src/core/eval/instance.js";
+import type { MocModel } from "../../reference/mochi2d-0.24.1/src/core/moc/model.js";
+import { ModelInstance } from "../../reference/mochi2d-0.24.1/src/core/eval/instance.js";
 
 function lcg(seed: number) {
   let s = seed >>> 0 || 1;

@@ -45,6 +45,11 @@ m2d_status invalid(m2d_error* error, const char* message, const char* code = "in
   return M2D_INVALID_ARGUMENT;
 }
 
+m2d_status too_large(m2d_error* error, const char* message) {
+  set_error(error, M2D_LIMIT_ERROR, "texture-too-large", message);
+  return M2D_LIMIT_ERROR;
+}
+
 m2d_status out_of_memory(m2d_error* error) {
   set_error(error, M2D_OUT_OF_MEMORY, "out-of-memory", "out of memory");
   return M2D_OUT_OF_MEMORY;
@@ -58,6 +63,12 @@ render::Framing framing_of(const moc::Model& model, int32_t width, int32_t heigh
   return render::frame_image(model.canvas, width, height, has_view ? &view : nullptr);
 }
 
+/** A backend that could not be made: M2D_LIMIT_ERROR for a texture above its limit (its "…-texture-size"). */
+m2d_status creation_status(const char* code) {
+  const std::size_t n = std::strlen(code), k = std::strlen("-texture-size");
+  return n >= k && std::strcmp(code + n - k, "-texture-size") == 0 ? M2D_LIMIT_ERROR : M2D_INTERNAL_ERROR;
+}
+
 }  // namespace
 
 extern "C" {
@@ -68,7 +79,7 @@ m2d_status m2d_texture_create(const void* pixels, int32_t width, int32_t height,
   if (!pixels || !out) return invalid(error, "NULL argument");
   if (width < 1 || height < 1) return invalid(error, "a texture side is below 1");
   if (width > M2D_MAX_TEXTURE_SIDE || height > M2D_MAX_TEXTURE_SIDE)
-    return invalid(error, "the texture is larger than the maximum texture side 32768", "texture-too-large");
+    return too_large(error, "the texture is larger than the maximum texture side 32768");
   const int64_t row = 4LL * width;
   if (stride == 0) stride = static_cast<int32_t>(row);
   if (stride < row) return invalid(error, "the stride is below 4·width");
@@ -129,7 +140,7 @@ m2d_status m2d_renderer_create(m2d_model* model, m2d_texture* const* textures, i
   for (int32_t i = 0; i < texture_count; i++)
     if (textures[i] && (m2d_texture_width(textures[i]) > M2D_MAX_TEXTURE_SIZE ||
                         m2d_texture_height(textures[i]) > M2D_MAX_TEXTURE_SIZE))
-      return invalid(error, "a texture is larger than the maximum texture size 8192", "texture-too-large");
+      return too_large(error, "a texture is larger than the maximum texture size 8192");
   clear_error(error);
   HeapScope scope(&model->heap);
   m2d_renderer* h = create<m2d_renderer>();
@@ -485,9 +496,10 @@ m2d_status m2d_gl_renderer_create(m2d_model* model, m2d_texture* const* textures
     return out_of_memory(error);
   }
   if (!h->renderer->ok()) {
-    set_error(error, M2D_INTERNAL_ERROR, h->renderer->error_code(), h->renderer->error().c_str());
+    const m2d_status status = creation_status(h->renderer->error_code());
+    set_error(error, status, h->renderer->error_code(), h->renderer->error().c_str());
     destroy(h);
-    return M2D_INTERNAL_ERROR;
+    return status;
   }
   *out = h;
   return M2D_OK;
@@ -635,9 +647,10 @@ m2d_status m2d_vk_renderer_create(m2d_model* model, m2d_texture* const* textures
     return out_of_memory(error);
   }
   if (!h->renderer->ok()) {
-    set_error(error, M2D_INTERNAL_ERROR, h->renderer->error_code(), h->renderer->error().c_str());
+    const m2d_status status = creation_status(h->renderer->error_code());
+    set_error(error, status, h->renderer->error_code(), h->renderer->error().c_str());
     destroy(h);
-    return M2D_INTERNAL_ERROR;
+    return status;
   }
   *out = h;
   return M2D_OK;
@@ -796,9 +809,10 @@ m2d_status finish_create(Handle* h, Handle** out, m2d_error* error) {
     return out_of_memory(error);
   }
   if (!h->renderer->ok()) {
-    set_error(error, M2D_INTERNAL_ERROR, h->renderer->error_code(), h->renderer->error().c_str());
+    const m2d_status status = creation_status(h->renderer->error_code());
+    set_error(error, status, h->renderer->error_code(), h->renderer->error().c_str());
     destroy(h);
-    return M2D_INTERNAL_ERROR;
+    return status;
   }
   *out = h;
   return M2D_OK;

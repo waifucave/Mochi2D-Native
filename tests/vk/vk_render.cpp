@@ -462,7 +462,7 @@ int capi(const Args& a, Host& h) {
     m2d_vk_options_default(&capped);
     capped.max_texture_size = M2D_MAX_TEXTURE_SIZE;
     m2d_vk_renderer* refused = nullptr;
-    check(m2d_vk_renderer_create(model, &big, 1, &ctx, &capped, &refused, &err) == M2D_INTERNAL_ERROR &&
+    check(m2d_vk_renderer_create(model, &big, 1, &ctx, &capped, &refused, &err) == M2D_LIMIT_ERROR &&
               std::strcmp(err.code, "vk-texture-size") == 0 && refused == nullptr,
           "M2D_MAX_TEXTURE_SIZE caps it");
     const std::string refusal = err.message;

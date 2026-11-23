@@ -8,14 +8,14 @@
 # Mochi2D renders them again on the same driver (Chromium's ANGLE over Metal,
 # or over Direct3D 11 on WARP); a Linux job runs Mochi2D's judge: the
 # backend against Mochi2D on its driver (required), against the SwiftShader
-# renders, and the drivers against each other (reported). Started by hand, and on version tags: these runners
-# cost more on a private repository, so not on every push.
+# renders, and the drivers against each other (reported). Started by hand,
+# and by the Release workflow on a version tag, whose publish job waits for
+# it: these runners cost more on a private repository, so not on every push.
 name: Platforms
 
 on:
   workflow_dispatch:
-  push:
-    tags: ["v*"]
+  workflow_call:
 
 permissions:
   contents: read
@@ -30,11 +30,11 @@ jobs:
           node-version: 22
       - name: The reference's dependencies, Playwright and its Chromium
         run: |
-          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
           npm install -g playwright@1.63.0 && playwright install --with-deps chromium
       - name: The render scenarios (12 models, seed 7) and Mochi2D's renders of them
         run: |
-          REF=reference/mochi2d-0.21.0
+          REF=reference/mochi2d-0.24.1
           (cd "$REF" && npm run --silent build >/dev/null)
           node tests/crosscheck/bundle.mjs "$REF" tests/crosscheck/render.ts "$RUNNER_TEMP/render.mjs"
           node "$RUNNER_TEMP/render.mjs" render-data --models 12 --seed 7 --ref "$REF"
@@ -103,9 +103,9 @@ jobs:
       - name: Mochi2D's renders on the same driver (Chromium's ANGLE over ${{ matrix.angle }})
         shell: bash
         run: |
-          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
           npm install -g playwright@1.63.0 && playwright install chromium
-          REF=reference/mochi2d-0.21.0
+          REF=reference/mochi2d-0.24.1
           (cd "$REF" && npm run --silent build >/dev/null)
           node tests/crosscheck/bundle.mjs "$REF" tests/crosscheck/render.ts "$RUNNER_TEMP/render-same.mjs" ${{ matrix.angle }}
           # The global install, by path (the reference's lookup misses it on Windows).
@@ -128,14 +128,14 @@ jobs:
           node-version: 22
       - name: The reference's judge
         run: |
-          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.21.0
-          (cd reference/mochi2d-0.21.0 && npm run --silent build >/dev/null)
+          npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
+          (cd reference/mochi2d-0.24.1 && npm run --silent build >/dev/null)
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Each backend's renders against Mochi2D's
         run: |
-          REF=reference/mochi2d-0.21.0
+          REF=reference/mochi2d-0.24.1
           A="$GITHUB_WORKSPACE/artifacts"
           driver() { node -e 'const fs=require("fs");const d=process.argv[1];const f=fs.readdirSync(d).find(n=>n.endsWith(".render.json"));console.log(f?JSON.parse(fs.readFileSync(d+"/"+f,"utf8")).renderer:"no renders")' "$1"; }
           judge() { (cd "$REF" && node dist/tools/resultdiff.js --judge "$1" "$2" --out "$3" >/dev/null); }
