@@ -1,28 +1,57 @@
-# Release packages: on version tags, the C API's libraries for
-# Linux (x86-64, arm64), macOS (universal: arm64 and x86-64) and Windows
-# (x64), each with mochi2d.h, a CMake package config, LICENSE and
-# THIRD_PARTY_NOTICES.md (tests/package/package.sh). Each package is first
-# found and used by a consumer project that runs one model, shared and
-# static. The Platforms workflow (macOS and Windows, Metal and Direct3D 11)
-# runs as part of this one, and the release is published only when the
-# packages and Platforms have passed: no release with a red check on its
-# commit. The last step is tests/package/publish.sh: on a tag it creates the
-# release (a draft with exactly the four packages, checked, then published);
-# by hand (workflow_dispatch) the same script runs as a dry run, with every
-# check and the notes, and prints what a tag would create. A tag differs from
-# a run by hand only in that call.
+# Release packages: the C API's libraries for Linux (x86-64, arm64), macOS
+# (universal: arm64 and x86-64) and Windows (x64), each with mochi2d.h, a
+# CMake package config, LICENSE and THIRD_PARTY_NOTICES.md
+# (tests/package/package.sh). Each package is first found and used by a
+# consumer project that runs one model, shared and static. The Platforms
+# workflow (macOS and Windows, Metal and Direct3D 11) runs as part of this
+# one, and the release is published only when the packages and Platforms
+# have passed: no release with a red check on its commit.
+#
+# Two ways to make a release, sharing every step (tests/package/publish.sh):
+# - a run by hand on main with `release` checked (Actions › Release › Run
+#   workflow): the release is created with its tag v<version>, at the
+#   commit the run was started on;
+# - a version tag v<version> pushed by hand: the release uses that tag.
+# A run by hand without `release` builds and checks everything, runs a dry
+# run of the last step, and makes nothing. The gate (the first job, and
+# again right before the release is made) stops a release run before
+# anything is built when the version's tag or release exists, when the run
+# is not on main or not the tag of the version, or when CHANGELOG.md has no
+# section for it. Only people with write access can run a workflow by hand.
 name: Release
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      release:
+        description: "Create the release and its tag v<version> at this commit (main only)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+# One release run at a time; a second waits instead of racing the first to the tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
+  # Before anything is built: is this a release run, and may it make the release?
+  gate:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: The gate
+        run: tests/package/publish.sh gate
+
   package:
+    needs: gate
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +82,7 @@ jobs:
           retention-days: 14
 
   platforms:
+    needs: gate
     uses: ./.github/workflows/platforms.yml
     permissions:
       contents: read
@@ -63,10 +93,11 @@ jobs:
   # files, the notes, and what would be created.
   dry-run:
     needs: [package, platforms]
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.release }}
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}
+      RELEASE: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -77,15 +108,17 @@ jobs:
       - name: Everything the tag's run does, up to creating the release
         run: tests/package/publish.sh dry-run packages
 
+  # A tag pushed by hand, or a run by hand with `release` checked.
   publish:
     needs: [package, platforms]
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.release) }}
     runs-on: ubuntu-24.04
-    # Only this job writes: it creates the release with the packages.
+    # Only this job writes: it creates the release (and, from a run by hand, its tag).
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
+      RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -93,5 +126,5 @@ jobs:
           pattern: package-*
           path: packages
           merge-multiple: true
-      - name: The checks, then the release (a draft with the four files, checked, then published)
+      - name: The gate again, then the release (a draft with the four files, checked, then published with its tag)
         run: tests/package/publish.sh publish packages

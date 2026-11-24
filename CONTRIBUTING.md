@@ -57,6 +57,29 @@ reference's synthetic models), and `assets/models/` is ignored by git.
 `tests/api/public_text.py` keeps the public files free of references to
 private records. If it flags a line, state the rule or the fact itself.
 
+## Making a release
+
+Only people with write access to the repository can start a workflow by
+hand, so only they can make a release. With the version in `CMakeLists.txt`
+and its section in `CHANGELOG.md` on `main`:
+
+1. Open the repository's **Actions** tab.
+2. Choose the **Release** workflow.
+3. Click **Run workflow** on `main`, check **release**, and run it.
+
+The run builds the four packages, runs the Platforms checks, and at the
+end creates the release `v<version>` and its tag at that commit: as a draft
+with the four files, checked, then published, which is when the tag comes
+into being. Its first job, the gate, stops it before anything is built if
+the tag or the release exists already, if the run is not on `main`, or if
+the changelog has no section for the version; the same checks run again
+right before the release is made. A run that fails leaves at most a draft
+(no tag), which the next run replaces.
+
+Run without **release**, the workflow builds and checks everything and
+prints the release it would make, without making it. Pushing a tag
+`v<version>` by hand starts the same path; the release then uses that tag.
+
 ## The clean-room rule
 
 Mochi2D Native is written from scratch, through the process in

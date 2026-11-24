@@ -703,12 +703,21 @@ shared and static, and runs it. `release.yml` does that on version tags for
 Linux x86-64 and arm64, macOS (universal) and Windows x64, runs the
 Platforms workflow (macOS and Windows, Metal and Direct3D 11) as part of
 the same run, and creates the release only when both have passed, with the
-version's `CHANGELOG.md` section as the release notes. Its last step is one
-script, `tests/package/publish.sh`: on a tag it takes only the package
-artifacts, requires exactly the four files, and creates the release as a
-draft with them, checks that it lists those four with their sizes, and only
-then publishes it. By hand the same script runs as a dry run up to that
-call, so every step but the release itself runs before a tag does. CI
+version's `CHANGELOG.md` section as the release notes. Its gate and last step
+are one script, `tests/package/publish.sh`. A release starts either from a
+run by hand on `main` with `release` checked (the tag is created with the
+release, at that commit) or from a pushed tag `v<version>`. The gate, first
+and again just before the release is made, requires the version's
+changelog section, no release or tag of the version (a pushed tag must be
+the version's, at the run's commit), and `main` for a run by hand. The
+last step takes only the package artifacts, requires exactly the four
+files, creates the release as a draft with them (a draft has no tag), checks
+that it lists those four with their sizes, and publishes it, which creates
+the tag. The two starts differ only in `--verify-tag` (the tag exists) or
+`--target <commit>` (the tag is made at publishing). A run by hand without
+`release` runs everything up to that call as a dry run. A tag made with
+the workflow's token starts no other run, and no workflow but Release
+listens for tags. `CONTRIBUTING.md` says how to start a release. CI
 and Fuzz run on branches, not on tags: a tag's commit was checked when it
 was pushed.
 
