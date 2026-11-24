@@ -77,8 +77,19 @@ right before the release is made. A run that fails leaves at most a draft
 (no tag), which the next run replaces.
 
 Run without **release**, the workflow builds and checks everything and
-prints the release it would make, without making it. Pushing a tag
-`v<version>` by hand starts the same path; the release then uses that tag.
+prints the release it would make, without making it (also when started
+from a tag). Pushing a tag `v<version>` by hand, lightweight or annotated,
+starts the same path; the release then uses that tag. The release is titled
+"Mochi2D Native <version>", without the tag's "v".
+
+To try a change to the release path without making a release, run the
+workflow with **rehearsal** checked instead (in a private repository only;
+the gate refuses it in a public one, and with **release** at the same
+time). It makes every call a release by hand makes, to the end, with a
+throwaway tag `rehearsal-<run number>` and a pre-release titled REHEARSAL,
+then deletes both and checks that nothing of that name is left. It never
+creates, replaces or deletes `v<version>` or its release. A rehearsal that
+cannot remove what it made fails, and says what is left.
 
 ## The clean-room rule
 

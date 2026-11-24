@@ -42,6 +42,14 @@ if(MOCHI2D_CROSSCHECK AND NOT WIN32)
   add_test(NAME rendercheck COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/crosscheck/render.sh ${CMAKE_BINARY_DIR} 12 7)
   set_tests_properties(rendercheck PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 900)
 endif()
+# The Release workflow's last step (tests/package/publish.sh) against a stand-in
+# `gh`: tags followed to commits, which job runs for which start, the reads
+# right before publishing, the packages check (needs jq and node; skipped otherwise).
+# Linux only, like the Release jobs that run the script (GNU find, bash 4).
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+  add_test(NAME release-publish COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/package/publish_test.sh)
+  set_tests_properties(release-publish PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
+endif()
 # The vendored musl functions against musl's own build (needs musl-gcc): every
 # 61st float32 here; tests/crosscheck/libm32.sh <build> 1 runs every input.
 if(NOT WIN32)

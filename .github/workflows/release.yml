@@ -11,8 +11,14 @@
 # - a run by hand on main with `release` checked (Actions › Release › Run
 #   workflow): the release is created with its tag v<version>, at the
 #   commit the run was started on;
-# - a version tag v<version> pushed by hand: the release uses that tag.
-# A run by hand without `release` builds and checks everything, runs a dry
+# - a version tag v<version> pushed by hand (lightweight or annotated): the
+#   release uses that tag.
+# A run by hand with `rehearsal` checked (private repositories only) makes
+# every call of a release by hand, to its end, with a throwaway tag
+# rehearsal-<run number> and a pre-release titled REHEARSAL, then deletes
+# both and checks that nothing is left: the release path can be run through
+# without a version. It never touches v<version> or its release.
+# A run by hand with neither, from any ref, builds and checks everything, runs a dry
 # run of the last step, and makes nothing. The gate (the first job, and
 # again right before the release is made) stops a release run before
 # anything is built when the version's tag or release exists, when the run
@@ -27,6 +33,10 @@ on:
     inputs:
       release:
         description: "Create the release and its tag v<version> at this commit (main only)"
+        type: boolean
+        default: false
+      rehearsal:
+        description: "Rehearse the release with a throwaway tag rehearsal-<run number>, then delete it (private repositories only)"
         type: boolean
         default: false
 
@@ -45,8 +55,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+      REHEARSAL: ${{ github.event_name == 'workflow_dispatch' && inputs.rehearsal }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: The gate
         run: tests/package/publish.sh gate
 
@@ -68,14 +79,14 @@ jobs:
             name: windows-x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: The Vulkan headers (the Vulkan backend; the library links no loader)
         if: runner.os == 'Linux'
         run: sudo apt-get update -q && sudo apt-get install -y -q libvulkan-dev
       - name: Build, install, use and archive the package
         shell: bash
         run: tests/package/package.sh ${{ matrix.name }} ${{ matrix.cmake }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: package-${{ matrix.name }}
           path: mochi2d-native-*
@@ -93,14 +104,15 @@ jobs:
   # files, the notes, and what would be created.
   dry-run:
     needs: [package, platforms]
-    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.release }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.release && !inputs.rehearsal }}
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}
       RELEASE: "false"
+      REHEARSAL: "false"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: package-*
           path: packages
@@ -108,23 +120,27 @@ jobs:
       - name: Everything the tag's run does, up to creating the release
         run: tests/package/publish.sh dry-run packages
 
-  # A tag pushed by hand, or a run by hand with `release` checked.
+  # A tag pushed by hand (the push event: a run by hand started from a tag
+  # ref with neither box is a dry run), or a run by hand with `release` or
+  # `rehearsal` (the gate refuses both at once).
   publish:
     needs: [package, platforms]
-    if: ${{ startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.release) }}
+    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && (inputs.release || inputs.rehearsal)) }}
     runs-on: ubuntu-24.04
-    # Only this job writes: it creates the release (and, from a run by hand, its tag).
+    # Only this job writes: it creates the release (and, from a run by hand, its
+    # tag); a rehearsal also deletes its own release and tag again.
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
       RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+      REHEARSAL: ${{ github.event_name == 'workflow_dispatch' && inputs.rehearsal }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: package-*
           path: packages
           merge-multiple: true
-      - name: The gate again, then the release (a draft with the four files, checked, then published with its tag)
+      - name: The gate again, then the release (a draft with the four files, checked, then published with its tag; a rehearsal then removes both)
         run: tests/package/publish.sh publish packages

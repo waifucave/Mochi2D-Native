@@ -709,13 +709,25 @@ run by hand on `main` with `release` checked (the tag is created with the
 release, at that commit) or from a pushed tag `v<version>`. The gate, first
 and again just before the release is made, requires the version's
 changelog section, no release or tag of the version (a pushed tag must be
-the version's, at the run's commit), and `main` for a run by hand. The
+the version's, at the run's commit, followed through its tag object when
+it is annotated), and `main` for a run by hand. Only a push starts a tag's
+release: a run by hand from a tag ref without `release` is a dry run. The
 last step takes only the package artifacts, requires exactly the four
 files, creates the release as a draft with them (a draft has no tag), checks
-that it lists those four with their sizes, and publishes it, which creates
-the tag. The two starts differ only in `--verify-tag` (the tag exists) or
-`--target <commit>` (the tag is made at publishing). A run by hand without
-`release` runs everything up to that call as a dry run. A tag made with
+that it lists those four with their sizes, reads the tag and the releases
+again, and publishes it, which creates the tag. The release is titled
+"Mochi2D Native <version>"; the tag keeps its "v". Drafts are visible only
+to a token that can write, so the first gate (read-only) says that it cannot
+see them, and the last step reports and replaces any it finds. The two
+starts differ only in `--verify-tag` (the tag exists) or `--target <commit>`
+(the tag is made at publishing). A run by hand without `release` runs
+everything up to that call as a dry run. A run by hand with `rehearsal`
+(private repositories only) makes every call of a release by hand with a
+throwaway tag `rehearsal-<run number>`, as a pre-release titled REHEARSAL,
+then deletes the release by its id and the tag, and checks that nothing of
+that name is left; it writes to nothing else, and removes what it made when
+it fails on the way. `tests/package/publish_test.sh`
+runs the script against a stand-in `gh` (the ctest `release-publish`). A tag made with
 the workflow's token starts no other run, and no workflow but Release
 listens for tags. `CONTRIBUTING.md` says how to start a release. CI
 and Fuzz run on branches, not on tags: a tag's commit was checked when it

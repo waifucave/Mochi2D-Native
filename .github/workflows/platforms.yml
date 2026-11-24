@@ -24,10 +24,11 @@ jobs:
   references:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          package-manager-cache: false
       - name: The reference's dependencies, Playwright and its Chromium
         run: |
           npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
@@ -39,7 +40,7 @@ jobs:
           node tests/crosscheck/bundle.mjs "$REF" tests/crosscheck/render.ts "$RUNNER_TEMP/render.mjs"
           node "$RUNNER_TEMP/render.mjs" render-data --models 12 --seed 7 --ref "$REF"
           ls render-data/scenarios | wc -l
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: render-data
           path: render-data
@@ -59,7 +60,7 @@ jobs:
             angle: d3d11-warp
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DMOCHI2D_CROSSCHECK=OFF
       - name: Build
@@ -88,7 +89,7 @@ jobs:
           "$TOOL" info
       - name: The backend on the render fixtures and through the C API
         run: ctest --test-dir build -C Release --output-on-failure -R "^${{ matrix.backend }}-"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: render-data
           path: render-data
@@ -97,9 +98,10 @@ jobs:
         run: |
           "$TOOL" render render-data/scenarios --out renders/backend --models render-data/models 2>&1 | grep -E "^(device|FAIL)|scenarios" || true
           ls renders/backend/*.png | wc -l
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          package-manager-cache: false
       - name: Mochi2D's renders on the same driver (Chromium's ANGLE over ${{ matrix.angle }})
         shell: bash
         run: |
@@ -112,7 +114,7 @@ jobs:
           export MOCHI2D_PLAYWRIGHT="$(npm root -g)/playwright"
           node "$RUNNER_TEMP/render-same.mjs" same-data --models 12 --seed 7 --ref "$REF" --reference-out reference-same
           mv same-data/reference-same renders/reference-same
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: renders-${{ matrix.backend }}
           path: renders
@@ -122,15 +124,16 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          package-manager-cache: false
       - name: The reference's judge
         run: |
           npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
           (cd reference/mochi2d-0.24.1 && npm run --silent build >/dev/null)
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Each backend's renders against Mochi2D's
@@ -163,7 +166,7 @@ jobs:
             printf "Mochi2D on that driver against Mochi2D on SwiftShader (reported): "; summary "$GITHUB_WORKSPACE/judge-$b-drivers.json"
           done
           exit $status
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: judge

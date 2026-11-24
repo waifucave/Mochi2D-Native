@@ -19,10 +19,11 @@ jobs:
       matrix:
         compiler: [gcc, clang]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          package-manager-cache: false
       - name: Install the reference's dependencies (for the cross-checks)
         if: matrix.compiler == 'gcc'
         run: npm ci --no-audit --no-fund --prefix reference/mochi2d-0.24.1
@@ -75,7 +76,7 @@ jobs:
       matrix:
         compiler: [g++, clang++]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Configure (without exceptions, and the renderer without threads)
         run: >
           CXX=${{ matrix.compiler }} cmake -S . -B build -DMOCHI2D_NO_EXCEPTIONS=ON -DMOCHI2D_THREADS=OFF
@@ -90,7 +91,7 @@ jobs:
     # consumer project that runs one model, shared and static (tests/package).
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: The Vulkan headers (the Vulkan backend)
         run: sudo apt-get update -q && sudo apt-get install -y -q libvulkan-dev
       - name: Build, install, use and archive the package
@@ -99,7 +100,7 @@ jobs:
   sanitizers:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Configure
         run: >
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DMOCHI2D_CROSSCHECK=OFF
@@ -112,7 +113,7 @@ jobs:
   thread-sanitizer:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Fit the address space to ThreadSanitizer (the runners' kernels randomize more of it)
         run: sudo sysctl vm.mmap_rnd_bits=28
       - name: Configure
